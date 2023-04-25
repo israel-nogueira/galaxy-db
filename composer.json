@@ -2,14 +2,6 @@
     "name": "israel-nogueira/mysql-orm",
     "description": "ORM simples para PHP e MySQL",
     "type": "library",
-    "autoload": {
-        "psr-4": {
-            "IsraelNogueira\\MysqlOrm\\": "src/"
-        },
-        "files": [
-            "app/models/*.model.php"
-        ]
-    },
     "authors": [
         {
             "name": "Israel Nogueira",
@@ -17,5 +9,13 @@
         }
     ],
     "minimum-stability": "beta",
+    "autoload": {
+        "psr-4": {
+            "IsraelNogueira\\MysqlOrm\\": "src/"
+        },
+        "classmap": [
+            "app/Models"
+        ]
+    },
     "require": {}
 }

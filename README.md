@@ -1,154 +1,100 @@
+
 # PHP MySQL
 
 Classe para controlar o MySQL no PHP com facilidade e segurança.
  
 ## Instalação
 
-A instalação é muito simples. Basta clonar o repositório em sua e criar suas próprias *extensões* como os arquivos em `./exemplos/*.mysql.php`
+A instalação é muito simples. 
+Execute em seu CLI:
+```
+composer require israel-nogueira/mysql-orm
+```
 
-## Extensão
+Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+```php
+<?php
+	include vendor\autoload.php
+	use IsraelNogueira\MysqlOrm
+```
 
-A extensão é o *preset* do uso da classe abstrata PHP MySQL. Nela serão cadastrados os parâmetros de uso da classe.
+
+## Models
+
+O *Model* é o uso da classe abstrata da classe principal. 
+Nela serão cadastrados os parâmetros de uso da classe.
+Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 ```php
 /**
  *  Início da extensão da classe mysql.
  */
-class livrosBD extends mysql{
-    
-    /**
-     *  Aqui você pode adicionar variáveis globais e traits
-     *  Como no exemplo abaixo:
-     * 
-     *  Treats
-     *  use bdLivros1, bdLivros2;
-     *  
-     *  Variáveis globais
-     *  public  $var_publica1, $var_publica2;
-     *  private $var_privada1, $var_privada2;
-     */
-    
-    /**
-     *  Pré setamos as condições de uso da classe 
-     *  no construtor.
-     */
+<?php
+	namespace App\Models
+	use IsraelNogueira\MysqlOrm\mariaDB;
 
-    public function __construct(){
-        
-        /**
-         *  Puxamos os presets básicos do construtor da 
-         *  classe pai mysql.
-         */
+	class  userModel  extends  mariaDB {
+		//  TABELA PADRÃO 
+		protected $table =  'usuarios';
+		//  COLUNAS BLOQUEADAS 
+		protected $columnsBlocked = ['CPF','CARTAO_CREDITO_TOKEN'];
+		//  COLUNAS PERMITIDAS 
+		protected $columnsEnabled = ['NOME','EMAIL','TELEFONE','ENDERECO'];
+		//  FUNÇÕES MYSQL PROIBIDAS 
+		protected $functionsBlocked = ['CONCAT','SHA2'];
+		//  FUNÇÕES MYSQL PERMITIDAS 
+		protected $functionsEnabled = ['IF','SH1','COALESCE'];
+	}
+?>
 
-        parent::__construct();
 
-        /**
-         *  Setamos a qual tabela estamos nos referindo.
-         *  
-         *  Não é obrigatório, porém sem ela não teremos
-         *  acesso a códigos com presets.
-         *  
-         *  Os parâmetros utilizados são:
-         *  -            String NOME_DA_TABELA
-         *  - (Opcional) String ALIAS da tabela
-         */
 
-        $this->setDefaultTable( "LIVROS", "l" );
-
-        /**
-         *  Podemos cadastrar colunas privadas da tabela
-         *  padrão de forma que essas nunca sejam mostradas
-         *  quando dados forem solicitados.
-         *  
-         *  Mesmo se forçarmos o uso como:
-         *  - SELECT TOKEN FROM LIVROS;
-         *  - SELECT * FROM LIVROS;
-         *  ainda assim não serão retornados os dados.
-         *  
-         *  Os parâmetros utilizados são:
-         *  caso 1) Array[string] NOME_DAS_COLUNAS
-         *  caso 2) ...String     NOME_DAS_COLUNAS
-         */
-
-        $this->setProtectedColumns( "TOKEN" );
-
-        /**
-         *  O retorno do PHP para a classe nativa mysqli,
-         *  utilizada no core da classe mysql é sempre
-         *  uma string.
-         *  
-         *  Para contornar isso, setamos manualmente os
-         *  tipos de dados que serão retornados do banco
-         *  de dados e assim a classe poderá tratar isso
-         *  e retornar no formato correto.
-         *  
-         *  Os tipos disponíveis são os mesmos utilizados
-         *  tanto no PHP quanto no SQL, sempre em lowercase.
-         */
-
-        $this->setColumnTypes([
-            "ID"            => "integer",
-            "DATA_CADASTRO" => "date",
-            "ATIVO"         => "boolean"
-        ]);
-    }
-
-    /**
-     *  Você pode criar aqui tanto seus métodos customizados
-     *  para essa extensão, quanto reformular métodos do core.
-     *  
-     *                      !!!!!!!!!!!!!
-     *                      !!! AVISO !!!
-     *                      !!!!!!!!!!!!!
-     * 
-     *  Caso algum método do core seja alterado poderão existir
-     *  erros durante o uso dessa extensão.
-     *  É altamente recomendável que isso não seja feito!
-     */
-}
 ```
 
 ## Exemplos de uso
 
 ### Select
 
-O exemplo apresenta um `SELECT` básico com um filtro apenas para livros com `ID > 10`.
-
-Ao executar o método `exec()` será retornada uma `array` com os resultados da consulta.
-
+O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
-
-```php
-/**
- *  SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
- */
-
-livrosBD::init()
-            ->select( 'ID', 'TITULO', 'VALOR' )
-            ->where( 'ID', '>', 10 )
-            ->exec()
+```sql 
+SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```
-
-Uma seleção simples pode ser feita apenas inserindo o dado a ser buscado. Nesse caso estamos buscando o livro de `ID = 10` e retornando uma `array` com os valores encontrados.
-
-Uma `array` vazia será retornada caso a consulta não encontre resultados.
-
 ```php
-/**
- * SELECT * FROM LIVROS WHERE ID = 10
- */
+<?php
+	use  App\Models\userModel
+	
+	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
+	$users =  new  userModel();
+	$users->set_colum('nome');//unitario
+	$users->set_colum('email as mail');// com alias
+	$users->set_colum(['endereco','telefone']); // ou ainda varias de uma vez
+	$users->set_where('id=7');
+	$users->select();
+	$_RESULT = $users->fetch_array(); // retorna um ARRAY
 
-livrosBD::init()->ID( 10 )
+?>
 ```
-A busca pode ser feita com mais de um parâmetro:
-
+```sql 
+SELECT nome,bairro_id FROM usuarios WHERE id=7
+```
 ```php
-/**
- * SELECT * FROM LIVROS WHERE TITULO IN ( 'João', 'Maria', 'José' );
- */
+<?php
+	use  App\Models\userModel
+	
+	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
+	$users =  new  userModel();
+	$users->set_colum('nome');
+	$users->set_colum('bairro_id');
+	$users->set_where('id=7');
+	$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id'); // TIPO | TABELA | ON
+	$users->group_by('bairros'); // GROUP BY
+	$users->set_limit(1,10); // SET LIMIT 1, 10
+	$users->set_order('nome','asc'); // ORDER BY nome ASC
+	$users->select();
+	$_RESULT = $users->fetch_array();
 
-livrosBD::init()->TITULO( 'João', 'Maria', 'José' )
-```
+?>```
 Se passado através de `array` é possível inserir como primeiro parâmetro `OR|AND` para que a consulta seja para todos os parâmetros ou apenas um deles:
 
 ```php
