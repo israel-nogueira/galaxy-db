@@ -14,8 +14,8 @@ composer require israel-nogueira/mysql-orm
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
 <?php
-	include vendor\autoload.php
-	use IsraelNogueira\MysqlOrm
+	include vendor\autoload.php;
+	use IsraelNogueira\MysqlOrm;
 ```
 
 
