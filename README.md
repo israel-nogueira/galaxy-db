@@ -60,8 +60,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```php
 <?php
 	use  App\Models\userModel
-	
-	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
+
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
