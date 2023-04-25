@@ -183,6 +183,58 @@ SELECT user.*, (
 FROM  users  WHERE  (  total_curitibanos  >  100  )
 ```
 
+### MULTIPLOS SELECTS
+
+Podemos também executar múltiplos selects em uma só instancia:
+
+
+```php
+<?php
+	use  App\Models\userModel
+	$users =  new  userModel();
+	$users->colum('username');
+	$users->colum('email');
+	$users->limit(1);
+	$users->prepare_select('users_1'); //Guardamos a query
+	
+	$users->table('financeiro__historico'); // pode setar uma nova tabela
+	$users->colum('VALOR');
+	$users->limit(1);
+	$users->where('PAGADOR="'.$uid.'"');
+	$users->prepare_select('valores');//Guardamos a query
+
+	// executamos todas as querys 
+	$getInfoBanner->execQuery();
+
+	$_ARRAY = $users->fetch_array(); 
+
+?>
+```
+Nos resultará no seguinte array:
+
+```
+Array
+(
+    [users_1] => Array
+        (
+            [0] => Array
+                (
+                    [username] => username_01
+                    [email] => exemplo@email.com
+                )
+        )
+
+    [valores] => Array
+        (
+            [0] => Array
+                (
+                    [VALOR] => 100.00
+                )
+        )
+)
+``` 
+
+
 
 ### Insert
 Podemos inserir dados de algumas formas diferentes:
