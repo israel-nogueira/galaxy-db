@@ -265,7 +265,7 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->insert();
 ?>
 ```
-# MULTIPLOS INSERTS
+# MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
 
 ```php
 <?
@@ -290,7 +290,7 @@ Podemos inserir dados de algumas formas diferentes:
 		//EXECUTA OS INSERTS
 		$users->execQuery();
 ```
-# MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
+# INSERT ARRAY + TRANSACTION + ROLLBACK
 
 ```php
 <?
