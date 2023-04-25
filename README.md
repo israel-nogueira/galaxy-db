@@ -64,6 +64,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 <?php
 	use  App\Models\userModel
 	
+	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
@@ -88,7 +89,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 	$users->like('nome','%ão%');
 	$users->order('nome','asc'); // ORDER BY nome ASC
 	$users->limit(1,10); // SET LIMIT 1, 10
-	$users->set_where('id=7');
+	$users->set_where('cidades.id=11');
 	$users->debug(true); // false não retornará erros e falhas. Default:true
 	$users->distinct(); // ignora os resultados repetidos
 	$users->select();
@@ -101,13 +102,27 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 	
 ?>
 ```
+Resultará em uma query assim:
+```sql
+SELECT  DISTINCT  nome,  bairro_id  FROM  usuarios  
+INNER  JOIN  bairros  ON  bairros.id  =  usuarios.bairro_id  
+LEFT  JOIN  cidades  ON  cidades.id  =  usuarios.cidade_id  
+WHERE  (  
+		cidades.id  =  11  
+		AND  (
+			Lower(nome)  LIKE  Lower("%edro%")  OR  Lower(nome)  LIKE  Lower("%ão%") 
+		)
+	) GROUP  BY  bairros
+```
+
+
+
 ## SUB SELECTS
 
 ```php
 <?php
 	use  App\Models\userModel
 	$users =  new  userModel();
-
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
 	$users->set_where('cidade_id=11');
