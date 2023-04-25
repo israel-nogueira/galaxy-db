@@ -135,12 +135,12 @@ WHERE  (
 	$users->setSubQuery('cidade_11');
 	
 	// Agora selecionamos com o tableSubQuery() nossa subQuery e damos o alias de "curitiba"
-	$getInfoBanner->tableSubQuery('(cidade_11) curitiba');
+	$users->tableSubQuery('(cidade_11) curitiba');
 	$users->set_where('curitiba.solteiros=1');
 	
 	// Poderiamos parar poraqui mas se quiser aprofundarmos
 	$users->setSubQuery('solteiros'); 
-	$getInfoBanner->tableSubQuery('(solteiros) sexo');
+	$users->tableSubQuery('(solteiros) sexo');
 	$users->set_where('solteiros.sexo="male"');
 	
 	//	Executamos o select puxando os moradores da cidade 11 
