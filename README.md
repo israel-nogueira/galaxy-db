@@ -11,24 +11,21 @@ Execute em seu CLI:
 composer require israel-nogueira/mysql-orm
 ```
 
-Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/Models/*.model.php`
 ```php
 <?php
-	include vendor\autoload.php
-	use IsraelNogueira\MysqlOrm
+	include vendor\autoload.php;
+	use IsraelNogueira\MysqlOrm;
 ```
 
 
 ## Models
 
-O *Model* é o uso da classe abstrata da classe principal. 
+O *Model* é uma classe extendida da classe principal. 
 Nela serão cadastrados os parâmetros de uso da classe.
 Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 ```php
-/**
- *  Início da extensão da classe mysql.
- */
 <?php
 	namespace App\Models
 	use IsraelNogueira\MysqlOrm\mariaDB;
@@ -63,8 +60,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```php
 <?php
 	use  App\Models\userModel
-	
-	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
+
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
