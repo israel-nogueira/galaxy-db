@@ -268,112 +268,110 @@ Podemos inserir dados de algumas formas diferentes:
 # MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
 
 ```php
-<?
-		// MULTIPLOS INSERTS
-		$users =  new  userModel();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->prepare_insert();
-		
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->where('NOW() > "00-00-00 00:00:00"');
-		$users->prepare_insert();
-		
-		// TRANSACTION + ROLLBACK
-		$users->transaction(function ($ERROR) {
-			throw  new  ErrorException($ERROR, 1); // erro
-		});
-		
-		//EXECUTA OS INSERTS
-		$users->execQuery();
+    <?
+        // MULTIPLOS INSERTS
+        $users =  new  userModel();
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->prepare_insert();
+
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->where('NOW() > "00-00-00 00:00:00"');
+        $users->prepare_insert();
+
+        // TRANSACTION + ROLLBACK
+        $users->transaction(function ($ERROR) {
+            throw  new  ErrorException($ERROR, 1); // erro
+        });
+
+        //EXECUTA OS INSERTS
+        $users->execQuery();
 ```
 # INSERT ARRAY + TRANSACTION + ROLLBACK
 
 ```php
-<?
-		//PUXANDO UMA ARRAY
-		$users =  new  userModel();
-		$users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
-		$users->prepare_insert();
+    <?
+        //PUXANDO UMA ARRAY
+        $users =  new  userModel();
+        $users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+        $users->prepare_insert();
 
         //DENTRO DE UM LAÇO
         foreach($_RESULTADO as $OBJ){
             $users->set_insert_form($OBJ);
             $users->prepare_insert();
         }
-		
-		// TRANSACTION + ROLLBACK
-		$users->transaction(function ($ERROR) {
-			throw  new  ErrorException($ERROR, 1); // erro
-		});
-		
-		//EXECUTA OS INSERTS
-		$users->execQuery();
-?>
+
+        // TRANSACTION + ROLLBACK
+        $users->transaction(function ($ERROR) {
+            throw  new  ErrorException($ERROR, 1); // erro
+        });
+
+        //EXECUTA OS INSERTS
+        $users->execQuery();
+    ?>
 ```
 
 # UPDATE:
 ```php
-<?php
-	use  App\Models\userModel
-	
-		//FORMA SIMPLIFICADA
-		$users =  new  userModel();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->update();
-		
-		//Todas as condicionais podem ser aplicadas aqui também
-		$users =  new  userModel();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->where('UID="7365823765"');
-		$users->update();
+    <?php
+        use  App\Models\userModel
+
+        //FORMA SIMPLIFICADA
+        $users =  new  userModel();
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->update();
+        
+        //Todas as condicionais podem ser aplicadas aqui também
+        $users =  new  userModel();
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->where('UID="7365823765"');
+        $users->update();
 ```
 
 # MULTIPLOS UPDATES + TRANSACTION + ROLLBACK:
 
 ```php
-<?php
-		// MULTIPLOS UPDATES
-		$users =  new  userModel();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->where('UID="46746876"');
-		$users->prepare_update();
-		
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->where('UID="9653566573"');
-		$users->prepare_update();
-		
-		// TRANSACTION + ROLLBACK
-		$users->transaction(function ($ERROR) {
-			throw  new  ErrorException($ERROR, 1); // erro
-		});
-		
-		//EXECUTA OS UPDATES
-		$users->execQuery();
+    <?php
+        // MULTIPLOS UPDATES
+        $users =  new  userModel();
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->where('UID="46746876"');
+        $users->prepare_update();
+        
+        $users->coluna1 = 'valor';
+        $users->coluna2 = 'valor';
+        $users->coluna3 = 'valor';
+        $users->where('UID="9653566573"');
+        $users->prepare_update();
+        
+        // TRANSACTION + ROLLBACK
+        $users->transaction(function ($ERROR) {
+            throw  new  ErrorException($ERROR, 1); // erro
+        });
+        
+        //EXECUTA OS UPDATES
+        $users->execQuery();
 
 ```
 
 # MULTIPLOS UPDATES COM ARRAYS:
 
 ```php
-<?php
-
-
-		//PUXANDO UMA ARRAY
-		$users =  new  userModel();
-		$users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
-		$users->prepare_update();
+    <?php
+        //PUXANDO UMA ARRAY
+        $users =  new  userModel();
+        $users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+        $users->prepare_update();
 
         //DENTRO DE UM LAÇO
         foreach($_RESULTADO as $OBJ){
@@ -381,14 +379,14 @@ Podemos inserir dados de algumas formas diferentes:
             $users->prepare_update();
         }
 
-		// TRANSACTION + ROLLBACK
-		$users->transaction(function ($ERROR) {
-			throw  new  ErrorException($ERROR, 1); // erro
-		});
-		
-		//EXECUTA OS INSERTS
-		$users->execQuery();
-?>
+        // TRANSACTION + ROLLBACK
+        $users->transaction(function ($ERROR) {
+            throw  new  ErrorException($ERROR, 1); // erro
+        });
+
+        //EXECUTA OS INSERTS
+        $users->execQuery();
+    ?>
 ```
 
 
