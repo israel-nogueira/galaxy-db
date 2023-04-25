@@ -4,7 +4,7 @@ Classe para controlar o MySQL no PHP com facilidade e segurança.
  
 ## Instalação
 
-A instalação é muito simples. Basta clonar o repositório em sua `./path/to/lib` e criar suas próprias *extensões* como os arquivos em `./exemplos/class/*.class.php`
+A instalação é muito simples. Basta clonar o repositório em sua e criar suas próprias *extensões* como os arquivos em `./exemplos/*.mysql.php`
 
 ## Extensão
 
