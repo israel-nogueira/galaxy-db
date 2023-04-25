@@ -21,7 +21,7 @@ Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./a
 
 ## Models
 
-O *Model* é o uso da classe abstrata da classe principal. 
+O *Model* é uma classe extendida da classe principal. 
 Nela serão cadastrados os parâmetros de uso da classe.
 Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
