@@ -299,8 +299,11 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
 		$users->prepare_insert();
 
-		$users->set_insert_form(['UID'=>74,'NOME'=>'Deoclides', 'IDADE'=>65]);
-		$users->prepare_insert();
+        //DENTRO DE UM LAÇO
+        foreach($_RESULTADO as $OBJ){
+            $users->set_insert_form($OBJ);
+            $users->prepare_insert();
+        }
 		
 		// TRANSACTION + ROLLBACK
 		$users->transaction(function ($ERROR) {
@@ -331,8 +334,13 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->coluna3 = 'valor';
 		$users->where('UID="7365823765"');
 		$users->update();
+```
 
-		// MULTIPLOS INSERTS
+# MULTIPLOS UPDATES + TRANSACTION + ROLLBACK:
+
+```php
+<?php
+		// MULTIPLOS UPDATES
 		$users =  new  userModel();
 		$users->coluna1 = 'valor';
 		$users->coluna2 = 'valor';
@@ -351,9 +359,15 @@ Podemos inserir dados de algumas formas diferentes:
 			throw  new  ErrorException($ERROR, 1); // erro
 		});
 		
-		//EXECUTA OS INSERTS
+		//EXECUTA OS UPDATES
 		$users->execQuery();
 
+```
+
+# MULTIPLOS UPDATES COM ARRAYS:
+
+```php
+<?php
 
 
 		//PUXANDO UMA ARRAY
@@ -361,9 +375,12 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
 		$users->prepare_update();
 
-		$users->set_update_form(['UID'=>74,'NOME'=>'Deoclides', 'IDADE'=>65]);
-		$users->prepare_update();
-		
+        //DENTRO DE UM LAÇO
+        foreach($_RESULTADO as $OBJ){
+            $users->set_update_form($OBJ);
+            $users->prepare_update();
+        }
+
 		// TRANSACTION + ROLLBACK
 		$users->transaction(function ($ERROR) {
 			throw  new  ErrorException($ERROR, 1); // erro
