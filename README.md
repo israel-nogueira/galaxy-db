@@ -11,21 +11,24 @@ Execute em seu CLI:
 composer require israel-nogueira/mysql-orm
 ```
 
-Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/Models/*.model.php`
+Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
 <?php
-	include vendor\autoload.php;
-	use IsraelNogueira\MysqlOrm;
+	include vendor\autoload.php
+	use IsraelNogueira\MysqlOrm
 ```
 
 
 ## Models
 
-O *Model* é uma classe extendida da classe principal. 
+O *Model* é o uso da classe abstrata da classe principal. 
 Nela serão cadastrados os parâmetros de uso da classe.
 Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 ```php
+/**
+ *  Início da extensão da classe mysql.
+ */
 <?php
 	namespace App\Models
 	use IsraelNogueira\MysqlOrm\mariaDB;
@@ -60,7 +63,8 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```php
 <?php
 	use  App\Models\userModel
-
+	
+	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
@@ -110,12 +114,12 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 	$users->setSubQuery('cidade_11');
 	
 	// Agora selecionamos com o tableSubQuery() nossa subQuery e damos o alias de "curitiba"
-	$users->tableSubQuery('(cidade_11) curitiba');
+	$getInfoBanner->tableSubQuery('(cidade_11) curitiba');
 	$users->set_where('curitiba.solteiros=1');
 	
 	// Poderiamos parar poraqui mas se quiser aprofundarmos
 	$users->setSubQuery('solteiros'); 
-	$users->tableSubQuery('(solteiros) sexo');
+	$getInfoBanner->tableSubQuery('(solteiros) sexo');
 	$users->set_where('solteiros.sexo="male"');
 	
 	//	Executamos o select puxando os moradores da cidade 11 
@@ -142,11 +146,11 @@ Também podemos aplicar isso a uma coluna:
 <?php
 	use  App\Models\userModel
 	$users =  new  userModel();
-	// aqui apenas trazemos o total de usuarios que moram na cidade 11
-	// e guardamos essa query com setSubQuery()
+	
+	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
 	$users->colum('COUNT(1) as total_registro ');
 	$users->set_where('cidade_id=11');
-	$users->setSubQuery('total_11');
+	$users->setSubQuery('total_11'); // <----- Guarda  Subquery
 	
 	$users->colum('user.*');
 	$users->columSubQuery('(total_11) AS total_curitibanos');
