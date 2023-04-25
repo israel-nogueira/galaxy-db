@@ -255,7 +255,7 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->coluna2 = 'valor';
 		$users->coluna3 = 'valor';
 		$users->insert();
-		
+
 		//Todas as condicionais podem ser aplicadas aqui também
 		$users =  new  userModel();
 		$users->coluna1 = 'valor';
@@ -263,7 +263,12 @@ Podemos inserir dados de algumas formas diferentes:
 		$users->coluna3 = 'valor';
 		$users->where('NOW() > "00-00-00 00:00:00"');
 		$users->insert();
+?>
+```
+# MULTIPLOS INSERTS
 
+```php
+<?
 		// MULTIPLOS INSERTS
 		$users =  new  userModel();
 		$users->coluna1 = 'valor';
@@ -284,9 +289,11 @@ Podemos inserir dados de algumas formas diferentes:
 		
 		//EXECUTA OS INSERTS
 		$users->execQuery();
+```
+# MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
 
-
-
+```php
+<?
 		//PUXANDO UMA ARRAY
 		$users =  new  userModel();
 		$users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
