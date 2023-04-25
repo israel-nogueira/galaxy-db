@@ -61,7 +61,6 @@ Uma `array` vazia será retornada caso a consulta não encontre resultados.
 <?php
 	use  App\Models\userModel
 	
-	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
@@ -243,8 +242,58 @@ Array
 
 
 
-### Insert
+# Insert
 Podemos inserir dados de algumas formas diferentes:
+
+```php
+<?php
+	use  App\Models\userModel
+	
+		//FORMA SIMPLIFICADA
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->insert();
+		
+		//Todas as condicionais podem ser aplicadas aqui também
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->where('NOW() > "00-00-00 00:00:00"');
+		$users->insert();
+
+		// MULTIPLOS INSERTS
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->prepare_insert();
+		
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->where('NOW() > "00-00-00 00:00:00"');
+		$users->prepare_insert();
+		
+		// TRANSACTION + ROLLBACK
+		$users->transaction(function ($ERROR) {
+			throw  new  ErrorException($ERROR, 1); // erro
+		});
+		
+		//EXECUTA OS INSERTS
+		$users->execQuery();
+
+?>
+```
+
+
+
+
+
+
+
 
 ### Update
 
