@@ -7,7 +7,7 @@
             "IsraelNogueira\\MysqlOrm\\": "src/"
         },
         "files": [
-            "model/*.model.php"
+            "app/models/*.model.php"
         ]
     },
     "authors": [
