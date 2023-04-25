@@ -1,0 +1,18 @@
+{
+    "name": "israel-nogueira/mysql-orm",
+    "description": "ORM simples para PHP e MySQL",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "IsraelNogueira\\MysqlOrm\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Israel Nogueira",
+            "email": "israel@feats.com.br"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {}
+}
