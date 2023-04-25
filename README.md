@@ -64,7 +64,6 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 <?php
 	use  App\Models\userModel
 	
-	// SELECT ID, TITULO, VALOR FROM LIVROS WHERE ID > 10
 	$users =  new  userModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
@@ -108,6 +107,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 <?php
 	use  App\Models\userModel
 	$users =  new  userModel();
+
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
 	$users->set_where('cidade_id=11');
