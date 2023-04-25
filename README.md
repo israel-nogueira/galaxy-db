@@ -44,6 +44,11 @@ Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 		protected $functionsBlocked = ['CONCAT','SHA2'];
 		//  FUNÇÕES MYSQL PERMITIDAS 
 		protected $functionsEnabled = ['IF','SH1','COALESCE'];
+		//  FUNÇÕES MYSQL PERMITIDAS 
+		protected $charactersEnabled = [];
+		//  FUNÇÕES MYSQL PROIBIDOS 
+		protected $charactersBlocked = [];
+
 	}
 ?>
 
