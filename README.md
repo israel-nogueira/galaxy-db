@@ -285,17 +285,88 @@ Podemos inserir dados de algumas formas diferentes:
 		//EXECUTA OS INSERTS
 		$users->execQuery();
 
+
+
+		//PUXANDO UMA ARRAY
+		$users =  new  userModel();
+		$users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+		$users->prepare_insert();
+
+		$users->set_insert_form(['UID'=>74,'NOME'=>'Deoclides', 'IDADE'=>65]);
+		$users->prepare_insert();
+		
+		// TRANSACTION + ROLLBACK
+		$users->transaction(function ($ERROR) {
+			throw  new  ErrorException($ERROR, 1); // erro
+		});
+		
+		//EXECUTA OS INSERTS
+		$users->execQuery();
 ?>
 ```
 
+# UPDATE:
+```php
+<?php
+	use  App\Models\userModel
+	
+		//FORMA SIMPLIFICADA
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->update();
+		
+		//Todas as condicionais podem ser aplicadas aqui também
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->where('UID="7365823765"');
+		$users->update();
+
+		// MULTIPLOS INSERTS
+		$users =  new  userModel();
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->where('UID="46746876"');
+		$users->prepare_update();
+		
+		$users->coluna1 = 'valor';
+		$users->coluna2 = 'valor';
+		$users->coluna3 = 'valor';
+		$users->where('UID="9653566573"');
+		$users->prepare_update();
+		
+		// TRANSACTION + ROLLBACK
+		$users->transaction(function ($ERROR) {
+			throw  new  ErrorException($ERROR, 1); // erro
+		});
+		
+		//EXECUTA OS INSERTS
+		$users->execQuery();
 
 
 
+		//PUXANDO UMA ARRAY
+		$users =  new  userModel();
+		$users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+		$users->prepare_update();
 
+		$users->set_update_form(['UID'=>74,'NOME'=>'Deoclides', 'IDADE'=>65]);
+		$users->prepare_update();
+		
+		// TRANSACTION + ROLLBACK
+		$users->transaction(function ($ERROR) {
+			throw  new  ErrorException($ERROR, 1); // erro
+		});
+		
+		//EXECUTA OS INSERTS
+		$users->execQuery();
+?>
+```
 
-
-
-### Update
 
 
 ### Delete
