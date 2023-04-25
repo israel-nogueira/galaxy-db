@@ -11,7 +11,7 @@ Execute em seu CLI:
 composer require israel-nogueira/mysql-orm
 ```
 
-Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/Models/*.model.php`
 ```php
 <?php
 	include vendor\autoload.php;
@@ -26,9 +26,6 @@ Nela serão cadastrados os parâmetros de uso da classe.
 Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 ```php
-/**
- *  Início da extensão da classe mysql.
- */
 <?php
 	namespace App\Models
 	use IsraelNogueira\MysqlOrm\mariaDB;
