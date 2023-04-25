@@ -57,9 +57,6 @@ Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
-```sql 
-SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
-```
 ```php
 <?php
 	use  App\Models\userModel
@@ -75,6 +72,12 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 
 ?>
 ```
+Resultará no seguinte select: 
+```sql 
+SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
+```
+
+
 ### Select mais completo
 ```php
 <?php
@@ -82,16 +85,20 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 	$users =  new  userModel();
 	$users->colum('nome');
 	$users->colum('bairro_id');
-	$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id'); // TIPO | TABELA | ON
-	$users->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
+	
+	$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
+		  ->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
+		  
 	$users->group_by('bairros'); // GROUP BY
-	$users->like('nome','%edro%');
-	$users->like('nome','%ão%');
-	$users->order('nome','asc'); // ORDER BY nome ASC
+	
+	$users->like('nome','%edro%')->like('nome','%ão%');
+	
+	$users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
+	
 	$users->limit(1,10); // SET LIMIT 1, 10
-	$users->set_where('cidades.id=11');
-	$users->debug(true); // false não retornará erros e falhas. Default:true
+	$users->where('cidades.id=11');
 	$users->distinct(); // ignora os resultados repetidos
+	$users->debug(true); // false não retornará erros e falhas. Default:true
 	$users->select();
 	
 	// $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
@@ -112,7 +119,7 @@ WHERE  (
 		AND  (
 			Lower(nome)  LIKE  Lower("%edro%")  OR  Lower(nome)  LIKE  Lower("%ão%") 
 		)
-	) GROUP  BY  bairros
+	) GROUP  BY  bairros ORDER BY nome ASC, idade DESC
 ```
 
 
@@ -155,7 +162,7 @@ SELECT  *
 		WHERE  (  curitiba.solteiros  =  1  ))  sexo  
 WHERE  (  solteiros.sexo  =  "male"  )
 ```
-Também podemos aplicar isso a uma coluna:
+Também podemos aplicar uma subquery a uma coluna:
 
 ```php
 <?php
