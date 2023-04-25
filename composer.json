@@ -5,7 +5,10 @@
     "autoload": {
         "psr-4": {
             "IsraelNogueira\\MysqlOrm\\": "src/"
-        }
+        },
+        "files": [
+            "model/*.model.php"
+        ]
     },
     "authors": [
         {
