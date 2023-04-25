@@ -1,5 +1,5 @@
 
-# PHP MySQL
+# PHP ORM
 
 Classe para controlar o MySQL no PHP com facilidade e segurança.
  
@@ -289,6 +289,7 @@ Podemos inserir dados de algumas formas diferentes:
 
         //EXECUTA OS INSERTS
         $users->execQuery();
+    ?>
 ```
 # INSERT ARRAY + TRANSACTION + ROLLBACK
 
@@ -334,6 +335,7 @@ Podemos inserir dados de algumas formas diferentes:
         $users->coluna3 = 'valor';
         $users->where('UID="7365823765"');
         $users->update();
+    ?>
 ```
 
 # MULTIPLOS UPDATES + TRANSACTION + ROLLBACK:
@@ -361,7 +363,7 @@ Podemos inserir dados de algumas formas diferentes:
         
         //EXECUTA OS UPDATES
         $users->execQuery();
-
+    ?>
 ```
 
 # MULTIPLOS UPDATES COM ARRAYS:
@@ -391,4 +393,33 @@ Podemos inserir dados de algumas formas diferentes:
 
 
 
-### Delete
+# DELETE
+
+```php
+    <?php
+
+        //DELETE DIRETO E SIMPLES
+        $users =  new  userModel();
+        $users->where('UID=32');
+        $users->delete();
+
+        //PREPARANDO MULTIPLOS
+        $users =  new  userModel();
+        $users->where('UID=32');
+        $users->prepare_delete();//Armazena
+
+        //DENTRO DE UM LAÇO
+        foreach($_RESULTADO as $OBJ){
+            $users->where('UID='.$OBJ['UID']);
+            $users->prepare_delete();//Armazena
+        }
+
+        // TRANSACTION + ROLLBACK
+        $users->transaction(function ($ERROR) {
+            throw  new  ErrorException($ERROR, 1); // erro
+        });
+
+        //EXECUTA OS DELETES
+        $users->execQuery();
+    ?>
+```
