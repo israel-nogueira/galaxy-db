@@ -18,14 +18,14 @@ Acrescente em seu *composer.json*:
 
 ```
 
-	"autoload": {
-		"psr-4": {
-			"IsraelNogueira\\Models\\": "app/models"
-		}
-	},
-	"scripts": {
-		"orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
-	}
+    "autoload": {
+        "psr-4": {
+            "IsraelNogueira\\Models\\": "app/Models/"
+        }
+    },
+    "scripts": {
+        "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
+    }
 
 ```
 
@@ -50,7 +50,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 <?php
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
-	
+
 	class meusUsuarios	extends	mysqlORM	{
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
