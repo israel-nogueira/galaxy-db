@@ -27,7 +27,7 @@ Acrescente em seu *composer.json*:
 ```
 
 Agora poderá executar comandos para criar seus Models.
-Podendo trocar "meusUsuarios" pelo nome que você bem entender;
+Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
 
 ```
 
@@ -35,7 +35,7 @@ composer run-script orm meusUsuarios
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: **/app/models/** meusUsuarios.php
+Isso criará automaticamente o seguinte arquivo: **/app/models/meusUsuarios.php**
 
 
 ## Models
