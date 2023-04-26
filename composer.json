@@ -1,19 +1,12 @@
 {
     "name": "israel-nogueira/mysql-orm",
     "description": "ORM simples para PHP e MySQL",
-    "license": "Apache-2.0",
+    "type": "library",
+    "keywords": [],
+    "license": "MIT",
+    "authors": [ { "name": "Israel Nogueira", "email": "israel@feats.com.br" } ],
     "require": {
-        "php": "^7.0|^8.0"
-    },
-    "minimum-stability": "dev",
-    "authors": [
-        {
-            "name": "Israel Nogueira",
-            "email": "israel@feats.com.br"
-        }
-    ],
-    "scripts": {
-        "orm": "php src/orm"
+        "IsraelNogueira\\MysqlOrm": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -22,5 +15,6 @@
         "classmap": [
             "app/Models"
         ]
-    }
+    },
+    "minimum-stability": "stable"
 }
