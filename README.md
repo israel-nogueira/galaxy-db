@@ -17,11 +17,14 @@ Instale via composer.
 Acrescente em seu *composer.json*:
 
 ```
+
+"autoload": {
+    "psr-4": {
+        "IsraelNogueira\\Models\\": "app/models"
+    }
+},
 "scripts": {
     "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
-}
-"psr-4": {
-    "IsraelNogueira\\Models\\": "app/models"
 }
 
 ```
