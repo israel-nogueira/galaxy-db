@@ -14,5 +14,5 @@
             "app/Models"
         ]
     },
-    "minimum-stability": "stable"
+   "minimum-stability": "dev"
 }
