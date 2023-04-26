@@ -1,8 +1,7 @@
 {
     "name": "israel-nogueira/mysql-orm",
     "description": "ORM simples para PHP e MySQL",
-    "license": "library",
-    "minimum-stability": "dev",
+    "license": "Apache-2.0",
     "require": {
         "php": ">=7.4.0"
     },
