@@ -12,7 +12,7 @@ composer require israel-nogueira/mysql-orm
 ```
 
 Depois de instalado, acrescente em seu composer.json.
-A variavel "app/Models" você pode trocar a raíz do seu projeto;
+A variavel "app/Models/" você pode trocar pela raíz do seu projeto;
 
 ```
     "scripts": {
@@ -20,7 +20,7 @@ A variavel "app/Models" você pode trocar a raíz do seu projeto;
     },
     "autoload": {
         "psr-4": {
-            "IsraelNogueira\\Models\\": "app/Models"
+            "IsraelNogueira\\Models\\": "app/Models/"
         }
     }
 
