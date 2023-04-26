@@ -40,22 +40,91 @@ class cli{
 		}
 		return $o;
 	}
+	static public function modeloModel($modelo='myClass') {
+
+return '<?
+	namespace IsraelNogueira\Models;
+	use IsraelNogueira\MysqlOrm\mysqlORM;
+
+	class '.$modelo.' extends mysqlORM{
+
+		protected $table				=  "'.$modelo.'";
+		protected $columnsBlocked		= [];
+		protected $columnsEnabled		= [];
+		protected $functionsBlocked		= [];
+		protected $functionsEnabled		= [];
+		protected $charactersEnabled	= [];
+		protected $charactersBlocked	= [];
+
+		public function exemplo_de_extend_function() {
+			return $this->join("LEFT", "minha_tabela minha"," minha.code='.$modelo.'.code");
+		}
+
+	}
+
+?>';
+
+	}
+	//ˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑ
+	//	Cores
+	//ˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑ
+	static public function color($cor='vermelho',$_TEXT=null) {try{
+		//ˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑ
+			$_COLOR['branco']	="\033[0;97m";
+			$_COLOR['preto']	="\033[0;30m";
+			$_COLOR['vermelho'] ="\033[0;31m";
+			$_COLOR['verde']    ="\033[0;32m";
+			$_COLOR['amarelo']	="\033[0;33m";
+			$_COLOR['azul']     ="\033[0;34m";
+			$_COLOR['magenta']  ="\033[0;35m";
+			$_COLOR['ciano']    ="\033[0;36m";
+			$_COLOR['roxo']   	="\033[0;35m";
+			$_COLOR['cinza']  	="\033[1;30m";
+			$_COLOR['end']		="\033[0m";
+			return $_COLOR[$cor] . $_TEXT.  $_COLOR['end'];
+		//ˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑ
+	} catch (\Throwable $ERROR) {die(print_r($ERROR->getMessage(),0));}}
+
+	static public function formatarString($str) {
+		$str = preg_replace_callback('/[\p{L} ]/u', function ($match) {
+			return str_replace(' ', '', iconv('UTF-8', 'ASCII//TRANSLIT', $match[0]));
+		}, $str);
+		$str = ucwords($str);
+		$str = str_replace([' ', '-'], '', $str);
+		$str = lcfirst($str);
+		return $str;
+	}
 
     static public function processCommands($_ARGS=null) {try{
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
-		$_PARAM = self::parseArgs($_ARGS);
-        print_r($_PARAM);
-		// if(count($_PARAM)==0 || (count($_PARAM)==1 && (isset($_PARAM['v']) || isset($_PARAM['version'])))){	self::getVersion();			}
-		// if(count($_PARAM)==1 && (isset($_PARAM['h']) || isset($_PARAM['help']))){		self::getHelp();			}
-		// if(count($_PARAM)==1 && (isset($_PARAM['setStatusSystem']))){					self::setStatusSystem();	}
-		// if(count($_PARAM)==1 && (isset($_PARAM['offlineAllUsers']))){					self::offlineAllUsers();	}
-		// if(count($_PARAM)==1 && (isset($_PARAM['accessMySQL']))){						self::accessMySQL();		}
-		// if(count($_PARAM)==1 && (isset($_PARAM['localhost']))){							self::localhost();			}
-		// if(count($_PARAM)==1 && (isset($_PARAM['novoModulo']))){						self::novoModulo();			}
-		// if(count($_PARAM)==1 && (isset($_PARAM['novoProjeto']))){						self::novoProjeto();		}
-		// if(count($_PARAM)==1 && (isset($_PARAM['setProject']))){						self::setProjectPath();		}
+		$_PARAM		= self::parseArgs($_ARGS);
+		$PATH		= realpath(__DIR__.'/../../../../');
+		$JSON		= $PATH.'/composer.json';
+		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
 
+		if(
+			empty($_COMPOSER['autoload']) || 
+			empty($_COMPOSER['autoload']['psr-4']) ||
+			empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
+		){
+			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
+		}
 		
+		@mkdir($PATH.'/app/Models/',true);
+		file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+
+
+		foreach ($_PARAM as $value) {
+			$Classe = $PATH.'/app/Models/'.self::formatarString($value).'.php';
+			file_put_contents($Classe, self::modeloModel($value));
+			echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
+		}
+		
+		$output = shell_exec('composer dump-autoload');
+		die(self::color('verde',$output));
+		
+
+
 	} catch (\Throwable $ERROR) {die(globals::wsReturn($ERROR->getMessage(),0));}}
 }
 cli::processCommands($argv);

@@ -17,30 +17,19 @@ Instale via composer.
 Acrescente em seu *composer.json*:
 
 ```
-
-    "autoload": {
-        "psr-4": {
-            "IsraelNogueira\\Models\\": "app/Models/"
-        }
-    },
     "scripts": {
         "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
     }
 
 ```
-Execute o seguinte comando;
 
-```
-
-	composer dump-autoload
-
-```
 Agora poderá executar comandos para criar seus Models.
 Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
 
+
 ```
 
-	composer run-script orm meusUsuarios
+	composer run-script orm usuario produtos adress
 
 ```
 
