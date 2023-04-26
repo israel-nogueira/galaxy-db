@@ -74,7 +74,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 ?>
 ```
 
-Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+Basta importar o autoload e o namespace da sua Model e utilizar
 
 ```php
 
@@ -85,7 +85,7 @@ Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./a
 
 ```
 
-## Exemplos de uso
+# EXEMPLOS DE USO
 
 ### Select simples
 
@@ -114,8 +114,9 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ### Select mais completo
 ```php
 <?php
-	use  App\Models\userModel
-	$users =  new  userModel();
+	use  App\Models\joaoDaSilva
+
+	$users =  new  joaoDaSilva();
 	$users->colum('nome');
 	$users->colum('bairro_id');
 	
@@ -161,8 +162,8 @@ WHERE  (
 
 ```php
 <?php
-	use  App\Models\userModel
-	$users =  new  userModel();
+	use  App\Models\joaoDaSilva
+	$users =  new  joaoDaSilva();
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
 	$users->set_where('cidade_id=11');
@@ -199,8 +200,8 @@ Também podemos aplicar uma subquery a uma coluna:
 
 ```php
 <?php
-	use  App\Models\userModel
-	$users =  new  userModel();
+	use  App\Models\joaoDaSilva
+	$users =  new  joaoDaSilva();
 	
 	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
 	$users->colum('COUNT(1) as total_registro ');
@@ -230,8 +231,8 @@ Podemos também executar múltiplos selects em uma só instancia:
 
 ```php
 <?php
-	use  App\Models\userModel
-	$users =  new  userModel();
+	use  App\Models\joaoDaSilva
+	$users =  new  joaoDaSilva();
 	$users->colum('username');
 	$users->colum('email');
 	$users->limit(1);
@@ -281,17 +282,17 @@ Podemos inserir dados de algumas formas diferentes:
 
 ```php
 <?php
-	use  App\Models\userModel
+	use  App\Models\joaoDaSilva
 	
 		//FORMA SIMPLIFICADA
-		$users =  new  userModel();
+		$users =  new  joaoDaSilva();
 		$users->coluna1 = 'valor';
 		$users->coluna2 = 'valor';
 		$users->coluna3 = 'valor';
 		$users->insert();
 
 		//Todas as condicionais podem ser aplicadas aqui também
-		$users =  new  userModel();
+		$users =  new  joaoDaSilva();
 		$users->coluna1 = 'valor';
 		$users->coluna2 = 'valor';
 		$users->coluna3 = 'valor';
@@ -304,7 +305,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?
         // MULTIPLOS INSERTS
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -330,7 +331,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?
         //PUXANDO UMA ARRAY
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
         $users->prepare_insert();
 
@@ -353,17 +354,17 @@ Podemos inserir dados de algumas formas diferentes:
 # UPDATE:
 ```php
     <?php
-        use  App\Models\userModel
+        use  App\Models\joaoDaSilva
 
         //FORMA SIMPLIFICADA
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
         $users->update();
         
         //Todas as condicionais podem ser aplicadas aqui também
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -377,7 +378,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?php
         // MULTIPLOS UPDATES
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -405,7 +406,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?php
         //PUXANDO UMA ARRAY
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
         $users->prepare_update();
 
@@ -433,12 +434,12 @@ Podemos inserir dados de algumas formas diferentes:
     <?php
 
         //DELETE DIRETO E SIMPLES
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->where('UID=32');
         $users->delete();
 
         //PREPARANDO MULTIPLOS
-        $users =  new  userModel();
+        $users =  new  joaoDaSilva();
         $users->where('UID=32');
         $users->prepare_delete();//Armazena
 
