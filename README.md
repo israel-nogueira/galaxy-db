@@ -18,14 +18,14 @@ Acrescente em seu *composer.json*:
 
 ```
 
-"autoload": {
-	"psr-4": {
-		"IsraelNogueira\\Models\\": "app/models"
+	"autoload": {
+		"psr-4": {
+			"IsraelNogueira\\Models\\": "app/models"
+		}
+	},
+	"scripts": {
+		"orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
 	}
-},
-"scripts": {
-	"orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
-}
 
 ```
 
@@ -34,7 +34,7 @@ Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
 
 ```
 
-composer run-script orm meusUsuarios
+	composer run-script orm meusUsuarios
 
 ```
 
