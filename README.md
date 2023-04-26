@@ -89,20 +89,23 @@ Basta importar o autoload e o namespace da sua Model e utilizar
 
 O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
+
 ```php
+
 <?php
     include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
-	
-	$users =  new meusUsuarios();
-	$users->colum('nome');//unitario
-	$users->colum('email as mail');// com alias
-	$users->colum(['endereco','telefone']); // ou ainda varias de uma vez
-	$users->set_where('id=7');
-	$users->select();
-	$_RESULT = $users->fetch_array(); // retorna um ARRAY
+    use  App\Models\meusUsuarios;
+
+    $users =  new meusUsuarios();
+    $users->colum('nome');//unitario
+    $users->colum('email as mail');// com alias
+    $users->colum(['endereco','telefone']); // ou ainda varias de uma vez
+    $users->set_where('id=7');
+    $users->select();
+    $_RESULT = $users->fetch_array(); // retorna um ARRAY
 
 ?>
+
 ```
 Resultará no seguinte select: 
 ```sql 
@@ -112,36 +115,37 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 
 ### Select mais completo
 ```php
-<?php
-    include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+    <?php
+        include "vendor\autoload.php";
+        use  App\Models\meusUsuarios;
 
-	$users =  new  meusUsuarios();
-	$users->colum('nome');
-	$users->colum('bairro_id');
-	
-	$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
-		  ->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
-		  
-	$users->group_by('bairros'); // GROUP BY
-	
-	$users->like('nome','%edro%')->like('nome','%ão%');
-	
-	$users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
-	
-	$users->limit(1,10); // SET LIMIT 1, 10
-	$users->where('cidades.id=11');
-	$users->distinct(); // ignora os resultados repetidos
-	$users->debug(true); // false não retornará erros e falhas. Default:true
-	$users->select();
-	
-	// $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
-	$_ARRAY = $users->fetch_array(); 
-	
-	// $_OBJECT[0]->nome | $_OBJECT[1]->nome
-	$_OBJECT = $users->fetch_obj(); 
-	
-?>
+        $users =  new  meusUsuarios();
+        $users->colum('nome');
+        $users->colum('bairro_id');
+
+        $users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
+                ->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
+                
+        $users->group_by('bairros'); // GROUP BY
+
+        $users->like('nome','%edro%')->like('nome','%ão%');
+
+        $users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
+
+        $users->limit(1,10); // SET LIMIT 1, 10
+        $users->where('cidades.id=11');
+        $users->distinct(); // ignora os resultados repetidos
+        $users->debug(true); // false não retornará erros e falhas. Default:true
+        $users->select();
+
+        // $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
+        $_ARRAY = $users->fetch_array(); 
+
+        // $_OBJECT[0]->nome | $_OBJECT[1]->nome
+        $_OBJECT = $users->fetch_obj();
+        
+    ?>
+
 ```
 Resultará em uma query assim:
 ```sql
@@ -163,30 +167,31 @@ WHERE  (
 ```php
 <?php
     include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+    use  App\Models\meusUsuarios;
 
-	$users =  new  meusUsuarios();
-	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
-	// Criamos um sub select e instanciamos como "cidade_11"
-	$users->set_where('cidade_id=11');
-	$users->setSubQuery('cidade_11');
-	
-	// Agora selecionamos com o tableSubQuery() nossa subQuery e damos o alias de "curitiba"
-	$users->tableSubQuery('(cidade_11) curitiba');
-	$users->set_where('curitiba.solteiros=1');
-	
-	// Poderiamos parar poraqui mas se quiser aprofundarmos
-	$users->setSubQuery('solteiros'); 
-	$users->tableSubQuery('(solteiros) sexo');
-	$users->set_where('solteiros.sexo="male"');
-	
-	//	Executamos o select puxando os moradores da cidade 11 
-	//	e depois filtramos os solteiros
-	$users->select('homens_solteiros_curitiba');
-	
-	$_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
-		
+    $users =  new  meusUsuarios();
+    // Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
+    // Criamos um sub select e instanciamos como "cidade_11"
+    $users->set_where('cidade_id=11');
+    $users->setSubQuery('cidade_11');
+
+    // Agora selecionamos com o tableSubQuery() nossa subQuery e damos o alias de "curitiba"
+    $users->tableSubQuery('(cidade_11) curitiba');
+    $users->set_where('curitiba.solteiros=1');
+
+    // Poderiamos parar poraqui mas se quiser aprofundarmos
+    $users->setSubQuery('solteiros'); 
+    $users->tableSubQuery('(solteiros) sexo');
+    $users->set_where('solteiros.sexo="male"');
+
+    //	Executamos o select puxando os moradores da cidade 11 
+    //	e depois filtramos os solteiros
+    $users->select('homens_solteiros_curitiba');
+
+    $_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
+
 ?>
+
 ```
 Isso resultará na seguinte query:
 ```sql
@@ -203,19 +208,19 @@ Também podemos aplicar uma subquery a uma coluna:
 ```php
 <?php
     include "vendor\autoload.php";
-	use  App\Models\meusUsuario;
-	$users =  new  meusUsuarios();
-	
-	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
-	$users->colum('COUNT(1) as total_registro ');
-	$users->set_where('cidade_id=11');
-	$users->setSubQuery('total_11'); // <----- Guarda  Subquery
-	
-	$users->colum('user.*');
-	$users->columSubQuery('(total_11) AS total_curitibanos');
-	$users->set_where('total_curitibanos>100');
-	$users->prepare_select('homens_solteiros_curitiba');	
-	$_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
+    use  App\Models\meusUsuario;
+    $users =  new  meusUsuarios();
+
+    // Aqui apenas trazemos o total de usuarios que moram na cidade 11
+    $users->colum('COUNT(1) as total_registro ');
+    $users->set_where('cidade_id=11');
+    $users->setSubQuery('total_11'); // <----- Guarda  Subquery
+
+    $users->colum('user.*');
+    $users->columSubQuery('(total_11) AS total_curitibanos');
+    $users->set_where('total_curitibanos>100');
+    $users->prepare_select('homens_solteiros_curitiba');	
+    $_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
 
 ?>
 ```
