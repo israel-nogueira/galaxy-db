@@ -4,12 +4,19 @@
     "type": "library",
     "keywords": [],
     "license": "MIT",
-    "authors": [ { "name": "Israel Nogueira", "email": "israel@feats.com.br" } ],
-    "require": {},
+    "authors": [
+        {
+            "name": "Israel Nogueira",
+            "email": "israel@feats.com.br"
+        }
+    ],
+    "require": {
+        "israel-nogueira/mysql-orm": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "IsraelNogueira\\MysqlOrm\\": "src/"
         }
     },
-   "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
