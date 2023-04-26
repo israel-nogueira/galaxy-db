@@ -213,10 +213,10 @@ Também podemos aplicar uma subquery a uma coluna:
 	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
 	$users->colum('COUNT(1) as total_registro ');
 	$users->set_where('cidade_id=11');
-	$users->setSubQuery('total_11'); // <----- Guarda  Subquery
+	$users->setSubQuery('total_11'); // <----- Cria subquery "total_11"
 
 	$users->colum('user.*');
-	$users->columSubQuery('(total_11) AS total_curitibanos');
+	$users->columSubQuery('(total_11) AS total_curitibanos'); // Monta coluna com a Subquery
 	$users->set_where('total_curitibanos>100');
 	$users->prepare_select('homens_solteiros_curitiba');	
 	$_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
