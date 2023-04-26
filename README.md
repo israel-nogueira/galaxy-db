@@ -65,7 +65,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 		//  FUNÇÕES MYSQL PERMITIDAS 
 		protected $charactersEnabled = [];
 		//  FUNÇÕES MYSQL PROIBIDOS 
-	protected $charactersBlocked = [];
+		protected $charactersBlocked = [];
 
 	}
 ?>
@@ -114,36 +114,36 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 
 ### Select mais completo
 ```php
-	<?php
-		include "vendor\autoload.php";
-		use  App\Models\meusUsuarios;
+<?php
+	include "vendor\autoload.php";
+	use  App\Models\meusUsuarios;
 
-		$users =  new  meusUsuarios();
-		$users->colum('nome');
-		$users->colum('bairro_id');
+	$users =  new  meusUsuarios();
+	$users->colum('nome');
+	$users->colum('bairro_id');
 
-		$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
-				->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
-				
-		$users->group_by('bairros'); // GROUP BY
+	$users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
+			->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
+			
+	$users->group_by('bairros'); // GROUP BY
 
-		$users->like('nome','%edro%')->like('nome','%ão%');
+	$users->like('nome','%edro%')->like('nome','%ão%');
 
-		$users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
+	$users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
 
-		$users->limit(1,10); // SET LIMIT 1, 10
-		$users->where('cidades.id=11');
-		$users->distinct(); // ignora os resultados repetidos
-		$users->debug(true); // false não retornará erros e falhas. Default:true
-		$users->select();
+	$users->limit(1,10); // SET LIMIT 1, 10
+	$users->where('cidades.id=11');
+	$users->distinct(); // ignora os resultados repetidos
+	$users->debug(true); // false não retornará erros e falhas. Default:true
+	$users->select();
 
-		// $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
-		$_ARRAY = $users->fetch_array(); 
+	// $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
+	$_ARRAY = $users->fetch_array(); 
 
-		// $_OBJECT[0]->nome | $_OBJECT[1]->nome
-		$_OBJECT = $users->fetch_obj();
-		
-	?>
+	// $_OBJECT[0]->nome | $_OBJECT[1]->nome
+	$_OBJECT = $users->fetch_obj();
+	
+?>
 
 ```
 Resultará em uma query assim:
