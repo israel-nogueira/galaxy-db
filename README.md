@@ -93,9 +93,9 @@ O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
 ```php
 <?php
-	use  App\Models\userModel
+	use  App\Models\joaoDaSilva;
 	
-	$users =  new  userModel();
+	$users =  new joaoDaSilva();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
 	$users->colum(['endereco','telefone']); // ou ainda varias de uma vez
