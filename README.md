@@ -11,6 +11,16 @@ Execute em seu CLI:
 composer require israel-nogueira/mysql-orm
 ```
 
+Depois de instalado, acrescente em seu composer.json:
+
+```
+
+    "scripts": {
+        "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
+    }
+
+```
+
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
 <?php
