@@ -18,8 +18,5 @@
     "require": {
         "php": ">=7.4"
     },
-    "scripts": {
-        "novoModel": "php scripts/orm"
-    },
     "minimum-stability": "stable"
 }
