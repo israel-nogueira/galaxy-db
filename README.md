@@ -6,12 +6,12 @@ Classe para controlar o MySQL no PHP com facilidade e segurança.
 ## Instalação
 
 A instalação é muito simples. 
-Execute em seu CLI na seguinte ordem:
+Execute em seu CLI na seguinte ordem,
+levando em consideração de que "app/models" pode ser substituido pelo path das suas models.
+
 ```
     composer require israel-nogueira/mysql-orm
-
     composer config scripts.orm "php vendor/israel-nogueira/mysql-orm/src/orm"
-
     composer config autoload.psr-4 "App\\Models\\": "app/models"
 
 ```
