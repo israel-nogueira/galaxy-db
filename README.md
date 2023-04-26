@@ -27,7 +27,7 @@ composer run-script orm joaoDaSilva
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: **/app/models/**joaoDaSilva.php
+Isso criará automaticamente o seguinte arquivo: **/app/models/** joaoDaSilva.php
 
 
 ## Models
