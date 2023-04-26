@@ -20,9 +20,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ ! -d ../orm/models ]; then mkdir -p ../orm/models; fi",
-            "php -r \"echo 'Orm\\\\Models\\\\';\" >> composer.json",
-            "composer dump-autoload"
+            "src/post-install.sh"
+        ],
+        "post-update-cmd": [
+            "src/post-install.sh"
         ]
     },
 
