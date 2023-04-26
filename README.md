@@ -8,7 +8,7 @@ Classe para controlar o MySQL no PHP com facilidade e segurança.
 A instalação é muito simples. 
 
 Execute em seu CLI na seguinte ordem,
-levando em consideração de que "*/app/models/*" pode ser substituido pelo path das suas models.
+levando em consideração de que "**/app/models/**" pode ser substituido pelo path das suas models.
 
 ```
 
@@ -27,7 +27,7 @@ composer run-script orm joaoDaSilva
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: */app/models/*joaoDaSilva.php
+Isso criará automaticamente o seguinte arquivo: **/app/models/**joaoDaSilva.php
 
 
 ## Models
