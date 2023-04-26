@@ -11,15 +11,23 @@ Execute em seu CLI:
 composer require israel-nogueira/mysql-orm
 ```
 
-Depois de instalado, acrescente em seu composer.json:
+Depois de instalado, acrescente em seu composer.json.
+A variavel "app/Models" você pode trocar a raíz do seu projeto;
 
 ```
-
     "scripts": {
         "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
+    },
+    "autoload": {
+        "psr-4": {
+            "IsraelNogueira\\Models\\": "app/Models"
+        }
     }
 
 ```
+
+Agora poderá executar o seguinte comando e criar seus módulos :
+
 
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
