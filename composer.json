@@ -18,5 +18,15 @@
     "require":{
         "php":">=7.4"
     },
+    "scripts": {
+        "post-install-cmd": [
+            "if [ ! -d app/models ]; then mkdir -p app/models; fi",
+            "php -r \"echo 'App\\\\Models\\\\';\" >> composer.json",
+            "composer dump-autoload"
+        ]
+    },
+
+
+
     "minimum-stability": "stable"
 }

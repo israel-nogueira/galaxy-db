@@ -6,15 +6,6 @@ use Exception;
 use RuntimeException;
 use ReflectionClass;
 
-//-----------------------------------------------------------
-	define('DB_CONNECTION', getEnv('DB_CONNECTION'));
-	define('DB_HOST', 		getEnv('DB_HOST'));
-	define('DB_PORT', 		getEnv('DB_PORT'));
-	define('DB_DATABASE', 	getEnv('DB_DATABASE'));
-	define('DB_USERNAME', 	getEnv('DB_USERNAME'));
-	define('DB_PASSWORD',   getEnv('DB_PASSWORD'));
-//-----------------------------------------------------------
-
 class mysqlORM{
 	private $initialized = false;
 	public function __construct(){
@@ -106,7 +97,6 @@ class mysqlORM{
 		$this->CONECT_PARAMS[3] = $name		??	DB_DATABASE;
 		$this->CONECT_PARAMS[4] = $port		??	DB_PORT;
 		$this->connection_close();
-
 		if($this->type_connection=='mysqli'){ // MYSQLI
 
 			$this->connection = new mysqli($this->CONECT_PARAMS[0], $this->CONECT_PARAMS[1], $this->CONECT_PARAMS[2], $this->CONECT_PARAMS[3], $this->CONECT_PARAMS[4]);		
@@ -275,7 +265,7 @@ class mysqlORM{
 		}
 	}
 
-	public static function showTables(){
+	public function showTables(){
 		$tables = array();
 		$this->select('TABLES','SHOW TABLES');
 		foreach($this->fetch_array('TABLES') as  $row ){$tables[] = array_values($row)[0];}
