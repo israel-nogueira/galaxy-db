@@ -3,8 +3,7 @@
     "description": "ORM simples para PHP e MySQL",
     "license": "Apache-2.0",
     "require": {
-        "php": "^7.0|^8.0",
-        "israel-nogueira/mysql-orm": "dev-main"
+        "php": "^7.0|^8.0"
     },
     "minimum-stability": "dev",
     "authors": [
