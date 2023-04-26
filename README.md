@@ -34,8 +34,9 @@ Agora poderá executar o seguinte comando e criar seus módulos :
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
 <?php
-	include vendor\autoload.php
-	use IsraelNogueira\MysqlOrm
+	include "vendor\autoload.php";
+	use IsraelNogueira\MysqlOrm;
+	use IsraelNogueira\Models;
 ```
 
 
