@@ -14,7 +14,16 @@ levando em consideração de que "**/app/models/**" pode ser substituido pelo pa
 
     composer require israel-nogueira/mysql-orm
     composer config scripts.orm "php vendor/israel-nogueira/mysql-orm/src/orm"
-    composer config autoload.psr-4 "IsraelNogueira\\Models\\": "/app/models/"
+
+```
+
+Acrescente uma rota de auto load pra seus Models:
+
+```
+
+"psr-4": {
+    "IsraelNogueira\\Models\\": "app/models"
+}
 
 ```
 
