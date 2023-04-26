@@ -12,7 +12,7 @@ levando em consideração de que "app/models" pode ser substituido pelo path das
 ```
     composer require israel-nogueira/mysql-orm
     composer config scripts.orm "php vendor/israel-nogueira/mysql-orm/src/orm"
-    composer config autoload.psr-4 "App\\Models\\": "app/models"
+    composer config autoload.psr-4 "IsraelNogueira\\Models\\": "app/models"
 
 ```
 
@@ -20,34 +20,29 @@ Agora poderá executar o seguinte comando e criar seus Models.
 Podendo trocar "joaoDaSilva" pelo nome que você bem entender;
 
 ```
+
 composer run-script orm joaoDaSilva
 
 ```
 
-Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
-```php
-<?php
-	include "vendor\autoload.php";
-	use IsraelNogueira\MysqlOrm;
-	use IsraelNogueira\Models\joaoDaSilva;
-```
+Isso criará automaticamente o seguinte arquivo: /app/models/joaoDaSilva.php
 
 
 ## Models
 
 O *Model* é o uso da classe abstrata da classe principal. 
 Nela serão cadastrados os parâmetros de uso da classe.
-Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 ```php
 /**
  *  Início da extensão da classe mysql.
  */
 <?php
-	namespace App\Models
-	use IsraelNogueira\MysqlOrm\mariaDB;
 
-	class  userModel  extends  mariaDB {
+	namespace IsraelNogueira\MysqlOrm;
+	use IsraelNogueira\MysqlOrm\mysqlORM;
+
+	class  joaoDaSilva  extends  mysqlORM {
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
 		//  COLUNAS BLOQUEADAS 
@@ -68,6 +63,15 @@ Nesse caso criamos o arquivo `` /app/Models/user.model.php``
 
 
 
+```
+
+
+Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+```php
+<?php
+	include "vendor\autoload.php";
+	use IsraelNogueira\MysqlOrm;
+	use IsraelNogueira\Models\joaoDaSilva;
 ```
 
 ## Exemplos de uso
