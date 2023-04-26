@@ -6,30 +6,21 @@ Classe para controlar o MySQL no PHP com facilidade e segurança.
 ## Instalação
 
 A instalação é muito simples. 
-Execute em seu CLI:
+Execute em seu CLI na seguinte ordem:
 ```
-composer require israel-nogueira/mysql-orm
+    composer require israel-nogueira/mysql-orm
 
-```
+    composer config scripts.orm "php vendor/israel-nogueira/mysql-orm/src/orm"
 
-Depois de instalado, acrescente em seu composer.json, sendo que a variavel "app/Models/" você pode trocar pela raíz do seu projeto;
-
-```
-    "scripts": {
-        "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
-    },
-    "autoload": {
-        "psr-4": {
-            "IsraelNogueira\\Models\\": "app/Models/"
-        }
-    }
+    composer config autoload.psr-4 "App\\Models\\": "app/models"
 
 ```
 
-Agora poderá executar o seguinte comando e criar seus Models :
+Agora poderá executar o seguinte comando e criar seus Models.
+Podendo trocar "joaoDaSilva" pelo nome que você bem entender;
 
 ```
-composer run-script orm
+composer run-script orm joaoDaSilva
 
 ```
 
@@ -38,7 +29,7 @@ Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./a
 <?php
 	include "vendor\autoload.php";
 	use IsraelNogueira\MysqlOrm;
-	use IsraelNogueira\Models;
+	use IsraelNogueira\Models\joaoDaSilva;
 ```
 
 
