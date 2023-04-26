@@ -46,7 +46,7 @@ return '<?
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
 
-	class '.$modelo.' extends mysqlORM{
+	class '.$modelo.'Model extends mysqlORM{
 
 		protected $table				=  "'.$modelo.'";
 		protected $columnsBlocked		= [];

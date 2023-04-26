@@ -24,7 +24,7 @@ Acrescente em seu *composer.json*:
 ```
 
 Agora poderá executar comandos para criar seus Models.
-Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
+Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Models que serão criadas *usuariosModel.php* e *produtosModel.php*;
 
 
 ```
@@ -33,7 +33,7 @@ Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: **/app/models/meusUsuarios.php**
+Isso criará automaticamente o seguinte arquivo: **/app/models/usuariosModel.php**
 
 
 ## Models
@@ -46,7 +46,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
 
-	class meusUsuarios	extends	mysqlORM	{
+	class usuariosModel	extends	mysqlORM	{
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
 		//  COLUNAS BLOQUEADAS 
@@ -72,7 +72,7 @@ Basta importar o autoload e o namespace da sua Model e utilizar
 
 <?php
 	include "vendor\autoload.php";
-	use IsraelNogueira\Models\meusUsuarios;
+	use IsraelNogueira\Models\usuariosModel;
 ?>
 
 ```
@@ -88,9 +88,9 @@ Uma `array` vazia será retornada caso a consulta não encontre resultados.
 
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
-	$users =  new meusUsuarios();
+	$users =  new usuariosModel();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
 	$users->colum(['endereco','telefone']); // ou ainda varias de uma vez
@@ -111,9 +111,9 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```php
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->colum('nome');
 	$users->colum('bairro_id');
 
@@ -161,9 +161,9 @@ WHERE  (
 ```php
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
 	$users->set_where('cidade_id=11');
@@ -203,7 +203,7 @@ Também podemos aplicar uma subquery a uma coluna:
 <?php
 	include "vendor\autoload.php";
 	use  App\Models\meusUsuario;
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 
 	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
 	$users->colum('COUNT(1) as total_registro ');
@@ -234,9 +234,9 @@ Podemos também executar múltiplos selects em uma só instancia:
 ```php
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->colum('username');
 	$users->colum('email');
 	$users->limit(1);
@@ -287,17 +287,17 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
 	//FORMA SIMPLIFICADA
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
 	$users->insert();
 
 	//Todas as condicionais podem ser aplicadas aqui também
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
@@ -310,7 +310,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?
 	// MULTIPLOS INSERTS
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
@@ -336,7 +336,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?
 	//PUXANDO UMA ARRAY
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
 	$users->prepare_insert();
 
@@ -360,17 +360,17 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?php
 	include "vendor\autoload.php";
-	use  App\Models\meusUsuarios;
+	use  App\Models\usuariosModel;
 
 	//FORMA SIMPLIFICADA
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
 	$users->update();
 	
 	//Todas as condicionais podem ser aplicadas aqui também
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
@@ -384,7 +384,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?php
 	// MULTIPLOS UPDATES
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->coluna1 = 'valor';
 	$users->coluna2 = 'valor';
 	$users->coluna3 = 'valor';
@@ -412,7 +412,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
 <?php
 	//PUXANDO UMA ARRAY
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
 	$users->prepare_update();
 
@@ -440,12 +440,12 @@ Podemos inserir dados de algumas formas diferentes:
 <?php
 
 	//DELETE DIRETO E SIMPLES
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->where('UID=32');
 	$users->delete();
 
 	//PREPARANDO MULTIPLOS
-	$users =  new  meusUsuarios();
+	$users =  new  usuariosModel();
 	$users->where('UID=32');
 	$users->prepare_delete();//Armazena
 
