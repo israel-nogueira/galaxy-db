@@ -50,8 +50,8 @@ Nela serão cadastrados os parâmetros de uso da classe.
 <?php
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
-
-	class  meusUsuarios  extends  mysqlORM {
+	
+	class meusUsuarios	extends	mysqlORM	{
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
 		//  COLUNAS BLOQUEADAS 
