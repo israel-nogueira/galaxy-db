@@ -28,8 +28,12 @@ A variavel "app/Models/" você pode trocar pela raíz do seu projeto;
 
 ```
 
-Agora poderá executar o seguinte comando e criar seus módulos :
+Agora poderá executar o seguinte comando e criar seus Models :
 
+```
+composer run-script orm
+
+```
 
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
 ```php
