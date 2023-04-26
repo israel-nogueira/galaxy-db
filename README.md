@@ -41,7 +41,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
  */
 <?php
 
-	namespace IsraelNogueira\MysqlOrm;
+	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
 
 	class  joaoDaSilva  extends  mysqlORM {
@@ -62,18 +62,17 @@ Nela serão cadastrados os parâmetros de uso da classe.
 
 	}
 ?>
-
-
-
 ```
 
-
 Basta importar o autoload e criar seus próprios *Models* como os arquivos  `./app/models/*.model.php`
+
 ```php
+
 <?php
 	include "vendor\autoload.php";
-	use IsraelNogueira\MysqlOrm;
 	use IsraelNogueira\Models\joaoDaSilva;
+?>
+
 ```
 
 ## Exemplos de uso
