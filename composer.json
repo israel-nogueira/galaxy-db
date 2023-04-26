@@ -8,6 +8,9 @@
             "email": "israel@feats.com.br"
         }
     ],
+    "scripts": {
+        "orm": "php src/orm"
+    },
     "minimum-stability": "beta",
     "autoload": {
         "psr-4": {
