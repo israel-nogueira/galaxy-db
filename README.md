@@ -47,9 +47,6 @@ O *Model* é o uso da classe abstrata da classe principal.
 Nela serão cadastrados os parâmetros de uso da classe.
 
 ```php
-/**
- *  Início da extensão da classe mysql.
- */
 <?php
 
 	namespace IsraelNogueira\Models;
@@ -59,13 +56,13 @@ Nela serão cadastrados os parâmetros de uso da classe.
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
 		//  COLUNAS BLOQUEADAS 
-		protected $columnsBlocked = ['CPF','CARTAO_CREDITO_TOKEN'];
+		protected $columnsBlocked = [];
 		//  COLUNAS PERMITIDAS 
-		protected $columnsEnabled = ['NOME','EMAIL','TELEFONE','ENDERECO'];
+		protected $columnsEnabled = [];
 		//  FUNÇÕES MYSQL PROIBIDAS 
-		protected $functionsBlocked = ['CONCAT','SHA2'];
+		protected $functionsBlocked = [];
 		//  FUNÇÕES MYSQL PERMITIDAS 
-		protected $functionsEnabled = ['IF','SH1','COALESCE'];
+		protected $functionsEnabled = [];
 		//  FUNÇÕES MYSQL PERMITIDAS 
 		protected $charactersEnabled = [];
 		//  FUNÇÕES MYSQL PROIBIDOS 
@@ -94,6 +91,7 @@ O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
 ```php
 <?php
+    include "vendor\autoload.php";
 	use  App\Models\meusUsuarios;
 	
 	$users =  new meusUsuarios();
@@ -115,7 +113,8 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ### Select mais completo
 ```php
 <?php
-	use  App\Models\meusUsuarios
+    include "vendor\autoload.php";
+	use  App\Models\meusUsuarios;
 
 	$users =  new  meusUsuarios();
 	$users->colum('nome');
@@ -163,7 +162,9 @@ WHERE  (
 
 ```php
 <?php
-	use  App\Models\meusUsuarios
+    include "vendor\autoload.php";
+	use  App\Models\meusUsuarios;
+
 	$users =  new  meusUsuarios();
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
@@ -201,7 +202,8 @@ Também podemos aplicar uma subquery a uma coluna:
 
 ```php
 <?php
-	use  App\Models\meusUsuarios
+    include "vendor\autoload.php";
+	use  App\Models\meusUsuario;
 	$users =  new  meusUsuarios();
 	
 	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
@@ -232,7 +234,9 @@ Podemos também executar múltiplos selects em uma só instancia:
 
 ```php
 <?php
-	use  App\Models\meusUsuarios
+    include "vendor\autoload.php";
+	use  App\Models\meusUsuarios;
+
 	$users =  new  meusUsuarios();
 	$users->colum('username');
 	$users->colum('email');
@@ -283,22 +287,23 @@ Podemos inserir dados de algumas formas diferentes:
 
 ```php
 <?php
-	use  App\Models\meusUsuarios
-	
-		//FORMA SIMPLIFICADA
-		$users =  new  meusUsuarios();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->insert();
+    include "vendor\autoload.php";
+    use  App\Models\meusUsuarios;
 
-		//Todas as condicionais podem ser aplicadas aqui também
-		$users =  new  meusUsuarios();
-		$users->coluna1 = 'valor';
-		$users->coluna2 = 'valor';
-		$users->coluna3 = 'valor';
-		$users->where('NOW() > "00-00-00 00:00:00"');
-		$users->insert();
+    //FORMA SIMPLIFICADA
+    $users =  new  meusUsuarios();
+    $users->coluna1 = 'valor';
+    $users->coluna2 = 'valor';
+    $users->coluna3 = 'valor';
+    $users->insert();
+
+    //Todas as condicionais podem ser aplicadas aqui também
+    $users =  new  meusUsuarios();
+    $users->coluna1 = 'valor';
+    $users->coluna2 = 'valor';
+    $users->coluna3 = 'valor';
+    $users->where('NOW() > "00-00-00 00:00:00"');
+    $users->insert();
 ?>
 ```
 # MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
@@ -354,24 +359,25 @@ Podemos inserir dados de algumas formas diferentes:
 
 # UPDATE:
 ```php
-    <?php
-        use  App\Models\meusUsuarios
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\meusUsuarios;
 
-        //FORMA SIMPLIFICADA
-        $users =  new  meusUsuarios();
-        $users->coluna1 = 'valor';
-        $users->coluna2 = 'valor';
-        $users->coluna3 = 'valor';
-        $users->update();
-        
-        //Todas as condicionais podem ser aplicadas aqui também
-        $users =  new  meusUsuarios();
-        $users->coluna1 = 'valor';
-        $users->coluna2 = 'valor';
-        $users->coluna3 = 'valor';
-        $users->where('UID="7365823765"');
-        $users->update();
-    ?>
+    //FORMA SIMPLIFICADA
+    $users =  new  meusUsuarios();
+    $users->coluna1 = 'valor';
+    $users->coluna2 = 'valor';
+    $users->coluna3 = 'valor';
+    $users->update();
+    
+    //Todas as condicionais podem ser aplicadas aqui também
+    $users =  new  meusUsuarios();
+    $users->coluna1 = 'valor';
+    $users->coluna2 = 'valor';
+    $users->coluna3 = 'valor';
+    $users->where('UID="7365823765"');
+    $users->update();
+?>
 ```
 
 # MULTIPLOS UPDATES + TRANSACTION + ROLLBACK:
