@@ -97,6 +97,7 @@ class mysqlORM{
 		$this->CONECT_PARAMS[3] = $name		??	DB_DATABASE;
 		$this->CONECT_PARAMS[4] = $port		??	DB_PORT;
 		$this->connection_close();
+
 		if($this->type_connection=='mysqli'){ // MYSQLI
 
 			$this->connection = new mysqli($this->CONECT_PARAMS[0], $this->CONECT_PARAMS[1], $this->CONECT_PARAMS[2], $this->CONECT_PARAMS[3], $this->CONECT_PARAMS[4]);		

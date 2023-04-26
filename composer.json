@@ -20,7 +20,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ ! -d orm/models ]; then mkdir -p orm/models; fi",
+            "if [ ! -d ../orm/models ]; then mkdir -p ../orm/models; fi",
             "php -r \"echo 'Orm\\\\Models\\\\';\" >> composer.json",
             "composer dump-autoload"
         ]
