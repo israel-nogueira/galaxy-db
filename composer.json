@@ -9,10 +9,7 @@
     "autoload": {
         "psr-4": {
             "IsraelNogueira\\MysqlOrm\\": "src/"
-        },
-        "classmap": [
-            "app/Models"
-        ]
+        }
     },
    "minimum-stability": "dev"
 }
