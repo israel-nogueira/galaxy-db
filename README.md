@@ -28,7 +28,13 @@ Acrescente em seu *composer.json*:
     }
 
 ```
+Execute o seguinte comando;
 
+```
+
+	composer dump-autoload
+
+```
 Agora poderá executar comandos para criar seus Models.
 Podendo trocar *"meusUsuarios"* pelo nome que você bem entender;
 
