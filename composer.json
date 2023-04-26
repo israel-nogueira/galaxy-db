@@ -15,19 +15,11 @@
             "IsraelNogueira\\MysqlOrm\\": "src/"
         }
     },
-    "require":{
-        "php":">=7.4"
+    "require": {
+        "php": ">=7.4"
     },
     "scripts": {
-        "post-install-cmd": [
-            "src/post-install.sh"
-        ],
-        "post-update-cmd": [
-            "src/post-install.sh"
-        ]
+        "novoModel": "php scripts/orm"
     },
-
-
-
     "minimum-stability": "stable"
 }
