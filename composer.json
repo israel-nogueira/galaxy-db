@@ -22,5 +22,5 @@
         "classmap": [
             "app/Models"
         ]
-    },
+    }
 }
