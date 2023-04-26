@@ -12,9 +12,7 @@ composer require israel-nogueira/mysql-orm
 
 ```
 
-Depois de instalado, acrescente em seu composer.json.
-
-A variavel "app/Models/" você pode trocar pela raíz do seu projeto;
+Depois de instalado, acrescente em seu composer.json, sendo que a variavel "app/Models/" você pode trocar pela raíz do seu projeto;
 
 ```
     "scripts": {
