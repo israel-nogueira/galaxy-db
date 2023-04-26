@@ -13,21 +13,22 @@ levando em consideração de que "**/app/models/**" pode ser substituido pelo pa
 ```
 
     composer require israel-nogueira/mysql-orm
-    composer config scripts.orm "php vendor/israel-nogueira/mysql-orm/src/orm"
 
 ```
 
-Acrescente uma rota de auto load pra seus Models:
+Acrescente em seu *composer.json*:
 
 ```
-
+"scripts": {
+    "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
+}
 "psr-4": {
     "IsraelNogueira\\Models\\": "app/models"
 }
 
 ```
 
-Agora poderá executar o seguinte comando e criar seus Models.
+Agora poderá executar comandos para criar seus Models.
 Podendo trocar "joaoDaSilva" pelo nome que você bem entender;
 
 ```
