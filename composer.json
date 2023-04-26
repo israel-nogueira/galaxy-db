@@ -1,7 +1,11 @@
 {
     "name": "israel-nogueira/mysql-orm",
     "description": "ORM simples para PHP e MySQL",
-    "type": "library",
+    "license": "library",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4.0"
+    },
     "authors": [
         {
             "name": "Israel Nogueira",
@@ -19,5 +23,4 @@
             "app/Models"
         ]
     },
-    "require": {}
 }
