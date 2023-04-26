@@ -5,10 +5,8 @@ Classe para controlar o MySQL no PHP com facilidade e segurança.
  
 ## Instalação
 
-A instalação é muito simples. 
+Instale via composer. 
 
-Execute em seu CLI na seguinte ordem,
-levando em consideração de que "**/app/models/**" pode ser substituido pelo path das suas models.
 
 ```
 
@@ -29,15 +27,15 @@ Acrescente em seu *composer.json*:
 ```
 
 Agora poderá executar comandos para criar seus Models.
-Podendo trocar "joaoDaSilva" pelo nome que você bem entender;
+Podendo trocar "meusUsuarios" pelo nome que você bem entender;
 
 ```
 
-composer run-script orm joaoDaSilva
+composer run-script orm meusUsuarios
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: **/app/models/** joaoDaSilva.php
+Isso criará automaticamente o seguinte arquivo: **/app/models/** meusUsuarios.php
 
 
 ## Models
@@ -54,7 +52,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\MysqlOrm\mysqlORM;
 
-	class  joaoDaSilva  extends  mysqlORM {
+	class  meusUsuarios  extends  mysqlORM {
 		//  TABELA PADRÃO 
 		protected $table =  'usuarios';
 		//  COLUNAS BLOQUEADAS 
@@ -80,7 +78,7 @@ Basta importar o autoload e o namespace da sua Model e utilizar
 
 <?php
 	include "vendor\autoload.php";
-	use IsraelNogueira\Models\joaoDaSilva;
+	use IsraelNogueira\Models\meusUsuarios;
 ?>
 
 ```
@@ -93,9 +91,9 @@ O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
 ```php
 <?php
-	use  App\Models\joaoDaSilva;
+	use  App\Models\meusUsuarios;
 	
-	$users =  new joaoDaSilva();
+	$users =  new meusUsuarios();
 	$users->colum('nome');//unitario
 	$users->colum('email as mail');// com alias
 	$users->colum(['endereco','telefone']); // ou ainda varias de uma vez
@@ -114,9 +112,9 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ### Select mais completo
 ```php
 <?php
-	use  App\Models\joaoDaSilva
+	use  App\Models\meusUsuarios
 
-	$users =  new  joaoDaSilva();
+	$users =  new  meusUsuarios();
 	$users->colum('nome');
 	$users->colum('bairro_id');
 	
@@ -162,8 +160,8 @@ WHERE  (
 
 ```php
 <?php
-	use  App\Models\joaoDaSilva
-	$users =  new  joaoDaSilva();
+	use  App\Models\meusUsuarios
+	$users =  new  meusUsuarios();
 	// Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
 	// Criamos um sub select e instanciamos como "cidade_11"
 	$users->set_where('cidade_id=11');
@@ -200,8 +198,8 @@ Também podemos aplicar uma subquery a uma coluna:
 
 ```php
 <?php
-	use  App\Models\joaoDaSilva
-	$users =  new  joaoDaSilva();
+	use  App\Models\meusUsuarios
+	$users =  new  meusUsuarios();
 	
 	// Aqui apenas trazemos o total de usuarios que moram na cidade 11
 	$users->colum('COUNT(1) as total_registro ');
@@ -231,8 +229,8 @@ Podemos também executar múltiplos selects em uma só instancia:
 
 ```php
 <?php
-	use  App\Models\joaoDaSilva
-	$users =  new  joaoDaSilva();
+	use  App\Models\meusUsuarios
+	$users =  new  meusUsuarios();
 	$users->colum('username');
 	$users->colum('email');
 	$users->limit(1);
@@ -282,17 +280,17 @@ Podemos inserir dados de algumas formas diferentes:
 
 ```php
 <?php
-	use  App\Models\joaoDaSilva
+	use  App\Models\meusUsuarios
 	
 		//FORMA SIMPLIFICADA
-		$users =  new  joaoDaSilva();
+		$users =  new  meusUsuarios();
 		$users->coluna1 = 'valor';
 		$users->coluna2 = 'valor';
 		$users->coluna3 = 'valor';
 		$users->insert();
 
 		//Todas as condicionais podem ser aplicadas aqui também
-		$users =  new  joaoDaSilva();
+		$users =  new  meusUsuarios();
 		$users->coluna1 = 'valor';
 		$users->coluna2 = 'valor';
 		$users->coluna3 = 'valor';
@@ -305,7 +303,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?
         // MULTIPLOS INSERTS
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -331,7 +329,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?
         //PUXANDO UMA ARRAY
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
         $users->prepare_insert();
 
@@ -354,17 +352,17 @@ Podemos inserir dados de algumas formas diferentes:
 # UPDATE:
 ```php
     <?php
-        use  App\Models\joaoDaSilva
+        use  App\Models\meusUsuarios
 
         //FORMA SIMPLIFICADA
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
         $users->update();
         
         //Todas as condicionais podem ser aplicadas aqui também
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -378,7 +376,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?php
         // MULTIPLOS UPDATES
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->coluna1 = 'valor';
         $users->coluna2 = 'valor';
         $users->coluna3 = 'valor';
@@ -406,7 +404,7 @@ Podemos inserir dados de algumas formas diferentes:
 ```php
     <?php
         //PUXANDO UMA ARRAY
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
         $users->prepare_update();
 
@@ -434,12 +432,12 @@ Podemos inserir dados de algumas formas diferentes:
     <?php
 
         //DELETE DIRETO E SIMPLES
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->where('UID=32');
         $users->delete();
 
         //PREPARANDO MULTIPLOS
-        $users =  new  joaoDaSilva();
+        $users =  new  meusUsuarios();
         $users->where('UID=32');
         $users->prepare_delete();//Armazena
 
