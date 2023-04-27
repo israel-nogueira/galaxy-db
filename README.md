@@ -1,4 +1,4 @@
-## PHP ORM
+## PHP ORM [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 Classe para controlar o MySQL no PHP com facilidade e segurança.
 
