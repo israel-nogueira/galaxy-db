@@ -26,7 +26,7 @@ Acrescente em seu _composer.json_:
 ## CRIANDO MODELS
 
 Este é o comando para criar suas Models.  
-Cada palavra é um parametro, por exemplo _“usuarios e produtos” _ no comando:
+Cada palavra é um parametro, por exemplo *“usuarios e produtos”* no comando:
 
 ```plaintext
     composer run-script orm usuario produtos
