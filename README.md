@@ -33,12 +33,14 @@ Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Mode
 
 ```
 
-Isso criará automaticamente o seguinte arquivo: **/app/models/usuariosModel.php**
+Isso criará automaticamente os seguinte arquivos: 
+**/app/models/usuariosModel.php**
+**/app/models/produtosModel.php**
 
 
-## Models
+## PADRÃO DAS MODELS
 
-O *Model* é o uso da classe abstrata da classe principal. 
+A *Model* é o uso da classe abstrata da classe principal. 
 Nela serão cadastrados os parâmetros de uso da classe.
 
 ```php
@@ -487,7 +489,7 @@ Seguindo o exemplo abaixo:
 			$this->join('LEFT','table_cidade cidade','cidade.id=usuarios.cidade_id');
 			$this->join('LEFT','table_uf uf','uf.id=cidade.uf_id');
 		}
-		
+
 	}
 ?>
 ```
