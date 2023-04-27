@@ -23,7 +23,8 @@ Acrescente em seu *composer.json*:
 
 ```
 
-Agora poderá executar comandos para criar seus Models.
+Este é o comando para criar suas Models.
+
 Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Models que serão criadas *usuariosModel.php* e *produtosModel.php*;
 
 ```
@@ -33,8 +34,10 @@ Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Mode
 ```
 
 Isso criará automaticamente os seguinte arquivos: 
+
 **/app/models/usuariosModel.php**
 **/app/models/produtosModel.php**
+
 
 Você também notará, que foi adicionado em seu *composer.json* 
 a rota onde suas Models serão criadas e executadas.
