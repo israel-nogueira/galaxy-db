@@ -26,7 +26,6 @@ Acrescente em seu *composer.json*:
 Agora poderá executar comandos para criar seus Models.
 Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Models que serão criadas *usuariosModel.php* e *produtosModel.php*;
 
-
 ```
 
 	composer run-script orm usuario produtos
@@ -36,6 +35,17 @@ Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Mode
 Isso criará automaticamente os seguinte arquivos: 
 **/app/models/usuariosModel.php**
 **/app/models/produtosModel.php**
+
+Você também notará, que foi adicionado em seu *composer.json* 
+a rota onde suas Models serão criadas e executadas.
+
+´´´
+
+	"psr-4": {
+		"IsraelNogueira\\Models\\": "app/Models/"
+	}
+
+´´´
 
 
 ## PADRÃO DAS MODELS
