@@ -465,7 +465,7 @@ Podemos inserir dados de algumas formas diferentes:
 ?>
 ```
 
-## FUNÇÕES DO MODEL
+## FUNÇÕES NA MODEL
 
 Você pode também estender padrões em sua model.
 Podendo abstrair mais nossas consultas.
