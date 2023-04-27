@@ -23,8 +23,9 @@ Acrescente em seu *composer.json*:
 
 ```
 
-Este é o comando para criar suas Models.
+## CRIANDO MODELS
 
+Este é o comando para criar suas Models.
 Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Models que serão criadas *usuariosModel.php* e *produtosModel.php*;
 
 ```
