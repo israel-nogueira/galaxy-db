@@ -1,13 +1,8 @@
 ## PHP ORM 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![Test status](https://github.com/israel-nogueira/mysql-orm/workflows/Tests/badge.svg)](https://github.com/israel-nogueira/mysql-orm/actions)
-[![codecov.io](https://codecov.io/gh/israel-nogueira/mysql-orm/branch/master/graph/badge.svg?token=iORZpwmYmM)](https://codecov.io/gh/israel-nogueira/mysql-orm)
 [![Latest Stable Version](https://poser.pugx.org/israel-nogueira/mysql-orm/v/stable.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
 [![Total Downloads](https://poser.pugx.org/israel-nogueira/mysql-orm/downloads)](https://packagist.org/packages/israel-nogueira/mysql-orm)
 [![License](https://poser.pugx.org/israel-nogueira/mysql-orm/license.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
-[![API Docs](https://github.com/israel-nogueira/mysql-orm/workflows/Docs/badge.svg)](https://phpmailer.github.io/PHPMailer/)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/israel-nogueira/mysql-orm/badge)](https://api.securityscorecards.dev/projects/github.com/israel-nogueira/mysql-orm)
-
 
 
 
