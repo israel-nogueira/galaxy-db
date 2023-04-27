@@ -21,9 +21,7 @@ Acrescente em seu _composer.json_:
 ## CRIANDO MODELS
 
 Este é o comando para criar suas Models.  
-Cada palavra é um parametro, por exemplo:
-
-_"usuarios e produtos"_ são duas Models que serão criadas
+Cada palavra é um parametro, por exemplo _“usuarios e produtos” _ no comando:
 
 ```plaintext
     composer run-script orm usuario produtos
@@ -31,13 +29,11 @@ _"usuarios e produtos"_ são duas Models que serão criadas
 
 Isso criará automaticamente os seguinte arquivos:
 
-**/app/models/usuariosModel.php**  
-**/app/models/produtosModel.php**
+> **/app/models/usuariosModel.php**  
+> **/app/models/produtosModel.php**
 
 Você também notará, que foi adicionado em seu _composer.json_  
 a rota onde suas Models serão criadas e executadas.
-
-´´´
 
 ```plaintext
 "psr-4": {
@@ -45,9 +41,8 @@ a rota onde suas Models serão criadas e executadas.
 }
 ```
 
-´´´
-
-## PADRÃO DAS MODELS
+##   
+PADRÃO DAS MODELS
 
 A _Model_ é o uso da classe abstrata da classe principal.  
 Nela serão cadastrados os parâmetros de uso da classe.
@@ -80,7 +75,6 @@ Nela serão cadastrados os parâmetros de uso da classe.
 Basta importar o autoload e o namespace da sua Model e utilizar
 
 ```php
-
 <?php
     include "vendor\autoload.php";
     use IsraelNogueira\Models\usuariosModel;
