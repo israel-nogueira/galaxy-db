@@ -479,19 +479,15 @@ Seguindo o exemplo abaixo:
 
 	class usuariosModel	extends	mysqlORM	{
 		protected $table=  'usuarios';
-		protected $columnsBlocked= [];
-		protected $columnsEnabled= [];
-		protected $functionsBlocked= [];
-		protected $functionsEnabled= [];
-		protected $charactersEnabled= [];
-		protected $charactersBlocked= [];
 
+		// AQUI MONTAMOS A NOSSA FUNÇÃO ESTENDIDA
 		public function cidadeEstado(){
 			$this->colum('city.nome as cidade');
 			$this->colum('uf.nome as uf');
 			$this->join('LEFT','table_cidade cidade','cidade.id=usuarios.cidade_id');
 			$this->join('LEFT','table_uf uf','uf.id=cidade.uf_id');
 		}
+		
 	}
 ?>
 ```
