@@ -106,7 +106,7 @@ Uma `array` vazia será retornada caso a consulta não encontre resultados.
 
 Resultará no seguinte select:
 
-```plaintext
+```sql
 SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 ```
 
@@ -147,7 +147,7 @@ SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
 
 Resultará em uma query assim:
 
-```plaintext
+```sql
 SELECT  DISTINCT  nome,  bairro_id  FROM  usuarios  
 INNER  JOIN  bairros  ON  bairros.id  =  usuarios.bairro_id  
 LEFT  JOIN  cidades  ON  cidades.id  =  usuarios.cidade_id  
@@ -192,7 +192,7 @@ WHERE  (
 
 Isso resultará na seguinte query:
 
-```plaintext
+```sql
 SELECT  *  
     FROM  (SELECT  *  
         FROM  (SELECT  *  
@@ -224,7 +224,7 @@ Também podemos aplicar uma subquery a uma coluna:
 ?>
 ```
 
-```plaintext
+```sql
 SELECT user.*, (
     SELECT  COUNT(1) AS total_registro FROM users WHERE(cidade_id=11)
 )  AS  total_curitibanos  
