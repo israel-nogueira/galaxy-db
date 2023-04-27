@@ -29,7 +29,7 @@ Cada palavra é um parametro, por exemplo *"usuarios e produtos"* são duas Mode
 
 ```
 
-	composer run-script orm usuario produtos adress
+	composer run-script orm usuario produtos
 
 ```
 
@@ -463,4 +463,54 @@ Podemos inserir dados de algumas formas diferentes:
 	//EXECUTA OS DELETES
 	$users->execQuery();
 ?>
+```
+
+## FUNÇÕES DO MODEL
+
+Você pode também estender padrões em sua model.
+Podendo abstrair mais nossas consultas.
+
+Seguindo o exemplo abaixo: 
+
+```php
+<?php
+	namespace IsraelNogueira\Models;
+	use IsraelNogueira\MysqlOrm\mysqlORM;
+
+	class usuariosModel	extends	mysqlORM	{
+		protected $table=  'usuarios';
+		protected $columnsBlocked= [];
+		protected $columnsEnabled= [];
+		protected $functionsBlocked= [];
+		protected $functionsEnabled= [];
+		protected $charactersEnabled= [];
+		protected $charactersBlocked= [];
+
+		public function cidadeEstado(){
+			$this->colum('city.nome as cidade');
+			$this->colum('uf.nome as uf');
+			$this->join('LEFT','table_cidade cidade','cidade.id=usuarios.cidade_id');
+			$this->join('LEFT','table_uf uf','uf.id=cidade.uf_id');
+		}
+	}
+?>
+```
+
+E quando for utilizar a classe:
+
+```php
+
+<?php
+	include "vendor\autoload.php";
+	use  App\Models\usuariosModel;
+
+	$users =  new usuariosModel();
+	$users->colum('nome');
+	$users->colum('idade');
+	$users->cidadeEstado(); //====> aqui executamos nossa função
+	$users->select();
+	$_RESULT = $users->fetch_array();
+
+?>
+
 ```
