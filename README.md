@@ -41,8 +41,7 @@ a rota onde suas Models serão criadas e executadas.
 }
 ```
 
-##   
-PADRÃO DAS MODELS
+## PADRÃO DAS MODELS
 
 A _Model_ é o uso da classe abstrata da classe principal.  
 Nela serão cadastrados os parâmetros de uso da classe.
