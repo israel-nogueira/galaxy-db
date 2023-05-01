@@ -2,10 +2,10 @@
     declare(strict_types = 1);
     namespace IsraelNogueira\MysqlOrm;
 
-    define('DB_HOST', 		'localhost');
-    define('DB_PORT', 		'3306');
+    define('DB_HOST', 	'localhost');
+    define('DB_PORT', 	'3306');
     define('DB_DATABASE', 	'MY_DATABASE');
-    define('DB_TYPE', 		'mysql');
+    define('DB_TYPE', 	'mysql');
     define('DB_USERNAME', 	'root');
     define('DB_PASSWORD',   '');
     define('DB_CHAR',   	'');
