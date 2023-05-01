@@ -31,6 +31,32 @@ Acrescente em seu _composer.json_:
     }
 ```
 
+## CONFIGURANDO A BASE
+
+No arquivo ```/src/connection.php``` preencha os dados de conexão de sua base:
+
+```php
+    <?php
+        declare(strict_types = 1);
+        namespace IsraelNogueira\MysqlOrm;
+
+        define('DB_HOST', 		'localhost');
+        define('DB_PORT', 		'3306');
+        define('DB_DATABASE', 	'MY_DATABASE');
+        define('DB_TYPE', 		'mysql');
+        define('DB_USERNAME', 	'root');
+        define('DB_PASSWORD',   '');
+        define('DB_CHAR',   	'');
+        define('DB_FLOW',   	'');
+        define('DB_FKEY',   	'');
+
+        trait connection{
+
+        }
+
+```
+
+
 ## CRIANDO MODELS
 
 Este é o comando para criar suas Models.  

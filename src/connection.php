@@ -1,14 +1,16 @@
 <?php
 declare(strict_types = 1);
 namespace IsraelNogueira\MysqlOrm;
-/**
- * @author Name <email@email.com>
- * @package category
- * @license MIT
- * @copyright 2018 Name
- * classe Connection
- * gerencia conexões com bancos de dados através de arquivos de configuração.
- */
+
+define('DB_HOST', 		'localhost');
+define('DB_PORT', 		'3306');
+define('DB_DATABASE', 	'MY_DATABASE');
+define('DB_TYPE', 		'mysql');
+define('DB_USERNAME', 	'root');
+define('DB_PASSWORD',   '');
+define('DB_CHAR',   	'');
+define('DB_FLOW',   	'');
+define('DB_FKEY',   	'');
 
 trait connection{
 
@@ -36,10 +38,7 @@ trait connection{
         $flow = isset($db['flow']) ? $db['flow'] : NULL;
         $fkey = isset($db['fkey']) ? $db['fkey'] : NULL;
         $type = strtolower($type);
-        self::$dbaseType = $type;
-
-         
-
+        
         // descobre qual o tipo (driver) de banco de dados a ser utilizado
         switch ($type)
         {
@@ -243,9 +242,4 @@ trait connection{
         return $conn;
     }
 
-    public static function tipo()
-    {
-        $type = self::$dbaseType;
-        return $type;
-    }
 }
