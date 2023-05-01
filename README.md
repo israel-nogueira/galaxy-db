@@ -382,12 +382,12 @@ Podemos inserir dados de algumas formas diferentes:
 <?
     //PUXANDO UMA ARRAY
     $users =  new  usuariosModel();
-    $users->set_insert_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+    $users->set_insert_obj(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
     $users->prepare_insert();
 
     //DENTRO DE UM LAÇO
     foreach($_RESULTADO as $OBJ){
-        $users->set_insert_form($OBJ);
+        $users->set_insert_obj($OBJ);
         $users->prepare_insert();
     }
 
@@ -459,12 +459,12 @@ Podemos inserir dados de algumas formas diferentes:
 <?php
     //PUXANDO UMA ARRAY
     $users =  new  usuariosModel();
-    $users->set_update_form(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
+    $users->set_update_obj(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
     $users->prepare_update();
 
     //DENTRO DE UM LAÇO
     foreach($_RESULTADO as $OBJ){
-        $users->set_update_form($OBJ);
+        $users->set_update_obj($OBJ);
         $users->prepare_update();
     }
 

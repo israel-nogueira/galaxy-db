@@ -277,7 +277,7 @@
 			return $this;
 		}
 
-		public function set_insert_form($object){
+		public function set_insert_obj($object){
 			if(is_array($object)){
 				foreach($object as $key => $var){
 					if (is_null($var)) {$var = '';}
@@ -287,7 +287,7 @@
 			return $this;
 		}
 
-		public function set_update_form($object){
+		public function set_update_obj($object){
 			if(is_array($object)){
 				foreach($object as $key => $var){
 					$this->set_update($key,$var);
