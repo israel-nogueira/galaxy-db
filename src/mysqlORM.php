@@ -96,6 +96,19 @@
 			return $this;
 		}
 
+/*
+ |--------------------------------------------------------------------------
+ |		__SET
+ |--------------------------------------------------------------------------
+ | 
+ |  Utilizo basicamente para dar um valor as colunas;
+ |	Pode ser usado para Inserts ou Updates
+ |	
+ |	$param->nome_da_coluna = "string";
+ |
+ |--------------------------------------------------------------------------
+*/
+
 		public function __set($name, $value) {
 			$VAR_CARREGADAS = array_keys(get_mangled_object_vars($this));
 			if($this->initialized && !in_array($name,$VAR_CARREGADAS)){
@@ -105,12 +118,25 @@
 				$this->{$name}=$value;
 			}
 		}
-
+/*
+ |--------------------------------------------------------------------------
+ |		__CALL
+ |--------------------------------------------------------------------------
+ | 
+ |  Utilizo basicamente executar Stored Procedures ou Functions;
+ |	Basta acrescentar SP_  ou FN_ no inicio da função
+ |	e caso a função não exista na classe, ele entenderá que é da Base;
+ |	Ex:
+ |	$param->SP_processaAlgo($param1,$param2);
+ |	$param->FN_processaAlgo($param1,$param2);
+ |
+ |--------------------------------------------------------------------------
+*/
 		public function __call($_name, $arguments){
 			if (in_array($_name, (get_class_methods('mysqlORM')??[]))) {
 				return $this->$_name(...$arguments);
 			} else {
-				if (substr(strtolower($_name), 0, 3) == 'sp_' && strtolower($_name) != 'sp_response') {
+				if (substr(strtolower($_name), 0, 3) == 'sp_') {
 					$this->SP			= $_name;
 					$this->SP_PARAMS	= $arguments;
 					return $this;
@@ -120,6 +146,16 @@
 			}
 		}
 
+/*
+ |--------------------------------------------------------------------------
+ | 
+ |	Aqui apenas caso a pessoa queira utilizar a classe estaticamente
+ |
+ |	Ex:
+ |  return meuModel::static()->table('minha_tabela')->select();
+ |
+ |--------------------------------------------------------------------------
+*/
 		static public function static() {
 			return new static;
 		}
@@ -243,7 +279,8 @@
 			$this->fetch_array['show_columns'][$this->tableClass] = $_array;
 		}
 
-		public function showTables(){
+		public function showTables()
+		{
 			$tables = array();
 			$query = 'SHOW TABLES';
 			$result = $this->connection->query($query);
@@ -251,10 +288,8 @@
 			return $tables;
 		}
 
-		
-
-
-		public function verify(){		
+		public function verify()
+		{		
 			if (!is_null($this->tableClass) && is_null($this->setcolum)){
 				$query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = :databaseName AND table_name = :tableName";
 				$this->stmt = $this->connection->prepare($query);
@@ -367,7 +402,7 @@
 |
 |	Toda vez que damos um "insert", "prepare_select", "prepare_update"
 |	Ou qualquer execução de query, nós zeramos os parametros para que outras
-|	querys possam ser criadas
+|	querys possam ser criadas futuramente.
 |
 |--------------------------------------------------------------------------
 */
@@ -394,7 +429,6 @@
 			$this->setwhere				= null;
 			$this->limit				= null;
 		}
-		
 
 /*
 |--------------------------------------------------------------------------
@@ -539,7 +573,7 @@
 |--------------------------------------------------------------------------
 |
 |	São funções que não retornam nada, apenas setam parametros 
-|	para processamento da query depois
+|	para processamento da query posteriormente
 |
 |--------------------------------------------------------------------------
 */
@@ -764,13 +798,6 @@
 			return $this->connection->lastInsertId();
 		}
 
-		public function sp_response($variable = null){
-			if ($variable != null) {
-				return $this->sp_response[$variable];
-			} else {
-				return $this->sp_response;
-			}
-		}
 
 		public function dataTable(array $oAjaxData=[]){
 

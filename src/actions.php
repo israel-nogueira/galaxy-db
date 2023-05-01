@@ -285,6 +285,15 @@
 			return $this;
 		}
 
+
+		public function responseSP($variable = null){
+			if ($variable != null) {
+				return $this->sp_response[$variable];
+			} else {
+				return $this->sp_response;
+			}
+		}
+
 		public function execSP($_ALIAS='RESPONSE', $_RETORNO=null){				
 				$this->prepare_execSP($_ALIAS,$_RETORNO);
 				$this->execQuery();

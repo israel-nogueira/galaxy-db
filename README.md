@@ -39,7 +39,7 @@ No arquivo ```/vendor/israel-nogueira/mysql-orm/src/connection.php``` preencha o
     <?php
         declare(strict_types = 1);
         namespace IsraelNogueira\MysqlOrm;
-        
+
         define('DB_HOST', 	'localhost');
         define('DB_PORT', 	'3306');
         define('DB_DATABASE', 	'MY_DATABASE');
@@ -550,6 +550,22 @@ E quando for utilizar a classe:
     $users->cidadeEstado(); //====> aqui executamos nossa função
     $users->select();
     $_RESULT = $users->fetch_array();
+
+?>
+```
+
+
+## Stored Procedures e Functions
+
+    Estou fazendo aos poucos esse README.
+    Vou descrever na sequencia como funciona.
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+
 
 ?>
 ```
