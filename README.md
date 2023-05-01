@@ -5,7 +5,14 @@
 
 
 
-Classe para controlar o MySQL no PHP com facilidade e segurança.
+Classe para controlar a sua base de dados no PHP com facilidade e segurança.
+Essa classe dá suporte as seguintes conexões:
+
+`mysql` `pgsql`
+`sqlite` `ibase`
+`fbird ` `oracle`
+`mssql` `dblib`
+`sqlsrv`
 
 ## Instalação
 

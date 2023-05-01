@@ -109,7 +109,8 @@ return '<?
 		){
 			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
 		}
-		
+		// code --install-extension <caminho_do_arquivo_com_snippet>
+
 		@mkdir($PATH.'/app/Models/',true);
 		file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 
