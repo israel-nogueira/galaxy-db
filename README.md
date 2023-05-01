@@ -6,6 +6,7 @@
 
 
 Classe para controlar a sua base de dados no PHP com facilidade e segurança.
+
 Essa classe dá suporte as seguintes conexões:
 
 `mysql` `pgsql`
