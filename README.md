@@ -39,7 +39,7 @@ No arquivo ```/vendor/israel-nogueira/mysql-orm/src/connection.php``` preencha o
     <?php
         declare(strict_types = 1);
         namespace IsraelNogueira\MysqlOrm;
-
+        
         define('DB_HOST', 	'localhost');
         define('DB_PORT', 	'3306');
         define('DB_DATABASE', 	'MY_DATABASE');
