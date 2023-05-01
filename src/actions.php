@@ -7,7 +7,49 @@
     use InvalidArgumentException;
     
     trait actions{
+	/*
+	|--------------------------------------------------------------------------
+	|	LIMPANDO CONFIGS
+	|--------------------------------------------------------------------------
+	|
+	|	Toda vez que damos um "insert", "prepare_select", "prepare_update"
+	|	Ou qualquer execução de query, nós zeramos os parametros para que outras
+	|	querys possam ser criadas futuramente.
+	|
+	|--------------------------------------------------------------------------
+	*/
 
+		public function clear(){
+			$this->like					= (object) array();
+			$this->InsertVars			= array();
+			$this->Insert_like			= array();
+			$this->Insert_Update		= array();
+			$this->stmt					= null;
+			$this->setcolum				= null;
+			$this->debug				= true;
+			$this->decode				= false;
+			$this->rell					= null;
+			$this->ignore				= array();
+			$this->on_duplicate			= array();
+			$this->DISTINCT				= null;
+			$this->replace_isso			= array();
+			$this->replace_porisso		= array();
+			$this->where				= null;
+			$this->set_where_not_exist	= null;
+			$this->colum				= null;
+			$this->setorder				= [];
+			$this->setwhere				= null;
+			$this->limit				= null;
+		}
+
+	/*
+	|--------------------------------------------------------------------------
+	|	TRANSACTIONS
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
         public function transaction($return='none'){
             $this->transactionFn = true;
             $this->rollbackFn = $return;
@@ -19,33 +61,14 @@
             }
         }
     
-        public function execQuery($P_ALIAS='response'){
-            if($this->transactionFn == true){
-                if($this->query==""){ return [];}
-                $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
-					try {
-						$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
-						$this->connection->beginTransaction();
-						foreach ($_QUERY as $_ALIAS => $query) {					
-							$this->stmt = $this->connection->query($query);
-							if (!$this->stmt) {
-								throw new Exception($this->connection->errorInfo()[2]);
-							}
-							$this->startProcessResult($this->stmt,$query,$_ALIAS);
-						}
-						$this->connection->commit();
-					} catch (PDOException $exception) {					
-						$this->connection->rollback();
-						if ($this->rollbackFn != false) {
-							$this->rollbackExec($exception->getMessage());
-						} else {
-							throw new RuntimeException($exception);
-						}
-					}
-            }
-        }
-
-
+	/*
+	|--------------------------------------------------------------------------
+	|	STORE PROCEDURES
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
 		public function createSP($name,$params,$sql){
 			return 'DELIMITER'.PHP_EOL.
 					'//'.PHP_EOL.
@@ -57,6 +80,62 @@
 					'	DELIMITER ;';
 		}
 
+		public function responseSP($variable = null){
+			if ($variable != null) {
+				return $this->sp_response[$variable];
+			} else {
+				return $this->sp_response;
+			}
+		}
+
+		public function execSP($_ALIAS='RESPONSE', $_RETORNO=null){				
+				$this->prepare_execSP($_ALIAS,$_RETORNO);
+				$this->execQuery();
+				$this->clear();
+				return $this;	
+		}
+
+		public function prepare_execSP($_ALIAS='RESPONSE', $_RETORNO=null){
+			$this->connect();
+			#---------------------------------------------------------------
+			# TRATAMOS AS ENTRADAS
+			#---------------------------------------------------------------
+			foreach ($this->SP_PARAMS as $key=>$value) {
+
+				if(is_array($value) || is_object($value)){
+
+					$this->SP_PARAMS[$key] = "'".trim(json_encode($value,JSON_BIGINT_AS_STRING), '[]')."'";
+
+				}elseif(is_numeric($value) || is_int($value) || is_float($value)){
+
+					$this->SP_PARAMS[$key] = trim($value);
+
+				}elseif(is_string($value)){
+
+					$this->SP_PARAMS[$key] = "'".trim($value)."'";
+
+				}elseif($value==null){
+
+					$this->SP_PARAMS[$key] = 'NULL';
+				}
+			}
+			if (!is_array($this->query)) {$this->query = [];}
+
+			if($_RETORNO==null){
+				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ');';
+			}else{
+				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ', @' . $_RETORNO . ');';
+			}
+		}
+
+	/*
+	|--------------------------------------------------------------------------
+	|	VIEWS
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
 
 		public function create_view($name = null){
 			if ($name == null) {
@@ -85,28 +164,15 @@
 			return $this;
 		}
 
-		public function insert_or_replace($type=null){
-			$keyvalue = array();
-			foreach ($this->InsertVars as $key => $value) {
-				if ($value=='NULL') {
-						$keyvalue[] = $key . 'NULL';
-					}elseif(is_string($value)) {
 
-						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerify($value);
-						if($_verify!==false){
-							$keyvalue[] = $key.'='.$_verify['function'].'('.$_verify['params'].')';
-						}else{
-							$keyvalue[] = $key.'="'.$this->preventMySQLInject($value,$type).'"';
-						}
-
-				} else {
-					$keyvalue[] = $key . "=" . $this->preventMySQLInject($value,$type);
-				}
-			}
-			$this->on_duplicate = ' ON DUPLICATE KEY UPDATE ' . implode(',', $keyvalue);
-			return $this;
-		}
+	/*
+	|--------------------------------------------------------------------------
+	|	PREPARE FUNCTIONS
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
 
 		public function prepare_insert($type=null){
 			$queryPrepare = 'INSERT ';
@@ -158,14 +224,6 @@
 			$this->clear();
 		}
 
-		public function insert(){
-			$this->query= null;
-			$this->prepare_insert();
-			$this->execQuery();
-			$this->clear();
-			return $this;
-		}
-
 		public function prepare_replace($type=null){
 			$queryPrepare = 'REPLACE ';
 			if (!empty($this->ignore)) {
@@ -215,14 +273,6 @@
 			}
 		}
 
-		public function replace(){
-			$this->query= null;
-			$this->prepare_replace();
-			$this->execQuery();
-			$this->clear();
-			return $this;
-		}
-
 		public function prepare_update($ALIAS='response'){
 			$queryPrepare = 'UPDATE ';
 			if ($this->tableClass != null) {
@@ -247,15 +297,7 @@
 			$this->query[$ALIAS] = $queryPrepare;
 			$this->clear();
 		}
-
-		public function update(){
-			$this->query = null;
-			$this->prepare_update();
-			$this->execQuery();
-			$this->clear();
-			return $this;
-		}
-
+		
 		public function prepare_delete(){
 			$queryPrepare = 'DELETE FROM ';
 			if (!empty($this->tableClass)) {
@@ -277,66 +319,51 @@
 			}
 		}
 
-		public function delete(){
-			$this->query = null;
-			$this->prepare_delete();
+		public function prepare_select($alias = null, $script = null){
+			if (!is_array($this->query)) {$this->query = [];}
+			$this->query[$alias] = (is_null($script)) ? $this->get_query():$script;
+			$this->clear();
+			return $this;
+		}
+
+	/*
+	|--------------------------------------------------------------------------
+	|	PREPARE FUNCTIONS
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
+
+
+		public function insert(){
+			$this->query= null;
+			$this->prepare_insert();
 			$this->execQuery();
 			$this->clear();
 			return $this;
 		}
 
-
-		public function responseSP($variable = null){
-			if ($variable != null) {
-				return $this->sp_response[$variable];
-			} else {
-				return $this->sp_response;
-			}
+		public function replace(){
+			$this->query= null;
+			$this->prepare_replace();
+			$this->execQuery();
+			$this->clear();
+			return $this;
 		}
 
-		public function execSP($_ALIAS='RESPONSE', $_RETORNO=null){				
-				$this->prepare_execSP($_ALIAS,$_RETORNO);
-				$this->execQuery();
-				$this->clear();
-				return $this;	
+		public function update(){
+			$this->query = null;
+			$this->prepare_update();
+			$this->execQuery();
+			$this->clear();
+			return $this;
 		}
-
-		public function prepare_execSP($_ALIAS='RESPONSE', $_RETORNO=null){
-			$this->connect();
-			#---------------------------------------------------------------
-			# TRATAMOS AS ENTRADAS
-			#---------------------------------------------------------------
-			foreach ($this->SP_PARAMS as $key=>$value) {
-
-				if(is_array($value) || is_object($value)){
-
-					$this->SP_PARAMS[$key] = "'".trim(json_encode($value,JSON_BIGINT_AS_STRING), '[]')."'";
-
-				}elseif(is_numeric($value) || is_int($value) || is_float($value)){
-
-					$this->SP_PARAMS[$key] = trim($value);
-
-				}elseif(is_string($value)){
-
-					$this->SP_PARAMS[$key] = "'".trim($value)."'";
-
-				}elseif($value==null){
-
-					$this->SP_PARAMS[$key] = 'NULL';
-				}
-			}
-			if (!is_array($this->query)) {$this->query = [];}
-
-			if($_RETORNO==null){
-				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ');';
-			}else{
-				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ', @' . $_RETORNO . ');';
-			}
-		}
-
-		public function prepare_select($alias = null, $script = null){
-			if (!is_array($this->query)) {$this->query = [];}
-			$this->query[$alias] = (is_null($script)) ? $this->get_query():$script;
+		
+		public function delete(){
+			$this->query = null;
+			$this->prepare_delete();
+			$this->execQuery();
 			$this->clear();
 			return $this;
 		}
@@ -349,5 +376,38 @@
 		}
 
 
+	/*
+	|--------------------------------------------------------------------------
+	|	EXEC FUNCTION
+	|--------------------------------------------------------------------------
+	|
+	|
+	|--------------------------------------------------------------------------
+	*/
+        public function execQuery($P_ALIAS='response'){
+            if($this->transactionFn == true){
+                if($this->query==""){ return [];}
+                $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
+					try {
+						$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+						$this->connection->beginTransaction();
+						foreach ($_QUERY as $_ALIAS => $query) {					
+							$this->stmt = $this->connection->query($query);
+							if (!$this->stmt) {
+								throw new Exception($this->connection->errorInfo()[2]);
+							}
+							$this->startProcessResult($this->stmt,$query,$_ALIAS);
+						}
+						$this->connection->commit();
+					} catch (PDOException $exception) {					
+						$this->connection->rollback();
+						if ($this->rollbackFn != false) {
+							$this->rollbackExec($exception->getMessage());
+						} else {
+							throw new RuntimeException($exception);
+						}
+					}
+            }
+        }
 
     }
