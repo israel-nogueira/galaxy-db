@@ -13,17 +13,17 @@
 
 /**
  * -------------------------------------------------------------------------
- * @author Israel Nogueira <israel@feats.com>
- * @package library
- * @license GPL-3.0-or-later
- * @copyright 2022 Israel Nogueira
+ *		@author Israel Nogueira <israel@feats.com>
+ *		@package library
+ *		@license GPL-3.0-or-later
+ *		@copyright 2023 Israel Nogueira
  * -------------------------------------------------------------------------
  * 
- * 	Classe de ORM para base de dados: 
- * 	Ainda não funciona todas as bases, mas implementarei aos poucos
- * 
- *  Plano é suportar as seguintes conexões:
- * 	mysql | pgsql | sqlite | ibase | fbird | oracle | mssql | dblib | sqlsrv
+ * 		Classe de ORM para base de dados: 
+ * 		Ainda não funciona todas as bases, mas implementarei aos poucos
+ * 	
+ *  	Plano é suportar as seguintes conexões:
+ * 		mysql | pgsql | sqlite | ibase | fbird | oracle | mssql | dblib | sqlsrv
  * 
  * -------------------------------------------------------------------------
  */
@@ -104,12 +104,11 @@
 	|		__SET
 	|--------------------------------------------------------------------------
 	| 
-	|  Utilizo basicamente para dar um valor as colunas;
+	|	Utilizo basicamente para dar um valor as colunas;
 	|	Pode ser usado para Inserts ou Updates
-	|	
-	|	$param->nome_da_coluna = "string";
+	|	Ex: $param->nome_da_coluna = "string";
 	|
-	|--------------------------------------------------------------------------
+	|
 	*/
 
 		public function __set($name, $value) {
@@ -134,7 +133,6 @@
 	|	$param->SP_processaAlgo($param1,$param2);
 	|	$param->FN_processaAlgo($param1,$param2);
 	|
-	|--------------------------------------------------------------------------
 	*/
 		public function __call($_name, $arguments){
 			if (in_array($_name, (get_class_methods('mysqlORM')??[]))) {
@@ -152,14 +150,15 @@
 
 	/*
 	|--------------------------------------------------------------------------
-	| 
-	|	Aqui apenas caso a pessoa queira utilizar a classe estaticamente
-	|
-	|	Ex:
-	|  return meuModel::static()->table('minha_tabela')->select();
-	|
+	|	STATIC
 	|--------------------------------------------------------------------------
+	|
+	|	Aqui apenas caso a pessoa queira utilizar a classe estaticamente
+	|	Ex: return meuModel::static()->table('minha_tabela')->select();
+	|
+	|
 	*/
+
 		static public function static() {
 			return new static;
 		}
@@ -172,7 +171,7 @@
 	|	Na model, temos alguns parametros pré-preparados
 	|	Aqui nós acessamos eles e setamos na classe mãe
 	|
-	|--------------------------------------------------------------------------
+	|
 	*/
 		public function extended() 
 		{
