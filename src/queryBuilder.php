@@ -24,9 +24,9 @@
                 $array = null;
                 $obj = null;
 
-                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $array[] = $row;
-                    $obj[] = $row;
+                foreach ($result->fetchAll(PDO::FETCH_ASSOC) as  $value) {
+                    $array[]	= $value;
+                    $obj[]		= (object)$value;
                 }
 
                 if(count($this->colunmToJson)>0){	

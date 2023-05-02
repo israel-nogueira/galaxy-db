@@ -10,6 +10,15 @@
 	use InvalidArgumentException;
 	use PDOException;
 
+    define('DB_HOST', 	'localhost');
+    define('DB_PORT', 	'3306');
+    define('DB_DATABASE', 	'FW_PADRAO');
+    define('DB_TYPE', 	'mysql');
+    define('DB_USERNAME', 	'root');
+    define('DB_PASSWORD',   '');
+    define('DB_CHAR',   	'');
+    define('DB_FLOW',   	'');
+    define('DB_FKEY',   	'');
 
 /**
  * -------------------------------------------------------------------------
@@ -41,6 +50,7 @@
 
 
 		public function __construct(){
+			$this->SP_OUTS				=[];
 			$this->like					= (object) array();
 			$this->InsertVars			= array();
 			$this->Insert_like			= array();
@@ -135,11 +145,12 @@
 	|
 	*/
 		public function __call($_name, $arguments){
-			if (in_array($_name, (get_class_methods('mysqlORM')??[]))) {
+
+			if (in_array($_name, (get_class_methods(get_called_class())??[]))) {
 				return $this->$_name(...$arguments);
 			} else {
 				if (substr(strtolower($_name), 0, 3) == 'sp_') {
-					$this->SP			= $_name;
+					$this->SP			= substr($_name,3);
 					$this->SP_PARAMS	= $arguments;
 					return $this;
 				} else {

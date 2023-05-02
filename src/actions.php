@@ -20,6 +20,8 @@
 	*/
 
 		public function clear(){
+			
+			$this->SP_OUTS				=[];
 			$this->like					= (object) array();
 			$this->InsertVars			= array();
 			$this->Insert_like			= array();
@@ -89,14 +91,18 @@
 		}
 
 		public function execSP($_ALIAS='RESPONSE', $_RETORNO=null){				
-				$this->prepare_execSP($_ALIAS,$_RETORNO);
+				$this->prepare_sp($_ALIAS,$_RETORNO);
 				$this->execQuery();
 				$this->clear();
 				return $this;	
 		}
 
-		public function prepare_execSP($_ALIAS='RESPONSE', $_RETORNO=null){
-			$this->connect();
+		public function sp($SP='RESPONSE', $SP_PARAMS=[]){
+				$this->SP			= $SP;
+				$this->SP_PARAMS	= (!is_array($SP_PARAMS))?[$SP_PARAMS]:$SP_PARAMS;
+		}
+
+		public function prepare_sp($_ALIAS='RESPONSE', $_RETORNO=null){
 			#---------------------------------------------------------------
 			# TRATAMOS AS ENTRADAS
 			#---------------------------------------------------------------
@@ -121,12 +127,26 @@
 			}
 			if (!is_array($this->query)) {$this->query = [];}
 
+
 			if($_RETORNO==null){
 				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ');';
 			}else{
+
+				if(is_array($_RETORNO)){
+					foreach ($_RETORNO as $value) {
+						$this->SP_OUTS[$_ALIAS][$value]=null;
+					}
+					$_RETORNO = implode(', @',$_RETORNO);
+				}else{
+					$this->SP_OUTS[$_ALIAS][$_RETORNO]=null;
+				}
+
 				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ', @' . $_RETORNO . ');';
 			}
 		}
+		
+					
+
 
 	/*
 	|--------------------------------------------------------------------------
@@ -388,25 +408,29 @@
             if($this->transactionFn == true){
                 if($this->query==""){ return [];}
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
-					try {
-						$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
-						$this->connection->beginTransaction();
-						foreach ($_QUERY as $_ALIAS => $query) {					
-							$this->stmt = $this->connection->query($query);
-							if (!$this->stmt) {
-								throw new Exception($this->connection->errorInfo()[2]);
-							}
-							$this->startProcessResult($this->stmt,$query,$_ALIAS);
-						}
-						$this->connection->commit();
-					} catch (PDOException $exception) {					
-						$this->connection->rollback();
-						if ($this->rollbackFn != false) {
-							$this->rollbackExec($exception->getMessage());
-						} else {
-							throw new RuntimeException($exception);
+				try {
+					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+					$this->connection->beginTransaction();
+					foreach ($_QUERY as $_ALIAS => $query) {	
+						$this->stmt = $this->connection->query($query);
+						if (!$this->stmt) {throw new Exception($this->connection->errorInfo()[2]);}
+						$this->startProcessResult($this->stmt,$query,$_ALIAS);
+					}
+					foreach ($this->SP_OUTS as $key1 =>$SP_OUTS) {
+						foreach ($SP_OUTS as $key2 => $value) {
+							$this->stmt = $this->connection->query('SELECT @'.$key2);
+							$this->SP_OUTS[$key1][$key2] = $this->stmt->fetchColumn();							
 						}
 					}
+					$this->connection->commit();
+				} catch (PDOException $exception) {					
+					$this->connection->rollback();
+					if ($this->rollbackFn != false) {
+						$this->rollbackExec($exception->getMessage());
+					} else {
+						throw new RuntimeException($exception);
+					}
+				}
             }
         }
 

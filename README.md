@@ -82,6 +82,15 @@ a rota onde suas Models serão criadas e executadas.
 
 ## PADRÃO DAS MODELS
 
+Basta importar o autoload e o namespace da sua Model e utilizar
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use IsraelNogueira\Models\usuariosModel;
+?>
+```
+
 A _Model_ é o uso da classe abstrata da classe principal.  
 Nela serão cadastrados os parâmetros de uso da classe.
 
@@ -110,14 +119,6 @@ Nela serão cadastrados os parâmetros de uso da classe.
 ?>
 ```
 
-Basta importar o autoload e o namespace da sua Model e utilizar
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use IsraelNogueira\Models\usuariosModel;
-?>
-```
 
 ## EXEMPLOS DE USO
 
