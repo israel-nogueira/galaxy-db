@@ -1,6 +1,6 @@
 {
-    "name": "israel-nogueira/mysql-orm",
-    "description": "ORM simples para PHP e MySQL",
+    "name": "israel-nogueira/galaxy-db",
+    "description": "ORM simples para PHP e Base de Dados",
     "type": "library",
     "license": "GPL-3.0-or-later",
     "keywords": [],
@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "IsraelNogueira\\MysqlOrm\\": "src/"
+            "IsraelNogueira\\galaxyDB\\": "src/"
         }
     },
     "require": {

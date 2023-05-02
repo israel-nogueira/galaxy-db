@@ -1,8 +1,8 @@
 <?php
-	namespace IsraelNogueira\MysqlOrm;
-	use IsraelNogueira\MysqlOrm\connection;
-	use IsraelNogueira\MysqlOrm\queryBuilder;
-	use IsraelNogueira\MysqlOrm\actions;
+	namespace IsraelNogueira\galaxyDB;
+	use IsraelNogueira\galaxyDB\connection;
+	use IsraelNogueira\galaxyDB\queryBuilder;
+	use IsraelNogueira\galaxyDB\actions;
 	use PDO;
 	use Exception;
 	use RuntimeException;
@@ -28,7 +28,7 @@
  *		@copyright 2023 Israel Nogueira
  * -------------------------------------------------------------------------
  * 
- * 		Classe de ORM para base de dados: 
+ * 		Classe galaxyDB para base de dados: 
  * 		Ainda não funciona todas as bases, mas implementarei aos poucos
  * 	
  *  	Plano é suportar as seguintes conexões:
@@ -38,7 +38,7 @@
  */
 
 
-	class mysqlORM{
+	class galaxyDB{
 		use connection;
 		use generalBase;
 		use security;

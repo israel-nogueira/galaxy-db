@@ -44,9 +44,9 @@ class cli{
 
 return '<?
 	namespace IsraelNogueira\Models;
-	use IsraelNogueira\MysqlOrm\mysqlORM;
+	use IsraelNogueira\galaxyDB\galaxyDB;
 
-	class '.$modelo.'Model extends mysqlORM{
+	class '.$modelo.'Model extends galaxyDB{
 
 		protected $table				=  "'.$modelo.'";
 		protected $columnsBlocked		= [];

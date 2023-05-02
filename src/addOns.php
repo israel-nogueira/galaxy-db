@@ -1,5 +1,5 @@
 <?
-    namespace IsraelNogueira\MysqlOrm;
+    namespace IsraelNogueira\galaxyDB;
 
 	trait addOns{
         /*
@@ -79,7 +79,7 @@
 				// AGORA TOTAL COM A PAGINAÇÃO 
 				$this->set_limit($start,$length);
 				$query = $this->get_query();
-				$fire = new mysqlORM();
+				$fire = new galaxyDB();
 				$fire->connect();
 				$fire->select('DataTable',$query);
 

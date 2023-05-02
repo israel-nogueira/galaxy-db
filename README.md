@@ -27,7 +27,7 @@ Acrescente em seu _composer.json_:
 
 ```plaintext
     "scripts": {
-        "orm": "php vendor/israel-nogueira/galaxy-db/src/orm"
+        "galaxy": "php vendor/israel-nogueira/galaxy-db/src/galaxy"
     }
 ```
 
@@ -38,7 +38,7 @@ No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha o
 ```php
     <?php
         declare(strict_types = 1);
-        namespace IsraelNogueira\MysqlOrm;
+        namespace IsraelNogueira\galaxyDB;
 
         define('DB_HOST', 	'localhost');
         define('DB_PORT', 	'3306');
@@ -63,7 +63,7 @@ Este é o comando para criar suas Models.
 Cada palavra é um parametro, por exemplo *“usuarios e produtos”* no comando:
 
 ```plaintext
-    composer run-script orm usuario produtos
+    composer run-script galaxy usuario produtos
 ```
 
 Isso criará automaticamente os seguinte arquivos:
@@ -97,9 +97,9 @@ Nela serão cadastrados os parâmetros de uso da classe.
 ```php
 <?php
     namespace IsraelNogueira\Models;
-    use IsraelNogueira\MysqlOrm\mysqlORM;
+    use IsraelNogueira\galaxyDB\galaxyDB;
 
-    class usuariosModel    extends    mysqlORM    {
+    class usuariosModel    extends    galaxyDB    {
         //  TABELA PADRÃO 
         protected $table =  'usuarios';
         //  COLUNAS BLOQUEADAS 
@@ -514,9 +514,9 @@ Seguindo o exemplo abaixo:
 ```php
 <?php
     namespace IsraelNogueira\Models;
-    use IsraelNogueira\MysqlOrm\mysqlORM;
+    use IsraelNogueira\galaxyDB\galaxyDB;
 
-    class usuariosModel    extends    mysqlORM    {
+    class usuariosModel    extends    galaxyDB    {
         protected $table=  'usuarios';
 
         // AQUI MONTAMOS A NOSSA FUNÇÃO ESTENDIDA
