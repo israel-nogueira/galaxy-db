@@ -670,9 +670,10 @@ será processado como uma query;
 
 Resultará em:
 
+    $_RESULT:
+
 ```json
 
-    // $_RESULT:
     {
         "LISTA_PRODUTOS" : [
                     {
@@ -687,8 +688,10 @@ Resultará em:
                     }
                 ]
     }
+```
+    $_OUTPUT:
 
-    // $_OUTPUT:
+```json
     {
         "processaDados":{
             "@_NOME":"João da Silva",
