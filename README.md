@@ -560,7 +560,7 @@ E quando for utilizar a classe:
 
     Uma Store Procedure, pode ser chamada de duas maneiras.
 
-### FUNÇÃO ->SP()
+### 1ª - Função ->SP()
 
 ```$usuarios->sp( NOME_DA_SP, ARRAY_PARAMS );```
 
@@ -580,7 +580,8 @@ E quando for utilizar a classe:
 
 ?>
 ```
-### FUNÇÃO MÁGICA 
+
+### 2ª - FUNÇÃO MÁGICA 
 
 Você também pode chamar simplesmente adicionando ```sp_ ``` na frente da sua função, 
 que a classe automaticamente entende que essa função é uma Stored Procedure;
@@ -601,4 +602,123 @@ Exemplo:
 	$teste->execQuery();
 
 ?>
+```
+
+## PARÂMTROS IN OUT  
+
+Todo parâmetro que você inserir com ```@``` no início, 
+a classe identifica que é um parâmetro de saída.
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $usuarios = new usuariosModel();
+	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
+	$teste->sp_sobePontos(637,'@_NOME');
+	$teste->prepare_sp();
+
+	$teste->transaction(function($ERROR){die($ERROR);});
+	$teste->execQuery();
+
+	$_RESULT = $teste->params_sp();
+
+?>
+```
+A variável ```$_RESULT``` representará a seguinte saída:
+
+```json
+    {
+        "processaDados":{
+            "@_NOME":"João da Silva",
+            "@_EMAIL":"joao@gmail.com",
+        },
+        "sobePontos":{
+            "@_NOME2":"João da Silva"
+        }
+    }
+```
+
+## PARÂMTROS IN OUT MAIS SELECTS
+
+Caso a sua Store Procedure possúa algum select interno, 
+será processado como uma query;
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $usuarios = new usuariosModel();
+	$teste->table("produtos");
+	$teste->limit(1);
+	$teste->prepare_select("LISTA_PRODUTOS");
+
+	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
+	$teste->sp_sobePontos(637,'@_NOME');
+	$teste->prepare_sp();
+
+	$teste->transaction(function($ERROR){die($ERROR);});
+	$teste->execQuery();
+
+    $_RESULT = $users->fetch_array();
+	$_OUTPUT = $teste->params_sp();
+
+?>
+```
+
+Resultará em:
+
+```json
+
+    // $_RESULT:
+    {
+        "LISTA_PRODUTOS" : [
+                    {
+                        "id": 654,
+                        "nome": "cadeira de madeira",
+                        "valor": 21.5,
+                    },
+                    {
+                        "id": 655,
+                        "nome": "Mesa de plástico",
+                        "valor": 149.9,
+                    }
+                ]
+    }
+
+    // $_OUTPUT:
+    {
+        "processaDados":{
+            "@_NOME":"João da Silva",
+            "@_EMAIL":"joao@gmail.com",
+        },
+        "sobePontos":{
+            "@_NOME2":"João da Silva"
+        }
+    }
+```
+
+
+```plaintext
+Array
+(
+    [users_1] => Array
+        (
+            [0] => Array
+                (
+                    [username] => username_01
+                    [email] => exemplo@email.com
+                )
+        )
+
+    [valores] => Array
+        (
+            [0] => Array
+                (
+                    [VALOR] => 100.00
+                )
+        )
+)
 ```
