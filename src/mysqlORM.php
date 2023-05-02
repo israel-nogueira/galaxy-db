@@ -51,6 +51,8 @@
 
 		public function __construct(){
 			$this->SP_OUTS				=[];
+			$this->SP_OUTPUTS			=[];
+			$this->SP_NEW_PARAMS		=[];
 			$this->like					= (object) array();
 			$this->InsertVars			= array();
 			$this->Insert_like			= array();
@@ -150,11 +152,7 @@
 				return $this->$_name(...$arguments);
 			} else {
 				if (substr(strtolower($_name), 0, 3) == 'sp_') {
-					$nameSP						= substr($_name,3);
-					$this->SP[$nameSP]			= $nameSP;
-					$this->SP_PARAMS[$nameSP]	= $arguments[0];
-					$this->SP_OUTS[$nameSP]		= (isset($arguments[1]))?'@'.implode(', @',$arguments[1]):[];
-					$this->prepare_sp($nameSP);
+					$this->sp(substr($_name,3), $arguments);
 					return $this;
 				} else {
 					throw new RuntimeException('MariaDB error: Função '.$_name.' desconhecida');

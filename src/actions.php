@@ -9,6 +9,45 @@
     trait actions{
 	/*
 	|--------------------------------------------------------------------------
+	|	NOVPOS VALORES PARA ARRAYS E OBJETOS
+	|--------------------------------------------------------------------------
+	|
+	|	Ele verifica antes dejá existe um valor, e vai acrescentando um contador até 
+	|	não existir um valor que ele possa acrescentar
+	|
+	|	"newValueArray"  ["item","item_1","item_2","item_3"]
+	|	"newKeyArray"  	["item"=>"value","item_1"=>"value","item_2"=>"value","item_3"=>"value"]
+	|
+	|--------------------------------------------------------------------------
+	*/
+		public function newValueArray($ARRAY, $PARAM){
+				$NEW_PARAM = $PARAM;
+				$i = 1;
+				verifica_i:
+				foreach ($ARRAY as  $SP_OUTS) {
+					if (in_array($NEW_PARAM, $SP_OUTS)) {
+						$i++;								
+						$NEW_PARAM = $PARAM.'_'.$i;
+						goto verifica_i;
+					} 
+				}
+				return $NEW_PARAM;
+		}
+
+		public function newKeyArray($ARRAY, $SP_NAME){
+			$a = 1;
+			$NEW_SP_NAME = $SP_NAME;
+			verifica_a:
+			if(array_key_exists($NEW_SP_NAME,$ARRAY)){
+				$a++;	
+				$NEW_SP_NAME = $SP_NAME.'_'.$a;
+				goto verifica_a;
+			}
+			return $NEW_SP_NAME;
+		}
+
+	/*
+	|--------------------------------------------------------------------------
 	|	LIMPANDO CONFIGS
 	|--------------------------------------------------------------------------
 	|
@@ -22,6 +61,8 @@
 		public function clear(){
 			
 			$this->SP_OUTS				=[];
+			$this->SP_OUTPUTS			=[];
+			$this->SP_NEW_PARAMS		=[];
 			$this->like					= (object) array();
 			$this->InsertVars			= array();
 			$this->Insert_like			= array();
@@ -42,14 +83,14 @@
 			$this->setorder				= [];
 			$this->setwhere				= null;
 			$this->limit				= null;
+			$this->SP_OUTPUTS			= [];
+			$this->SP_NEW_PARAMS		= [];
+
 		}
 
 	/*
 	|--------------------------------------------------------------------------
 	|	TRANSACTIONS
-	|--------------------------------------------------------------------------
-	|
-	|
 	|--------------------------------------------------------------------------
 	*/
         public function transaction($return='none'){
@@ -66,9 +107,6 @@
 	/*
 	|--------------------------------------------------------------------------
 	|	STORE PROCEDURES
-	|--------------------------------------------------------------------------
-	|
-	|
 	|--------------------------------------------------------------------------
 	*/
 		public function createSP($name,$params,$sql){
@@ -97,60 +135,63 @@
 				return $this;	
 		}
 
-		public function sp($SP='RESPONSE', $SP_PARAMS=[]){
-
+		public function sp($SP='STOREP', $SP_PARAMS=[]){
 			$this->SP[$SP]			= $SP;
-			$this->SP_PARAMS[$SP]	= (!is_array($SP_PARAMS))?[$SP_PARAMS]:$SP_PARAMS;
-			$this->prepare_sp($SP);
+			$this->SP_PARAMS[$SP][]	= [...$SP_PARAMS];
 		}
 
-		public function prepare_sp($SP=null){
-
-			if(empty($this->SP_PARAMS[$SP])){
-				throw new InvalidArgumentException('SP INEXISTENTE prepare_sp("'.$SP.'"), Error:' . __LINE__);
-			}
-
-			$this->SP_PARAMS[$SP] =(!is_array($this->SP_PARAMS[$SP]))?[$this->SP_PARAMS[$SP]]:$this->SP_PARAMS[$SP];
+		public function prepare_sp(){
+			//--------------------------------------------------------------
+			// como vamos montar a query, confirma q é uma array
+			//--------------------------------------------------------------
 			if(is_string($this->query)){$this->query=[];}
-			#---------------------------------------------------------------
-			# TRATAMOS AS ENTRADAS
-			#---------------------------------------------------------------
-			foreach ($this->SP_PARAMS[$SP] as $key=>$value) {
-				if(substr($value,0,1)=='@'){
+			foreach ($this->SP_PARAMS as $SP_NAME => $SP_ARRAY) {			
+				foreach ($SP_ARRAY as $key=>$_PARAMS) {
+					$outputs	= [];
+					$params		= [];
+					$NEW_SP_NAME = $this->newKeyArray($this->SP_NEW_PARAMS, $SP_NAME);
+					foreach ($_PARAMS as $key2=>$PARAM) {
+						if(is_string($PARAM) && substr($PARAM,0,1)=='@'){
+							$NEW_PARAM 									= 	$this->newValueArray($this->SP_OUTS, $PARAM);
+							$outputs[] 									= 	$NEW_PARAM;
+							$this->SP_NEW_PARAMS[$NEW_SP_NAME][$key2]	=	$NEW_PARAM;
+							$this->SP_OUTS[$NEW_SP_NAME][]				=	$NEW_PARAM;
+							
+						}elseif(is_array($PARAM) || is_object($PARAM)){
 
-					$this->SP_PARAMS[$SP][$key] =	$value;
-					$this->SP_OUTS[$SP][]		=	$value;	
+					 		$this->SP_NEW_PARAMS[$NEW_SP_NAME][$key2] = "'".trim(json_encode($PARAM,JSON_BIGINT_AS_STRING), '[]')."'";
 
-				}elseif(is_array($value) || is_object($value)){
+						}elseif(is_numeric($PARAM) || is_int($PARAM) || is_float($PARAM)){
 
-					$this->SP_PARAMS[$SP][$key] = "'".trim(json_encode($value,JSON_BIGINT_AS_STRING), '[]')."'";
+							$this->SP_NEW_PARAMS[$NEW_SP_NAME][$key2] = trim($PARAM);
 
-				}elseif(is_numeric($value) || is_int($value) || is_float($value)){
+						}elseif(is_string($PARAM)){
 
-					$this->SP_PARAMS[$SP][$key] = trim($value);
+							$this->SP_NEW_PARAMS[$NEW_SP_NAME][$key2] = "'".trim($PARAM)."'";
 
-				}elseif(is_string($value)){
+						}elseif($PARAM==null){
 
-					$this->SP_PARAMS[$SP][$key] = "'".trim($value)."'";
+							$this->SP_NEW_PARAMS[$NEW_SP_NAME][$key2] = 'NULL';
 
-				}elseif($value==null){
-
-					$this->SP_PARAMS[$SP][$key] = 'NULL';
+						}
+					} 
 				}
 			}
-			$this->query[] =  ('CALL ' . $this->SP[$SP] . '(' . implode(',',$this->SP_PARAMS[$SP]).');');
-
+			foreach ($this->SP_PARAMS as $SP_NAME => $SP_ARRAY) {
+				foreach ($SP_ARRAY as $key=>$_PARAMS) {
+					$NEW_SP_NAME = $this->newKeyArray($this->query, $SP_NAME);				
+					$this->query[$NEW_SP_NAME] =  ('CALL ' . $SP_NAME . '(' . implode(',',$this->SP_NEW_PARAMS[$NEW_SP_NAME]).');');
+				}
+			}
 		}
-		
-					
 
+		public function output_sp($SP=null){
+			return $this->SP_OUTS[$SP]['result'];
+		}
 
 	/*
 	|--------------------------------------------------------------------------
 	|	VIEWS
-	|--------------------------------------------------------------------------
-	|
-	|
 	|--------------------------------------------------------------------------
 	*/
 
@@ -181,13 +222,9 @@
 			return $this;
 		}
 
-
 	/*
 	|--------------------------------------------------------------------------
 	|	PREPARE FUNCTIONS
-	|--------------------------------------------------------------------------
-	|
-	|
 	|--------------------------------------------------------------------------
 	*/
 
@@ -347,9 +384,6 @@
 	|--------------------------------------------------------------------------
 	|	PREPARE FUNCTIONS
 	|--------------------------------------------------------------------------
-	|
-	|
-	|--------------------------------------------------------------------------
 	*/
 
 
@@ -397,16 +431,12 @@
 	|--------------------------------------------------------------------------
 	|	EXEC FUNCTION
 	|--------------------------------------------------------------------------
-	|
-	|
-	|--------------------------------------------------------------------------
 	*/
         public function execQuery($P_ALIAS='response'){
-            if($this->transactionFn == true){
+			if($this->transactionFn == true){
                 if($this->query==""){ return [];}
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
 				try {
-
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
 					foreach ($_QUERY as $_ALIAS => $query) {	
@@ -416,15 +446,25 @@
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
-						$this->startProcessResult($this->stmt,$query,$_ALIAS);
+
+						if($this->stmt->rowCount()>0){
+
+							$this->startProcessResult($this->stmt,$query,$_ALIAS);
+						}
+
 					}
-					foreach ($this->SP_OUTS as $key1 =>$SP_OUTS) {
+					$this->SP_OUTPUTS = [];
+
+					foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
+						$_RESULT = [];
 						foreach ($SP_OUTS as $key2 => $value) {
 							$query = 'SELECT '.$value;
-							$this->stmt = $this->connection->query($query);
-							$this->SP_OUTS['result'][$key1][$value]=$this->stmt->fetchColumn();					
+							$this->stmt = $this->connection->query($query);	
+							$_RESULT[$value] = $this->stmt->fetchColumn();	
 						}
+						$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
 					}
+					
 					$this->connection->commit();
 				} catch (PDOException $exception) {					
 					$this->connection->rollback();
