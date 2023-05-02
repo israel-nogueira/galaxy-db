@@ -302,26 +302,21 @@ Podemos também executar múltiplos selects em uma só instancia:
 
 Nos resultará no seguinte array:
 
-```plaintext
-Array
-(
-    [users_1] => Array
-        (
-            [0] => Array
-                (
-                    [username] => username_01
-                    [email] => exemplo@email.com
-                )
-        )
-
-    [valores] => Array
-        (
-            [0] => Array
-                (
-                    [VALOR] => 100.00
-                )
-        )
-)
+```json
+{
+    "users_1":[
+                {
+                    "username": "username_01",
+                    "email": "exemplo@email.com"
+                }
+            ],
+    "valores": 
+            [
+                {
+                    "VALOR": "100.00"
+                }
+            ]
+}
 ```
 
 ## Insert
@@ -703,25 +698,3 @@ Resultará em:
     }
 ```
 
-
-```plaintext
-Array
-(
-    [users_1] => Array
-        (
-            [0] => Array
-                (
-                    [username] => username_01
-                    [email] => exemplo@email.com
-                )
-        )
-
-    [valores] => Array
-        (
-            [0] => Array
-                (
-                    [VALOR] => 100.00
-                )
-        )
-)
-```
