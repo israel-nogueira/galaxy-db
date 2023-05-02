@@ -1,7 +1,7 @@
 ## GALAXY DB 
-[![Latest Stable Version](https://poser.pugx.org/israel-nogueira/mysql-orm/v/stable.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
-[![Total Downloads](https://poser.pugx.org/israel-nogueira/mysql-orm/downloads)](https://packagist.org/packages/israel-nogueira/mysql-orm)
-[![License](https://poser.pugx.org/israel-nogueira/mysql-orm/license.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
+[![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+[![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+[![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 
 
 
@@ -20,20 +20,20 @@ Essa classe dá suporte as seguintes conexões:
 Instale via composer.
 
 ```plaintext
-    composer require israel-nogueira/mysql-orm
+    composer require israel-nogueira/galaxy-db
 ```
 
 Acrescente em seu _composer.json_:
 
 ```plaintext
     "scripts": {
-        "orm": "php vendor/israel-nogueira/mysql-orm/src/orm"
+        "orm": "php vendor/israel-nogueira/galaxy-db/src/orm"
     }
 ```
 
 ## CONFIGURANDO A BASE
 
-No arquivo ```/vendor/israel-nogueira/mysql-orm/src/connection.php``` preencha os dados de conexão de sua base:
+No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha os dados de conexão de sua base:
 
 ```php
     <?php
