@@ -569,11 +569,14 @@ E quando for utilizar a classe:
     include "vendor\autoload.php";
     use  App\Models\usuariosModel;
 
-	$usuarios = new usuariosModel();
-	$usuarios->sp("processaDados",['PARAM0','PARAM1','PARAM2']);
-	$usuarios->prepare_sp();
-	$usuarios->transaction(function($ERROR){die($ERROR);});
-	$usuarios->execQuery();
+    $usuarios = new usuariosModel();
+    $usuarios->sp("processaDados",['PARAM0','PARAM1','PARAM2']);
+    $usuarios->prepare_sp();
+    $usuarios->transaction(function($ERROR){die($ERROR);});
+    $usuarios->execQuery();
+
+    $_RESULT = $users->fetch_array();
+
 
 ?>
 ```
