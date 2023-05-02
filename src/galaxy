@@ -98,7 +98,7 @@ return '<?
     static public function processCommands($_ARGS=null) {try{
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
 		$_PARAM		= self::parseArgs($_ARGS);
-		$PATH		= realpath(__DIR__.'/../../../../');
+		$PATH		= str_replace('\\','/',realpath(__DIR__.'/../../../../'));
 		$JSON		= $PATH.'/composer.json';
 		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
 
@@ -109,23 +109,19 @@ return '<?
 		){
 			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
 		}
-		// code --install-extension <caminho_do_arquivo_com_snippet>
 
-		@mkdir($PATH.'/app/Models/',true);
-		file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
-
-
-		foreach ($_PARAM as $value) {
-			$Classe = $PATH.'/app/Models/'.self::formatarString($value).'.php';
-			file_put_contents($Classe, self::modeloModel($value));
-			echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
-		}
+		@mkdir($PATH.'/app',0777,true);
+			@mkdir($PATH.'/app/Models',0777,true);
+			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+			foreach ($_PARAM as $value) {
+				$Classe = $PATH.'/app/Models/'.self::formatarString($value).'.php';
+				file_put_contents($Classe, self::modeloModel($value));
+				echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
+			}
 		
-		$output = shell_exec('composer dump-autoload');
-		die(self::color('verde',$output));
-		
-
-
+			$output = shell_exec('composer dump-autoload');
+			die(self::color('verde',$output));
+			
 	} catch (\Throwable $ERROR) {die(globals::wsReturn($ERROR->getMessage(),0));}}
 }
 cli::processCommands($argv);
