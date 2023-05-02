@@ -558,15 +558,44 @@ E quando for utilizar a classe:
 
 ## Stored Procedures e Functions
 
-    Estou fazendo aos poucos esse README.
-    Vou descrever na sequencia como funciona.
+    Uma Store Procedure, pode ser chamada de duas maneiras.
+
+### FUNÇÃO ->SP()
+
+```$usuarios->sp( NOME_DA_SP, ARRAY_PARAMS );```
 
 ```php
 <?php
     include "vendor\autoload.php";
     use  App\Models\usuariosModel;
 
+	$usuarios = new usuariosModel();
+	$usuarios->sp("processaDados",['PARAM0','PARAM1','PARAM2']);
+	$usuarios->prepare_sp();
+	$usuarios->transaction(function($ERROR){die($ERROR);});
+	$usuarios->execQuery();
 
+?>
+```
+### FUNÇÃO MÁGICA 
+
+Você também pode chamar simplesmente adicionando ```sp_ ``` na frente da sua função, 
+que a classe automaticamente entende que essa função é uma Stored Procedure;
+
+Exemplo:
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $usuarios = new usuariosModel();
+	$teste->sp_processaDados('PARAM0','PARAM1','PARAM2');
+	$teste->sp_sobePontos('PARAM0','PARAM1','PARAM2');
+	$teste->prepare_sp();
+
+	$teste->transaction(function($ERROR){die($ERROR);});
+	$teste->execQuery();
 
 ?>
 ```
