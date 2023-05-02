@@ -310,8 +310,7 @@ Nos resultará no seguinte array:
                     "email": "exemplo@email.com"
                 }
             ],
-    "valores": 
-            [
+    "valores":[
                 {
                     "VALOR": "100.00"
                 }
