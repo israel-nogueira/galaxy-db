@@ -150,8 +150,11 @@
 				return $this->$_name(...$arguments);
 			} else {
 				if (substr(strtolower($_name), 0, 3) == 'sp_') {
-					$this->SP			= substr($_name,3);
-					$this->SP_PARAMS	= $arguments;
+					$nameSP						= substr($_name,3);
+					$this->SP[$nameSP]			= $nameSP;
+					$this->SP_PARAMS[$nameSP]	= $arguments[0];
+					$this->SP_OUTS[$nameSP]		= (isset($arguments[1]))?'@'.implode(', @',$arguments[1]):[];
+					$this->prepare_sp($nameSP);
 					return $this;
 				} else {
 					throw new RuntimeException('MariaDB error: Função '.$_name.' desconhecida');

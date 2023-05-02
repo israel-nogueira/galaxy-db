@@ -28,7 +28,6 @@
                     $array[]	= $value;
                     $obj[]		= (object)$value;
                 }
-
                 if(count($this->colunmToJson)>0){	
                     foreach (($array??[]) as $array_key => $array_value) {
                         $_LINHA = $array[$array_key];

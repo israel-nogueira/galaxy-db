@@ -98,51 +98,48 @@
 		}
 
 		public function sp($SP='RESPONSE', $SP_PARAMS=[]){
-				$this->SP			= $SP;
-				$this->SP_PARAMS	= (!is_array($SP_PARAMS))?[$SP_PARAMS]:$SP_PARAMS;
+
+			$this->SP[$SP]			= $SP;
+			$this->SP_PARAMS[$SP]	= (!is_array($SP_PARAMS))?[$SP_PARAMS]:$SP_PARAMS;
+			$this->prepare_sp($SP);
 		}
 
-		public function prepare_sp($_ALIAS='RESPONSE', $_RETORNO=null){
+		public function prepare_sp($SP=null){
+
+			if(empty($this->SP_PARAMS[$SP])){
+				throw new InvalidArgumentException('SP INEXISTENTE prepare_sp("'.$SP.'"), Error:' . __LINE__);
+			}
+
+			$this->SP_PARAMS[$SP] =(!is_array($this->SP_PARAMS[$SP]))?[$this->SP_PARAMS[$SP]]:$this->SP_PARAMS[$SP];
+			if(is_string($this->query)){$this->query=[];}
 			#---------------------------------------------------------------
 			# TRATAMOS AS ENTRADAS
 			#---------------------------------------------------------------
-			foreach ($this->SP_PARAMS as $key=>$value) {
+			foreach ($this->SP_PARAMS[$SP] as $key=>$value) {
+				if(substr($value,0,1)=='@'){
 
-				if(is_array($value) || is_object($value)){
+					$this->SP_PARAMS[$SP][$key] =	$value;
+					$this->SP_OUTS[$SP][]		=	$value;	
 
-					$this->SP_PARAMS[$key] = "'".trim(json_encode($value,JSON_BIGINT_AS_STRING), '[]')."'";
+				}elseif(is_array($value) || is_object($value)){
+
+					$this->SP_PARAMS[$SP][$key] = "'".trim(json_encode($value,JSON_BIGINT_AS_STRING), '[]')."'";
 
 				}elseif(is_numeric($value) || is_int($value) || is_float($value)){
 
-					$this->SP_PARAMS[$key] = trim($value);
+					$this->SP_PARAMS[$SP][$key] = trim($value);
 
 				}elseif(is_string($value)){
 
-					$this->SP_PARAMS[$key] = "'".trim($value)."'";
+					$this->SP_PARAMS[$SP][$key] = "'".trim($value)."'";
 
 				}elseif($value==null){
 
-					$this->SP_PARAMS[$key] = 'NULL';
+					$this->SP_PARAMS[$SP][$key] = 'NULL';
 				}
 			}
-			if (!is_array($this->query)) {$this->query = [];}
+			$this->query[] =  ('CALL ' . $this->SP[$SP] . '(' . implode(',',$this->SP_PARAMS[$SP]).');');
 
-
-			if($_RETORNO==null){
-				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ');';
-			}else{
-
-				if(is_array($_RETORNO)){
-					foreach ($_RETORNO as $value) {
-						$this->SP_OUTS[$_ALIAS][$value]=null;
-					}
-					$_RETORNO = implode(', @',$_RETORNO);
-				}else{
-					$this->SP_OUTS[$_ALIAS][$_RETORNO]=null;
-				}
-
-				$this->query[$_ALIAS] = 'CALL ' . $this->SP . '(' . implode(',',$this->SP_PARAMS). ', @' . $_RETORNO . ');';
-			}
 		}
 		
 					
@@ -409,17 +406,23 @@
                 if($this->query==""){ return [];}
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
 				try {
+
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
 					foreach ($_QUERY as $_ALIAS => $query) {	
 						$this->stmt = $this->connection->query($query);
-						if (!$this->stmt) {throw new Exception($this->connection->errorInfo()[2]);}
+						if (!$this->stmt) {
+							$this->connection->rollBack();
+							throw new Exception($this->connection->errorInfo()[2]);
+							break;
+						}
 						$this->startProcessResult($this->stmt,$query,$_ALIAS);
 					}
 					foreach ($this->SP_OUTS as $key1 =>$SP_OUTS) {
 						foreach ($SP_OUTS as $key2 => $value) {
-							$this->stmt = $this->connection->query('SELECT @'.$key2);
-							$this->SP_OUTS[$key1][$key2] = $this->stmt->fetchColumn();							
+							$query = 'SELECT '.$value;
+							$this->stmt = $this->connection->query($query);
+							$this->SP_OUTS['result'][$key1][$value]=$this->stmt->fetchColumn();					
 						}
 					}
 					$this->connection->commit();
