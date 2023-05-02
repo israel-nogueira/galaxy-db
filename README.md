@@ -1,4 +1,4 @@
-## SnakeDB 
+## GALAXY DB 
 [![Latest Stable Version](https://poser.pugx.org/israel-nogueira/mysql-orm/v/stable.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
 [![Total Downloads](https://poser.pugx.org/israel-nogueira/mysql-orm/downloads)](https://packagist.org/packages/israel-nogueira/mysql-orm)
 [![License](https://poser.pugx.org/israel-nogueira/mysql-orm/license.svg)](https://packagist.org/packages/israel-nogueira/mysql-orm)
