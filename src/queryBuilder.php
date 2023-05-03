@@ -1,12 +1,8 @@
 <?
-    namespace IsraelNogueira\MysqlOrm;
+    namespace IsraelNogueira\galaxyDB;
 	use PDO;
-	use Exception;
 	use RuntimeException;
-	use ReflectionClass;
-	use InvalidArgumentException;
-	use PDOException;
-    
+
     trait queryBuilder{
 
 

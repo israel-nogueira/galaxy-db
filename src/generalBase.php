@@ -1,6 +1,9 @@
 <?php
     declare(strict_types = 1);
     namespace IsraelNogueira\galaxyDB;
+	use PDO;
+	use RuntimeException;
+	use PDOException;
 
     trait generalBase{
 
@@ -106,26 +109,14 @@
 			}
 		}
 
-		public function getDB_Columns()
-		{
-			if(is_null($this->tableClass)){
-				throw new RuntimeException('getDB_Columns() sem tabela de referencia ->colum(NULL)');
-			}
-			$this->query = 'SHOW COLUMNS FROM ' . $this->tableClass;
-			$this->stmt = $this->connection->query($this->query);
-			if ($this->debug == true) {
-				if ($this->stmt === false) {
-					throw new RuntimeException($this->connection->errorInfo()[2]);
-				}
-			}
-			$_array = [];
-			while ($row = $this->stmt->fetch(PDO::FETCH_ASSOC)) {
-				$_array[] = $row;
-			}
-			$this->fetch_array['show_columns'][$this->tableClass] = $_array;
+		public function showDBColumns($table){
+			$query =  'SHOW COLUMNS FROM ' . $table;
+			$result = $this->connection->query($query);
+			$tables = $result->fetchAll(PDO::FETCH_COLUMN);
+			return $tables;
 		}
 
-		public function showTables()
+		public function showDBTables()
 		{
 			$tables = array();
 			$query = 'SHOW TABLES';

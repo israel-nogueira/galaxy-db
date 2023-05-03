@@ -1,16 +1,13 @@
 <?php
+
 	namespace IsraelNogueira\galaxyDB;
 	use IsraelNogueira\galaxyDB\connection;
 	use IsraelNogueira\galaxyDB\queryBuilder;
 	use IsraelNogueira\galaxyDB\actions;
-	use PDO;
-	use Exception;
 	use RuntimeException;
 	use ReflectionClass;
-	use InvalidArgumentException;
-	use PDOException;
 
-    define('DB_HOST', 	'localhost');
+	define('DB_HOST', 	'localhost');
     define('DB_PORT', 	'3306');
     define('DB_DATABASE', 	'FW_PADRAO');
     define('DB_TYPE', 	'mysql');

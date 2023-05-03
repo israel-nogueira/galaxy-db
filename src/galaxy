@@ -1,5 +1,9 @@
 #!/usr/bin/env php
 <?php
+include(__DIR__.'/../../../autoload.php');
+use IsraelNogueira\galaxyDB\galaxyDB;
+
+
 class cli{
 	static public function parseArgs($argv = null){
 		$argv = $argv ? $argv : $_SERVER['argv'];
@@ -95,33 +99,70 @@ return '<?
 		return $str;
 	}
 
-    static public function processCommands($_ARGS=null) {try{
+    static public function createSnippet() {
+		$showTables			= new galaxyDB();
+		$Tables				= $showTables->showDBTables();
+		$_SNIPPET_TABELAS	= [];
+		$_SNIPPET_TABELAS["Galaxy Tables"]=["prefix"=>["galaxy_tables"],"body"=>['${1|'.implode(',',$Tables).'|}']];
+		$showColunms		= new galaxyDB();
+		foreach ($Tables as $_table) {
+			$_colunas = $showColunms->showDBColumns($_table);
+			$_SNIPPET_TABELAS["Galaxy Columns: ".$_table]=["prefix"=>['galaxy_'.$_table],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
+		}
+		return json_encode($_SNIPPET_TABELAS,JSON_PRETTY_PRINT);
+	}
+    static public function processCommands($_ARGS=null) {
+
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
 		$_PARAM		= self::parseArgs($_ARGS);
-		$PATH		= str_replace('\\','/',realpath(__DIR__.'/../../../../'));
-		$JSON		= $PATH.'/composer.json';
-		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
+		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
+		$_PARAMS	= self::parseArgs($_ARGS);
 
-		if(
-			empty($_COMPOSER['autoload']) || 
-			empty($_COMPOSER['autoload']['psr-4']) ||
-			empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
-		){
-			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
-		}
-
-		@mkdir($PATH.'/app',0777,true);
-			@mkdir($PATH.'/app/Models',0777,true);
-			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
-			foreach ($_PARAM as $value) {
-				$Classe = $PATH.'/app/Models/'.self::formatarString($value).'.php';
-				file_put_contents($Classe, self::modeloModel($value));
-				echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
-			}
 		
-			$output = shell_exec('composer dump-autoload');
-			die(self::color('verde',$output));
+		if($_PARAMS[0]=='update-snippets'){
+			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;
+			$_pathSnippet = str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
+			@mkdir($_pathSnippet.'/.vscode',0777,true);
+
+			$_dbSnippet = str_replace(['\\','/'],DIRECTORY_SEPARATOR,$_pathSnippet.'/.vscode/galaxy-db.code-snippets');
+			$_galaxySnippet1 = str_replace(['\\','/'],DIRECTORY_SEPARATOR,$_pathSnippet.'/vendor/israel-nogueira/galaxy-db/.vscode/galaxy.code-snippets');
+			$_galaxySnippet2 = str_replace(['\\','/'],DIRECTORY_SEPARATOR,$_pathSnippet.'/.vscode/galaxy.code-snippets');
 			
-	} catch (\Throwable $ERROR) {die(globals::wsReturn($ERROR->getMessage(),0));}}
+			copy($_galaxySnippet1,$_galaxySnippet2);
+			file_put_contents($_dbSnippet, self::createSnippet());
+
+
+			echo self::color('verde','Atalhos atualizados com sucesso!').PHP_EOL;
+
+		}
+		// self::createSnippet();
+		
+
+
+
+
+
+
+		// $JSON		= $PATH.'/composer.json';
+		// $_COMPOSER	= json_decode(file_get_contents($JSON),true);
+		// if(
+		// 	empty($_COMPOSER['autoload']) || 
+		// 	empty($_COMPOSER['autoload']['psr-4']) ||
+		// 	empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
+		// ){
+		// 	$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
+		// }
+		// @mkdir($PATH.'/app',0777,true);
+		// 	@mkdir($PATH.'/app/Models',0777,true);
+		// 	file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+		// 	foreach ($_PARAM as $value) {
+		// 		$Classe = $PATH.'/app/Models/'.self::formatarString($value).'.php';
+		// 		file_put_contents($Classe, self::modeloModel($value));
+		// 		echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
+		// 	}
+		// 	$output = shell_exec('composer dump-autoload');
+		// 	die(self::color('verde',$output));
+			
+	}
 }
 cli::processCommands($argv);

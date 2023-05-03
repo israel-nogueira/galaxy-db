@@ -1,10 +1,10 @@
 <?
     namespace IsraelNogueira\galaxyDB;
-    use PDO;
-    use Exception;
-    use PDOException;
-    use RuntimeException;
-    use InvalidArgumentException;
+	use PDO;
+	use Exception;
+	use RuntimeException;
+	use InvalidArgumentException;
+	use PDOException;
     
     trait actions{
 	/*
@@ -436,6 +436,7 @@
 			if($this->transactionFn == true){
                 if($this->query==""){ return [];}
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
+				print_r($this->query);
 				try {
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
