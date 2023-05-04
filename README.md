@@ -63,7 +63,7 @@ Este é o comando para criar suas Models.
 Cada palavra é um parametro, por exemplo *“usuarios e produtos”* no comando:
 
 ```plaintext
-    composer run-script galaxy usuario produtos
+    composer run-script galaxy new-model usuarios produtos
 ```
 
 Isso criará automaticamente os seguinte arquivos:

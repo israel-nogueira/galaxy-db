@@ -123,6 +123,7 @@ return '<?
 
 		
 		if($_PARAMS[0]=='update-snippets'){
+
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;
 			$_pathSnippet = str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 			@mkdir($_pathSnippet.'/.vscode',0777,true);
@@ -135,6 +136,7 @@ return '<?
 		}
 
 		if($_PARAMS[0]=='new-model'){
+			unset($_PARAMS[0]);
 			$JSON		= $PATH.DIRECTORY_SEPARATOR.'composer.json';
 			$_COMPOSER	= json_decode(file_get_contents($JSON),true);
 			if(
@@ -145,15 +147,15 @@ return '<?
 				$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
 			}
 			@mkdir($PATH.DIRECTORY_SEPARATOR.'app',0777,true);
-				@mkdir($PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models',0777,true);
-				file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
-				foreach ($_PARAMS as $value) {
-					$Classe = $PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models'.DIRECTORY_SEPARATOR.self::formatarString($value).'.php';
-					file_put_contents($Classe, self::modeloModel($value));
-					echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
-				}
-				$output = shell_exec('composer dump-autoload');
-				die(self::color('verde',$output));
+			@mkdir($PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models',0777,true);
+			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+			foreach ($_PARAMS as $value) {
+				$Classe = $PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models'.DIRECTORY_SEPARATOR.self::formatarString($value).'.php';
+				file_put_contents($Classe, self::modeloModel($value));
+				echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
+			}
+			$output = shell_exec('composer dump-autoload');
+			die(self::color('verde',$output));
 		}
 	}
 }
