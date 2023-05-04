@@ -35,6 +35,21 @@ Acrescente em seu _composer.json_:
 
 ## CONFIGURANDO A BASE
 
+Você pode configuraros dados de conexão via CLI, sendo que<br/>
+os parêmetros são opcionais, caso falte algum dado, o prompt lhe pedirá
+
+- `type`: Sigla do tipo de base *(mysql, pgsql etc)* 
+- `user`: Usuário da base
+- `pass`: Senha 
+- `name`: Nome da base
+- `host ` Porta
+
+```plaintext
+  
+  composer run-script galaxy config-connection type user pass name host port
+
+```
+
 No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha os dados de conexão de sua base:
 
 ```php

@@ -44,7 +44,7 @@
                 |
                 */
                 case 'pgsql':
-                    $port = $port ? $port : '5432';
+                    $port = $port ? $port : '3306';
                     $conn = new \PDO("pgsql:dbname={$name};user={$user}; password={$pass};host=$host;port={$port}");
                     if(!empty($char))
                     {

@@ -121,7 +121,13 @@ return '<?
 		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 		$_PARAMS	= self::parseArgs($_ARGS);
 
-		
+
+		if($_PARAMS[0]=='config-connection'){
+			unset($_PARAMS[0]);
+
+			
+		}
+
 		if($_PARAMS[0]=='update-snippets'){
 
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;
