@@ -103,13 +103,13 @@ return '<?
 		$_SNIPPET_TABELAS	= [];
 		$_SNIPPET_TABELAS["Galaxy: ->table()"]	=["prefix"=>["->table"],"body"=>['${1|->table("'.implode('");,->table("',$Tables).'");|}']];
 		$_SNIPPET_TABELAS["Galaxy: TableName"]	=["prefix"=>["Tables"],"body"=>['${1|'.implode(',',$Tables).'|}']];
-		$_SNIPPET_TABELAS["Galaxy: Lista tabelas"]	=["prefix"=>["Tables", "Tabelas", "lista"],"body"=>['/*'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$Tables).PHP_EOL.'*/']];
+		$_SNIPPET_TABELAS["Galaxy: Lista tabelas"]	=["prefix"=>["tables", "tabelas", "lista"],"body"=>['/*'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$Tables).PHP_EOL.'*/']];
 		$showColunms		= new galaxyDB();
 		foreach ($Tables as $_table) {
 			$_colunas = $showColunms->showDBColumns($_table);
 			$_SNIPPET_TABELAS[$_table.' ->colum()']=["prefix"=>['->colum'],"body"	=>['${1|->colum("'.implode('");,->colum("',$_colunas).'");|}']];
 			$_SNIPPET_TABELAS[$_table.' ColumName']=["prefix"=>['colum'],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
-			$_SNIPPET_TABELAS[$_table.' Lista colunas']=["prefix"=>['lista','colunas'],"body"	=>['/*'.PHP_EOL.'	Colunas da tabela "'.$_table.'":'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$_colunas).PHP_EOL.'*/']];
+			$_SNIPPET_TABELAS[$_table.' Lista colunas']=["prefix"=>['lista','columns','colunas'],"body"	=>['/*'.PHP_EOL.'	Colunas da tabela "'.$_table.'":'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$_colunas).PHP_EOL.'*/']];
 		}
 		return json_encode($_SNIPPET_TABELAS,JSON_PRETTY_PRINT);
 	}
