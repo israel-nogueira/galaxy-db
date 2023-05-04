@@ -223,6 +223,7 @@ class cli{
 			die(self::color('verde',$output));
 		}
 	}
-	
+
 }
+
 cli::processCommands($argv);
