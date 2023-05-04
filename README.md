@@ -30,6 +30,7 @@ Acrescente em seu _composer.json_:
     }
 ```
 
+
 ## CONFIGURANDO A BASE
 
 No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha os dados de conexão de sua base:
@@ -120,6 +121,11 @@ Nela serão cadastrados os parâmetros de uso da classe.
 
 
 ## EXEMPLOS DE USO
+
+### Snippets
+![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/snippets-exemplo.gif)
+
+
 
 ### Select simples
 
