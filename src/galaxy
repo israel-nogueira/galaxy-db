@@ -44,29 +44,30 @@ class cli{
 		}
 		return $o;
 	}
+
 	static public function modeloModel($modelo='myClass') {
 
-return '<?
-	namespace IsraelNogueira\Models;
-	use IsraelNogueira\galaxyDB\galaxyDB;
+		return '<?
+			namespace IsraelNogueira\Models;
+			use IsraelNogueira\galaxyDB\galaxyDB;
 
-	class '.$modelo.' extends galaxyDB{
+			class '.$modelo.' extends galaxyDB{
 
-		protected $table				=  "'.$modelo.'";
-		protected $columnsBlocked		= [];
-		protected $columnsEnabled		= [];
-		protected $functionsBlocked		= [];
-		protected $functionsEnabled		= [];
-		protected $charactersEnabled	= [];
-		protected $charactersBlocked	= [];
+				protected $table				=  "'.$modelo.'";
+				protected $columnsBlocked		= [];
+				protected $columnsEnabled		= [];
+				protected $functionsBlocked		= [];
+				protected $functionsEnabled		= [];
+				protected $charactersEnabled	= [];
+				protected $charactersBlocked	= [];
 
-		public function exemplo_de_extend_function() {
-			return $this->join("LEFT", "minha_tabela minha"," minha.code='.$modelo.'.code");
-		}
+				public function exemplo_de_extend_function() {
+					return $this->join("LEFT", "minha_tabela minha"," minha.code='.$modelo.'.code");
+				}
 
-	}
+			}
 
-?>';
+		?>';
 
 	}
 
@@ -88,9 +89,7 @@ return '<?
 	} catch (\Throwable $ERROR) {die(print_r($ERROR->getMessage(),0));}}
 
 	static public function formatarString($str) {
-		$str = preg_replace_callback('/[\p{L} ]/u', function ($match) {
-			return str_replace(' ', '', iconv('UTF-8', 'ASCII//TRANSLIT', $match[0]));
-		}, $str);
+		$str = preg_replace_callback('/[\p{L} ]/u', function ($match) {return str_replace(' ', '', iconv('UTF-8', 'ASCII//TRANSLIT', $match[0]));}, $str);
 		$str = ucwords($str);
 		$str = str_replace([' ', '-'], '', $str);
 		$str = lcfirst($str);
@@ -112,6 +111,7 @@ return '<?
 		echo self::color('verde','Configurações salvas com sucesso!').PHP_EOL;				
 
 	}
+
     static public function createSnippet() {
 		$showTables			= new galaxyDB();
 		$Tables				= $showTables->showDBTables();
@@ -135,7 +135,6 @@ return '<?
 		foreach ($Procedures as $_SP) {
 			$_MainProcidures[] =  $_SP['Name'];
 		}
-
 		
 		$_SNIPPET_TABELAS['Galaxy: ->sp_()']=["prefix"=>['->sp_'],"body"	=>['${1|->sp_'.implode('();,->sp_',$_MainProcidures).'|}']];
 		$_SNIPPET_TABELAS['Galaxy: ProcidureName']=["prefix"=>['sp','spName'],"body"	=>['${1|'.implode(',',$_MainProcidures).'|}']];
@@ -145,34 +144,38 @@ return '<?
 
 	}
 
-
     static public function configPSR4() {
 		echo self::color('cinza','Verificando PSR-4...').PHP_EOL;
 		
 		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 		$JSON		= $PATH.DIRECTORY_SEPARATOR.'composer.json';
 		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
+		$PSR4		= (isset($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']))?$_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']:'app/Models';
+		
+		if(!file_exists($PATH.DIRECTORY_SEPARATOR.$PSR4)){
+			@mkdir($PATH.DIRECTORY_SEPARATOR.$PSR4,0777,true);
+		}
+
 		if(
 			empty($_COMPOSER['autoload']) || 
 			empty($_COMPOSER['autoload']['psr-4']) ||
 			empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
-			){
+		){
 			echo self::color('cinza','Adicionando path Models').PHP_EOL;
 			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
-			@mkdir($PATH.DIRECTORY_SEPARATOR.'app',0777,true);
-			@mkdir($PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models',0777,true);
 			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
 		}
 
+
 		return $_COMPOSER;
 	}
-    static public function processCommands($_ARGS=null) {
 
+    static public function processCommands($_ARGS=null) {
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
 		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 		$_PARAMS	= self::parseArgs($_ARGS);
 
-
+		$_COMPOSER = self::configPSR4();
 
 		if($_PARAMS[0]=='config-connection'){
 			unset($_PARAMS[0]);
@@ -198,7 +201,6 @@ return '<?
 
 		if($_PARAMS[0]=='update-snippets'){
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;
-			self::configPSR4();
 			$_pathSnippet = str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 			@mkdir($_pathSnippet.'/.vscode',0777,true);
 			$_dbSnippet = str_replace(['\\','/'],DIRECTORY_SEPARATOR,$_pathSnippet.'/.vscode/galaxy-db.code-snippets');
@@ -211,10 +213,9 @@ return '<?
 		}
 
 		if($_PARAMS[0]=='new-model'){
-			unset($_PARAMS[0]);
-			self::configPSR4();
+			unset($_PARAMS[0]);	
 			foreach ($_PARAMS as $value) {
-				$Classe = $PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models'.DIRECTORY_SEPARATOR.self::formatarString($value).'.php';
+				$Classe = $PATH.DIRECTORY_SEPARATOR.$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"].DIRECTORY_SEPARATOR.self::formatarString($value).'.php';
 				file_put_contents($Classe, self::modeloModel($value));
 				echo self::color('amarelo','Criando model "'.$value.'"').PHP_EOL;
 			}
@@ -222,5 +223,6 @@ return '<?
 			die(self::color('verde',$output));
 		}
 	}
+	
 }
 cli::processCommands($argv);
