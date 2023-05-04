@@ -152,8 +152,7 @@ Se tiver ```->``` retorna a função montada ```->table("sua-tabela")```;<br/>
 Caso contrario, retorna apenas o nome da tabela
 
 
-```colum``` ou ```->colum```:
-
+```colum``` ou ```->colum```:<br/>
 Se tiver ```->``` retorna a função montada ```->colum("sua-tabela")```;<br/>
 Caso contrario, retorna apenas o nome da coluna.
 
@@ -161,8 +160,7 @@ Inicialmente ela mostra a lista de tabelas disponíveis em sua base de dados;<br
 E na sequencia a lista de colunas daquela tabela selecionada.
 
 
-```columns``` ou ```tables``` :
-
+```columns``` ou ```tables``` :<br/>
 Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 
 
