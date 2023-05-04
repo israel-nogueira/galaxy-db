@@ -51,7 +51,7 @@ Caso falte algum ou todos os dados, o prompt irá lhe pedir.
 
 ```
 
-Ou criar manualmente um arquivo  ```/vendor/israel-nogueira/galaxy-db/src/.env``` preencha os dados de conexão de sua base:
+Ou criar manualmente um arquivo ```.env``` preencha os dados de conexão de sua base:
 
 ```env
 
