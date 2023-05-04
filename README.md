@@ -63,7 +63,7 @@ Depois que você configurou os dados de conexão, poderá criar um snippets da c
 Sim, essa classe também conta com um script que importa a estrutura da sua base de dados.<br/>
 E monta um snippets com atalhos.
 
-Basta executar:
+Para criar *ou atualizar* seu snippets, basta executar:
 ```plaintext
 
     composer run-script galaxy update-snippets
