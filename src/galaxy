@@ -97,6 +97,21 @@ return '<?
 		return $str;
 	}
 
+    static public function createEnv($_DATA) {
+		$_StringFile = ''
+						.PHP_EOL.'DB_HOST='.$_DATA['host']
+						.PHP_EOL.'DB_PORT='.($_DATA['port']??'3306')
+						.PHP_EOL.'DB_DATABASE='.$_DATA['name']
+						.PHP_EOL.'DB_TYPE='.$_DATA['type']
+						.PHP_EOL.'DB_USERNAME='.$_DATA['user']
+						.PHP_EOL.'DB_PASSWORD='.$_DATA['pass']
+						.PHP_EOL.'DB_CHAR='.($_DATA['']??'')
+						.PHP_EOL.'DB_FLOW='.($_DATA['']??'')
+						.PHP_EOL.'DB_FKEY='.($_DATA['']??'');
+		file_put_contents(__DIR__.DIRECTORY_SEPARATOR.'.env',$_StringFile);
+		echo self::color('verde','Configurações salvas com sucesso!').PHP_EOL;				
+
+	}
     static public function createSnippet() {
 		$showTables			= new galaxyDB();
 		$Tables				= $showTables->showDBTables();
@@ -122,12 +137,32 @@ return '<?
 		$_PARAMS	= self::parseArgs($_ARGS);
 
 
+
 		if($_PARAMS[0]=='config-connection'){
 			unset($_PARAMS[0]);
-
-			
+			if(		
+					!array_key_exists('type',$_PARAMS) 
+				||	!array_key_exists('user',$_PARAMS) 
+				||	!array_key_exists('pass',$_PARAMS) 
+				||	!array_key_exists('name',$_PARAMS) 
+				||	!array_key_exists('host',$_PARAMS)
+			){
+				echo self::color('vermelho','Ops, está faltando alguns dados.').PHP_EOL.PHP_EOL;
+				echo self::color('amarelo','Execute o seguinte comando, substituindo com seus dados:').PHP_EOL;				
+				echo self::color('cinza','|=====================================================================================================').PHP_EOL;
+				echo self::color('cinza','|').PHP_EOL; 
+				echo self::color('cinza','|	composer run-script galaxy config-connection -- --type=mysql --user=root --pass= --name=meuDB --host=localhost --port= --char= --flow= --fkey=').PHP_EOL;
+				echo self::color('cinza','|').PHP_EOL;
+				echo self::color('cinza','|=====================================================================================================').PHP_EOL;
+			}else{
+				echo self::createEnv($_PARAMS);
+			};
 		}
 
+
+			
+		
+		exit;
 		if($_PARAMS[0]=='update-snippets'){
 
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;

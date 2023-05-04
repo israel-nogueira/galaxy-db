@@ -7,15 +7,15 @@
 	use RuntimeException;
 	use ReflectionClass;
 
-	define('DB_HOST', 	'localhost');
-    define('DB_PORT', 	'3306');
-    define('DB_DATABASE', 	'FW_PADRAO');
-    define('DB_TYPE', 	'mysql');
-    define('DB_USERNAME', 	'root');
-    define('DB_PASSWORD',   '');
-    define('DB_CHAR',   	'');
-    define('DB_FLOW',   	'');
-    define('DB_FKEY',   	'');
+	// define('DB_HOST', 	'localhost');
+    // define('DB_PORT', 	'3306');
+    // define('DB_DATABASE', 	'FW_PADRAO');
+    // define('DB_TYPE', 	'mysql');
+    // define('DB_USERNAME', 	'root');
+    // define('DB_PASSWORD',   '');
+    // define('DB_CHAR',   	'');
+    // define('DB_FLOW',   	'');
+    // define('DB_FKEY',   	'');
 
 /**
  * -------------------------------------------------------------------------
@@ -92,16 +92,22 @@
 			$this->mysqlFnEnabledClass	= [];
 			$this->limit				= null;
 			$this->stmt					= null;
+
+			$ENV = parse_ini_file(__DIR__.DIRECTORY_SEPARATOR.'.env');
+			foreach ($ENV as $key => $line){
+				putenv($key.'='.$line);
+			}
+			print_r(getenv());
 			$this->connection			= $this->connect([
-				"user"=>DB_USERNAME,
-				"pass"=>DB_PASSWORD,
-				"name"=>DB_DATABASE,
-				"host"=>DB_HOST,
-				"type"=>DB_TYPE,
-				"port"=>DB_PORT,
-				"char"=>DB_CHAR,
-				"flow"=>DB_FLOW,
-				"fkey"=>DB_FKEY,
+				"user"=>getEnv('DB_USERNAME'),
+				"pass"=>getEnv('DB_PASSWORD'),
+				"name"=>getEnv('DB_DATABASE'),
+				"host"=>getEnv('DB_HOST'),
+				"type"=>getEnv('DB_TYPE'),
+				"port"=>getEnv('DB_PORT'),
+				"char"=>getEnv('DB_CHAR'),
+				"flow"=>getEnv('DB_FLOW'),
+				"fkey"=>getEnv('DB_FKEY'),
 			]);
 			$this->extended();
 			$this->initialized			= true;

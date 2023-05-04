@@ -35,14 +35,15 @@ Acrescente em seu _composer.json_:
 
 ## CONFIGURANDO A BASE
 
-Você pode configuraros dados de conexão via CLI, sendo que<br/>
-os parêmetros são opcionais, caso falte algum dado, o prompt lhe pedirá
+Você pode configuraros dados de conexão via CLI:
 
 - `type`: Sigla do tipo de base *(mysql, pgsql etc)* 
 - `user`: Usuário da base
 - `pass`: Senha 
 - `name`: Nome da base
 - `host ` Porta
+
+Caso falte algum ou todos os dados, o prompt irá lhe pedir.
 
 ```plaintext
   
