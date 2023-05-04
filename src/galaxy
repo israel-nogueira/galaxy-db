@@ -130,6 +130,26 @@ return '<?
 	}
 
 
+    static public function configPSR4() {
+		echo self::color('cinza','Verificando PSR-4...').PHP_EOL;
+		
+		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
+		$JSON		= $PATH.DIRECTORY_SEPARATOR.'composer.json';
+		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
+		if(
+			empty($_COMPOSER['autoload']) || 
+			empty($_COMPOSER['autoload']['psr-4']) ||
+			empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
+			){
+			echo self::color('cinza','Adicionando path Models').PHP_EOL;
+			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
+			@mkdir($PATH.DIRECTORY_SEPARATOR.'app',0777,true);
+			@mkdir($PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models',0777,true);
+			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+		}
+
+		return $_COMPOSER;
+	}
     static public function processCommands($_ARGS=null) {
 
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
@@ -160,8 +180,8 @@ return '<?
 		}
 
 		if($_PARAMS[0]=='update-snippets'){
-
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;
+			self::configPSR4();
 			$_pathSnippet = str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 			@mkdir($_pathSnippet.'/.vscode',0777,true);
 			$_dbSnippet = str_replace(['\\','/'],DIRECTORY_SEPARATOR,$_pathSnippet.'/.vscode/galaxy-db.code-snippets');
@@ -174,18 +194,7 @@ return '<?
 
 		if($_PARAMS[0]=='new-model'){
 			unset($_PARAMS[0]);
-			$JSON		= $PATH.DIRECTORY_SEPARATOR.'composer.json';
-			$_COMPOSER	= json_decode(file_get_contents($JSON),true);
-			if(
-				empty($_COMPOSER['autoload']) || 
-				empty($_COMPOSER['autoload']['psr-4']) ||
-				empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
-			){
-				$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
-			}
-			@mkdir($PATH.DIRECTORY_SEPARATOR.'app',0777,true);
-			@mkdir($PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models',0777,true);
-			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+			self::configPSR4();
 			foreach ($_PARAMS as $value) {
 				$Classe = $PATH.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'Models'.DIRECTORY_SEPARATOR.self::formatarString($value).'.php';
 				file_put_contents($Classe, self::modeloModel($value));
