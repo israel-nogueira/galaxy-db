@@ -10,9 +10,13 @@
             "email": "israel@feats.com.br"
         }
     ],
+    "scripts": {
+        "galaxy": "php vendor/israel-nogueira/galaxy-db/src/galaxy"
+    },
     "autoload": {
         "psr-4": {
-            "IsraelNogueira\\galaxyDB\\": "src/"
+            "IsraelNogueira\\galaxyDB\\": "src/",
+            "IsraelNogueira\\Models\\": "app/Models/"
         }
     },
     "require": {
