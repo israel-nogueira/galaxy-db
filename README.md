@@ -140,6 +140,19 @@ Basta executar:
 E Pronto, você e seu VSCode estão prontos para trabalhar de maneira rápida e eficaz.
 ![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/snippets-exemplo.gif)
 
+#### Alguns atalhos:
+
+```select```, ```update```, ```insert``` ou ```delete```:
+Retornam a classe completa de CRUD;
+
+```table``` ou ```->table```:
+Retorna a lista de tabelas disponíveis em sua base de dados;
+Se tiver ```->``` retorna a função montada ```->table("sua-tabela")```
+Caso contrario, retorna apenas o nome da tabela
+
+```colum``` ou ```->colum```:
+```list```:
+
 
 
 ### Select simples
