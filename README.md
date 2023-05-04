@@ -104,6 +104,11 @@ E na sequencia a lista de colunas daquela tabela selecionada.
 ```columns``` ou ```tables``` :<br/>
 Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 
+```columns``` ou ```tables``` :<br/>
+Você pode retornar uma lista de tabelas ou colunas de sua base de dados
+
+
+
 E com tempo vamos incrementando a lista de atalhos.
 
 

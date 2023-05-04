@@ -117,16 +117,32 @@ return '<?
 		$Tables				= $showTables->showDBTables();
 		$_SNIPPET_TABELAS	= [];
 		$_SNIPPET_TABELAS["Galaxy: ->table()"]	=["prefix"=>["->table"],"body"=>['${1|->table("'.implode('");,->table("',$Tables).'");|}']];
-		$_SNIPPET_TABELAS["Galaxy: TableName"]	=["prefix"=>["Tables"],"body"=>['${1|'.implode(',',$Tables).'|}']];
+		$_SNIPPET_TABELAS["Galaxy: TableName"]	=["prefix"=>["Tables","tableName"],"body"=>['${1|'.implode(',',$Tables).'|}']];
 		$_SNIPPET_TABELAS["Galaxy: Lista tabelas"]	=["prefix"=>["tables", "tabelas", "lista"],"body"=>['/*'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$Tables).PHP_EOL.'*/']];
+		
 		$showColunms		= new galaxyDB();
 		foreach ($Tables as $_table) {
 			$_colunas = $showColunms->showDBColumns($_table);
 			$_SNIPPET_TABELAS[$_table.' ->colum()']=["prefix"=>['->colum'],"body"	=>['${1|->colum("'.implode('");,->colum("',$_colunas).'");|}']];
-			$_SNIPPET_TABELAS[$_table.' ColumName']=["prefix"=>['colum'],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
+			$_SNIPPET_TABELAS[$_table.' ColumName']=["prefix"=>['colum','columName'],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
 			$_SNIPPET_TABELAS[$_table.' Lista colunas']=["prefix"=>['lista','columns','colunas'],"body"	=>['/*'.PHP_EOL.'	Colunas da tabela "'.$_table.'":'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$_colunas).PHP_EOL.'*/']];
 		}
+		
+		$showProcedures		= new galaxyDB();
+		$Procedures			= $showProcedures->showProcedures();
+		
+		$_MainProcidures =[];
+		foreach ($Procedures as $_SP) {
+			$_MainProcidures[] =  $_SP['Name'];
+		}
+
+		
+		$_SNIPPET_TABELAS['Galaxy: ->sp_()']=["prefix"=>['->sp_'],"body"	=>['${1|->sp_'.implode('();,->sp_',$_MainProcidures).'|}']];
+		$_SNIPPET_TABELAS['Galaxy: ProcidureName']=["prefix"=>['sp','spName'],"body"	=>['${1|'.implode(',',$_MainProcidures).'|}']];
+		$_SNIPPET_TABELAS['Galaxy: Lista Procidures']=["prefix"=>['lista','procidures','sp'],"body"	=>['/*'.PHP_EOL.'	Procedures:'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$_MainProcidures).PHP_EOL.'*/']];
+
 		return json_encode($_SNIPPET_TABELAS,JSON_PRETTY_PRINT);
+
 	}
 
 
@@ -177,6 +193,7 @@ return '<?
 			}else{
 				echo self::createEnv($_PARAMS);
 			};
+			exit;
 		}
 
 		if($_PARAMS[0]=='update-snippets'){
@@ -190,6 +207,7 @@ return '<?
 			copy($_galaxySnippet1,$_galaxySnippet2);
 			file_put_contents($_dbSnippet, self::createSnippet());
 			echo self::color('verde','Atalhos atualizados com sucesso!').PHP_EOL;
+			exit;
 		}
 
 		if($_PARAMS[0]=='new-model'){

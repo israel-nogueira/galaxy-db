@@ -1,29 +1,161 @@
 {
-"Galaxy :: Select-Simples": {
-    "scope": "php",
-    "prefix": ["mysql","select"],
-    "body": [
-        " try {",
-			"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
-			"	\\$${1:_SELECT}->connect();",
-			"	\\$${1:_SELECT}->table$3",
-			"	\\$${1:_SELECT}->colum$4",
-			"	\\$${1:_SELECT}->set_where('colum$5 = 1');",
-			"	\\$${1:_SELECT}->prepare_select('param');",
-			"	",
-			"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
-			"	\\$${1:_SELECT}->execQuery();",
-			"	",
-			"	\\$_RESULT = \\$${1:_SELECT}->fetch_array('param');",
-			"	",
-			"	// print_r(\\$subQuery->query);",
-			"	return \\$_RESULT; ",
-			"	",
-        "} catch (\\Throwable \\$ERROR ) {",
-            "	die(\\$ERROR->getMessage());",
-        "} ",
-    ]
-},
+	"Galaxy :: Select-Simples": { "scope": "php", "prefix": ["galaxy", "mysql", "select" ],
+		"body": [
+			" try {",
+				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
+				"	\\$${1:_SELECT}->connect();",
+				"	\\$${1:_SELECT}->table(\"${3:tableName}\");",
+				"	\\$${1:_SELECT}->colum(\"${4:columName}\");",
+				"	\\$${1:_SELECT}->where('${5:columName}=1');",
+				"	\\$${1:_SELECT}->prepare_select('param');",
+				"	",
+				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
+				"	\\$${1:_SELECT}->execQuery();",
+				"	",
+				"	\\$_RESULT = \\$${1:_SELECT}->fetch_array('param');",
+				"	",
+				"	// print_r(\\$subQuery->query);",
+				"	return \\$_RESULT; ",
+				"	",
+			"} catch (\\Throwable \\$ERROR ) {",
+				"	die(\\$ERROR->getMessage());",
+			"} ",
+		]
+	}
+	,"Galaxy :: Insert-Simples": { "scope": "php", "prefix": [ "galaxy","mysql", "insert" ],
+		"body": [
+			" try {",
+				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
+				"	\\$${1:_SELECT}->connect();",
+				"	\\$${1:_SELECT}->table(\"${3:tableName}\");",
+				"	\\$${1:_SELECT}->${4:columName}=$5;",
+				"	\\$${1:_SELECT}->${6:columName}=$7;",
+				"	\\$${1:_SELECT}->${8:columName}=$9;",
+				"	\\$${1:_SELECT}->prepare_inser('param');",
+				"	",
+				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
+				"	\\$${1:_SELECT}->execQuery();",
+			"} catch (\\Throwable \\$ERROR ) {",
+				"	die(\\$ERROR->getMessage());",
+			"} ",
+		]
+	}
+	,"Galaxy :: Update-Simples": { "scope": "php", "prefix": [ "galaxy","mysql", "update" ],
+		"body": [
+			" try {",
+				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
+				"	\\$${1:_SELECT}->connect();",
+				"	\\$${1:_SELECT}->table(\"${3:tableName}\");",
+				"	\\$${1:_SELECT}->${4:columName}=$5;",
+				"	\\$${1:_SELECT}->${6:columName}=$7;",
+				"	\\$${1:_SELECT}->${8:columName}=$9;",
+				"	\\$${1:_SELECT}->prepare_update('param');",
+				"	",
+				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
+				"	\\$${1:_SELECT}->execQuery();",
+				"	",
+			"} catch (\\Throwable \\$ERROR ) {",
+				"	die(\\$ERROR->getMessage());",
+			"} ",
+		]
+	}
+	,"Galaxy :: Delete-Simples": { "scope": "php", "prefix": [ "galaxy","mysql", "delete" ],
+		"body": [
+			" try {",
+				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
+				"	\\$${1:_SELECT}->connect();",
+				"	\\$${1:_SELECT}->table(\"${3:tableName}\");",
+				"	\\$${1:_SELECT}->where('${4:columName}=1');",
+				"	\\$${1:_SELECT}->prepare_delete('param');",
+				"	",
+				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
+				"	\\$${1:_SELECT}->execQuery();",
+				"	",
+			"} catch (\\Throwable \\$ERROR ) {",
+				"	die(\\$ERROR->getMessage());",
+			"} ",
+		]
+	}
 
-    
+	,"Galaxy :: Join": { "scope": "php", "prefix": [ "->join" ],
+		"body": ["->join('${2|INNER,LEFT,RIGHT,FULL OUTER|}','${3:tableName}',' ${4:tableName}.${5:columName}=${6:tableName}.${7:columName}');",]
+	}
+	,"Galaxy :: Where": { "scope": "php", "prefix": [ "->where" ],
+		"body": ["->where('${1:columName}');",]
+	}
+	,"Galaxy :: GroupBy": {"scope": "php","prefix": ["->group_by"],
+		"body": ["->group_by('${1:columName}');",]
+	}
+	,"Galaxy :: Like": {"scope": "php","prefix": ["->like"],
+		"body": ["->like('${1:columName}','%$2%');",]
+	}
+	,"Galaxy :: Order": {"scope": "php","prefix": ["->order"],
+		"body": ["->order('${1:columName}','${2|ASC,DESC|}');",]
+	}
+	,"Galaxy :: Limit": {"scope": "php","prefix": ["->limit"],
+		"body": ["\\$${1:_SELECT}->limit($2,$3);",]
+	}
+	,"Galaxy :: Fetch Array": {"scope": "php","prefix": ["fetch","array"],
+		"body": ["\\$${1:_SELECT}->fetch_array('$2');"]
+	}
+	,"Galaxy :: ExecQuery": {"scope": "php","prefix": ["exec","query","execquery"],
+		"body": ["\\$${1:_SELECT}->execQuery();"]
+	}
+	,"Galaxy :: Transaction/Rowback": {"scope": "php","prefix": ["transaction","rowback"],
+		"body": ["\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});"]
+	}
+
+	,"Galaxy :: Prepare Select": {"scope": "php","prefix": ["prepare_select"],
+		"body": ["\\$${1:_SELECT}->prepare_select('$2');"]
+	}
+	,"Galaxy :: Select": {"scope": "php","prefix": ["prepare_select","select"],
+		"body": ["\\$${1:_SELECT}->select('$2');"]
+	}
+
+	,"Galaxy :: Insert": {"scope": "php","prefix": ["insert"],
+		"body": ["\\$${1:_SELECT}->insert();"]
+	}
+	,"Galaxy :: Insert Object": {"scope": "php","prefix": ["insert_obj"],
+		"body": ["\\$${1:_SELECT}->set_insert_obj($2);"]
+	}
+	,"Galaxy :: Prepare Insert": {"scope": "php","prefix": ["prepare_insert","insert"],
+		"body": ["\\$${1:_SELECT}->prepare_insert();"]
+	}
+
+	,"Galaxy :: Prepare Update": {"scope": "php","prefix": ["prepare_update","update"],
+		"body": ["\\$${1:_SELECT}->prepare_update();"]
+	}
+
+	,"Galaxy :: Update": {"scope": "php","prefix": ["update"],
+		"body": ["\\$${1:_SELECT}->update();"]
+	}
+
+	,"Galaxy :: Update Object": {"scope": "php","prefix": ["update_obj"],
+		"body": ["\\$${1:_SELECT}->set_update_obj($2);"]
+	}
+
+	,"Galaxy :: Prepare Delete": {"scope": "php","prefix": ["prepare_delete"],
+		"body": ["\\$${1:_SELECT}->prepare_delete();"]
+	}
+
+	,"Galaxy :: Delete": {"scope": "php","prefix": ["delete"],
+		"body": ["\\$${1:_SELECT}->delete();"]
+	}
+
+	,"Galaxy :: Nova Set-Sub-Query": {"scope": "php","prefix": ["setSubQuery","subQuery"],
+		"body": ["\\$${1:_SELECT}->setSubQuery('$2');"]
+	}
+
+	,"Galaxy :: Get Table-Sub-Query": {"scope": "php","prefix": ["tableSubQuery","subQuery"],
+		"body": ["\\$${1:_SELECT}->tableSubQuery('$2');"]
+	}
+
+	,"Galaxy :: Store Procedure": {"scope": "php","prefix": ["Store","Procedure","sp"],
+		"body": ["\\$${1:_SELECT}->sp(\"${2:spName}\",[$3]);"]
+	}
+
+
+
+
+
 }

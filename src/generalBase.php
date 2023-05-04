@@ -116,6 +116,13 @@
 			return $tables;
 		}
 
+		public function showProcedures(){
+			$query =  'SHOW PROCEDURE STATUS WHERE Db = "'.getEnv('DB_DATABASE').'" ';
+			$result = $this->connection->query($query);
+			$tables = $result->fetchAll(PDO::PARAM_STR);
+			return $tables;
+		}
+
 		public function showDBTables()
 		{
 			$tables = array();

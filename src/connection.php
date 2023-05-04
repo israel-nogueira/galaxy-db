@@ -20,16 +20,16 @@
             | busca o array de conexões
             |
             */
-            $type = $db['type'];
-            $user = $db['user'];
-            $pass = $db['pass'];
-            $name = $db['name'];
-            $host = $db['host'];
-            $port = $db['port'];
-            $char = $db['char'];
-            $flow = $db['flow'];
-            $fkey = $db['fkey'];
-            $typeDB = strtolower($db['type']);
+            $type = $db['type']??null;
+            $user = $db['user']??null;
+            $pass = $db['pass']??null;
+            $name = $db['name']??null;
+            $host = $db['host']??null;
+            $port = $db['port']??null;
+            $char = $db['char']??null;
+            $flow = $db['flow']??null;
+            $fkey = $db['fkey']??null;
+            $typeDB = strtolower($db['type']??null);
 
             
             // descobre qual o tipo (driver) de banco de dados a ser utilizado
