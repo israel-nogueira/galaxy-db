@@ -1,9 +1,8 @@
 ![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg)
-## GALAXY DB 
-[![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+<center>[![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 [![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-
+</center>
 
 
 Classe para controlar a sua base de dados no PHP com facilidade e segurança.
