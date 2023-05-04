@@ -127,7 +127,7 @@ Nela serão cadastrados os parâmetros de uso da classe.
 
 ### Snippets para VSCode
 
-Essa classe também conta com um script que importa a estrutura da sua base de dados. 
+Essa classe também conta com um script que importa a estrutura da sua base de dados.<br/>
 E monta um snippets com atalhos.
 
 Basta executar:
@@ -142,20 +142,20 @@ E Pronto, você e seu VSCode estão prontos para trabalhar de maneira rápida e 
 
 #### Alguns atalhos:
 
-```select```, ```update```, ```insert``` ou ```delete```:
-
+```select```, ```update```, ```insert``` ou ```delete```:<br/>
 Retornam a classe completa de CRUD;
 
-```table``` ou ```->table```:
-
+```table``` ou ```->table```:<br/>
 Mostra a lista de tabelas disponíveis em sua base de dados;
 
-Se tiver ```->``` retorna a função montada ```->table("sua-tabela")``` caso contrario, retorna apenas o nome da tabela
+Se tiver ```->``` retorna a função montada ```->table("sua-tabela")```;<br/>
+Caso contrario, retorna apenas o nome da tabela
 
 
 ```colum``` ou ```->colum```:
 
-Se tiver ```->``` retorna a função montada ```->colum("sua-tabela")``` caso contrario, retorna apenas o nome da coluna.
+Se tiver ```->``` retorna a função montada ```->colum("sua-tabela")```;<br/>
+Caso contrario, retorna apenas o nome da coluna.
 
 Inicialmente ela mostra a lista de tabelas disponíveis em sua base de dados;<br/>
 E na sequencia a lista de colunas daquela tabela selecionada.
@@ -168,7 +168,7 @@ Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 
 ### Select simples
 
-O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.  
+O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.<br/>  
 Uma `array` vazia será retornada caso a consulta não encontre resultados.
 
 ```php
