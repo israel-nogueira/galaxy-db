@@ -50,7 +50,7 @@ return '<?
 	namespace IsraelNogueira\Models;
 	use IsraelNogueira\galaxyDB\galaxyDB;
 
-	class '.$modelo.'Model extends galaxyDB{
+	class '.$modelo.' extends galaxyDB{
 
 		protected $table				=  "'.$modelo.'";
 		protected $columnsBlocked		= [];
@@ -159,10 +159,6 @@ return '<?
 			};
 		}
 
-
-			
-		
-		exit;
 		if($_PARAMS[0]=='update-snippets'){
 
 			echo self::color('amarelo','Atualizando atalhos GalaxyDB').PHP_EOL;

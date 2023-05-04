@@ -93,11 +93,11 @@
 			$this->limit				= null;
 			$this->stmt					= null;
 
+			
 			$ENV = parse_ini_file(__DIR__.DIRECTORY_SEPARATOR.'.env');
-			foreach ($ENV as $key => $line){
-				putenv($key.'='.$line);
-			}
-			print_r(getenv());
+			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
+
+
 			$this->connection			= $this->connect([
 				"user"=>getEnv('DB_USERNAME'),
 				"pass"=>getEnv('DB_PASSWORD'),
