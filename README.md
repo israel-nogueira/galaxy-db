@@ -1,4 +1,5 @@
 ![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg)
+---
 [![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 [![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
@@ -122,7 +123,19 @@ Nela serão cadastrados os parâmetros de uso da classe.
 
 ## EXEMPLOS DE USO
 
-### Snippets
+### Snippets para VSCode
+
+Essa classe também conta com um script que importa a estrutura da sua base de dados. 
+E monta um snippets com atalhos.
+
+Basta executar:
+```plaintext
+
+ composer run-script galaxy update-snippets
+
+```
+
+E Pronto, você e seu VSCode estão prontos para trabalhar de maneira rápida e eficaz.
 ![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/snippets-exemplo.gif)
 
 
