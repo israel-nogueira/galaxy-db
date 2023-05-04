@@ -105,9 +105,9 @@ return '<?
 						.PHP_EOL.'DB_TYPE='.$_DATA['type']
 						.PHP_EOL.'DB_USERNAME='.$_DATA['user']
 						.PHP_EOL.'DB_PASSWORD='.$_DATA['pass']
-						.PHP_EOL.'DB_CHAR='.($_DATA['']??'')
-						.PHP_EOL.'DB_FLOW='.($_DATA['']??'')
-						.PHP_EOL.'DB_FKEY='.($_DATA['']??'');
+						.PHP_EOL.'DB_CHAR='.($_DATA['char']??'')
+						.PHP_EOL.'DB_FLOW='.($_DATA['flow']??'')
+						.PHP_EOL.'DB_FKEY='.($_DATA['fkey']??'');
 		file_put_contents(__DIR__.DIRECTORY_SEPARATOR.'.env',$_StringFile);
 		echo self::color('verde','Configurações salvas com sucesso!').PHP_EOL;				
 

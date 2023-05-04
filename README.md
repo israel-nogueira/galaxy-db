@@ -51,26 +51,21 @@ Caso falte algum ou todos os dados, o prompt irá lhe pedir.
 
 ```
 
-No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha os dados de conexão de sua base:
+Ou criar manualmente um arquivo  ```/vendor/israel-nogueira/galaxy-db/src/.env``` preencha os dados de conexão de sua base:
 
-```php
-    <?php
-        declare(strict_types = 1);
-        namespace IsraelNogueira\galaxyDB;
+```env
 
-        define('DB_HOST', 	'localhost');
-        define('DB_PORT', 	'3306');
-        define('DB_DATABASE', 	'MY_DATABASE');
-        define('DB_TYPE', 	'mysql');
-        define('DB_USERNAME', 	'root');
-        define('DB_PASSWORD',   '');
-        define('DB_CHAR',   	'');
-        define('DB_FLOW',   	'');
-        define('DB_FKEY',   	'');
+    #/vendor/israel-nogueira/galaxy-db/src/.env
 
-        trait connection{
-
-        }
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_DATABASE=MyDataBase
+    DB_TYPE=mysql
+    DB_USERNAME=root
+    DB_PASSWORD=
+    DB_CHAR=
+    DB_FLOW=
+    DB_FKEY=
 
 ```
 ## Snippets para VSCode
