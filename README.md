@@ -149,16 +149,22 @@ Retornam a classe completa de CRUD;
 ```table``` ou ```->table```:
 
 Mostra a lista de tabelas disponíveis em sua base de dados;
+
 Se tiver ```->``` retorna a função montada ```->table("sua-tabela")```
+
 Caso contrario, retorna apenas o nome da tabela
+
 
 ```colum``` ou ```->colum```:
 
 Se tiver ```->``` retorna a função montada ```->colum("sua-tabela")```
+
 Caso contrario, retorna apenas o nome da coluna.
 
 Inicialmente ela mostra a lista de tabelas disponíveis em sua base de dados;
+
 E na sequencia a lista de colunas daquela tabela selecionada.
+
 
 ```columns``` ou ```tables``` :
 
