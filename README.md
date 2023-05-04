@@ -75,8 +75,7 @@ E Pronto, você e seu VSCode estão prontos para trabalhar de maneira rápida e 
 
 #### Alguns atalhos:
 
-```select```, ```update```, ```insert``` ou ```delete```:<br/>
-Retornam a classe completa de CRUD;
+```select```, ```update```, ```insert``` ou ```delete``` retornam a classe completa de CRUD;
 
 ```table``` ou ```->table```:<br/>
 Mostra a lista de tabelas disponíveis em sua base de dados;<br/>
@@ -91,11 +90,10 @@ Caso contrario, retorna apenas o nome da coluna.
 Inicialmente ela mostra a lista de tabelas disponíveis em sua base de dados;<br/>
 E na sequencia a lista de colunas daquela tabela selecionada.
 
-
 ```columns``` ou ```tables``` :<br/>
 Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 
-
+E com tempo vamos incrementando a lista de atalhos.
 
 
 ## CRIANDO MODELS
