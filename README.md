@@ -47,7 +47,7 @@ Caso falte algum ou todos os dados, o prompt irá lhe pedir.
 
 ```plaintext
   
-  composer run-script galaxy config-connection type user pass name host port
+   composer run-script galaxy config-connection -- --type= --user= --pass= --name= --host=
 
 ```
 
