@@ -60,7 +60,7 @@ No arquivo ```/vendor/israel-nogueira/galaxy-db/src/connection.php``` preencha o
 ## Snippets para VSCode
 
 Depois que você configurou os dados de conexão, poderá criar um snippets da classe.<br/>
-Sim essa classe também conta com um script que importa a estrutura da sua base de dados.<br/>
+Sim, essa classe também conta com um script que importa a estrutura da sua base de dados.<br/>
 E monta um snippets com atalhos.
 
 Basta executar:
