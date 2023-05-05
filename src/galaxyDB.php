@@ -7,16 +7,6 @@
 	use RuntimeException;
 	use ReflectionClass;
 
-	// define('DB_HOST', 	'localhost');
-    // define('DB_PORT', 	'3306');
-    // define('DB_DATABASE', 	'FW_PADRAO');
-    // define('DB_TYPE', 	'mysql');
-    // define('DB_USERNAME', 	'root');
-    // define('DB_PASSWORD',   '');
-    // define('DB_CHAR',   	'');
-    // define('DB_FLOW',   	'');
-    // define('DB_FKEY',   	'');
-
 /**
  * -------------------------------------------------------------------------
  *		@author Israel Nogueira <israel@feats.com>
