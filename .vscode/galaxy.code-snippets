@@ -4,9 +4,9 @@
 			" try {",
 				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
 				"	\\$${1:_SELECT}->connect();",
-				"	\\$${1:_SELECT}->table(\"${3:{table}}\");",
-				"	\\$${1:_SELECT}->colum(\"${4:{colum}}\");",
-				"	\\$${1:_SELECT}->where('${5:{colum}}=1');",
+				"	\\$${1:_SELECT}->table(\"${3:tblNm}\");",
+				"	\\$${1:_SELECT}->colum(\"${4:clmNm}\");",
+				"	\\$${1:_SELECT}->where('${5:clmNm}=1');",
 				"	\\$${1:_SELECT}->prepare_select('param');",
 				"	",
 				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
@@ -27,10 +27,10 @@
 			" try {",
 				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
 				"	\\$${1:_SELECT}->connect();",
-				"	\\$${1:_SELECT}->table(\"${3:{table}}\");",
-				"	\\$${1:_SELECT}->${4:{colum}}=$5;",
-				"	\\$${1:_SELECT}->${6:{colum}}=$7;",
-				"	\\$${1:_SELECT}->${8:{colum}}=$9;",
+				"	\\$${1:_SELECT}->table(\"${3:tblNm}\");",
+				"	\\$${1:_SELECT}->${4:clmNm}=$5;",
+				"	\\$${1:_SELECT}->${6:clmNm}=$7;",
+				"	\\$${1:_SELECT}->${8:clmNm}=$9;",
 				"	\\$${1:_SELECT}->prepare_inser('param');",
 				"	",
 				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
@@ -45,10 +45,10 @@
 			" try {",
 				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
 				"	\\$${1:_SELECT}->connect();",
-				"	\\$${1:_SELECT}->table(\"${3:{table}}\");",
-				"	\\$${1:_SELECT}->${4:{colum}}=$5;",
-				"	\\$${1:_SELECT}->${6:{colum}}=$7;",
-				"	\\$${1:_SELECT}->${8:{colum}}=$9;",
+				"	\\$${1:_SELECT}->table(\"${3:tblNm}\");",
+				"	\\$${1:_SELECT}->${4:clmNm}=$5;",
+				"	\\$${1:_SELECT}->${6:clmNm}=$7;",
+				"	\\$${1:_SELECT}->${8:clmNm}=$9;",
 				"	\\$${1:_SELECT}->prepare_update('param');",
 				"	",
 				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
@@ -64,8 +64,8 @@
 			" try {",
 				"	\\$${1:_SELECT} = new ${2:galaxyDB}();",
 				"	\\$${1:_SELECT}->connect();",
-				"	\\$${1:_SELECT}->table(\"${3:{table}}\");",
-				"	\\$${1:_SELECT}->where('${4:{colum}}=1');",
+				"	\\$${1:_SELECT}->table(\"${3:tblNm}\");",
+				"	\\$${1:_SELECT}->where('${4:clmNm}=1');",
 				"	\\$${1:_SELECT}->prepare_delete('param');",
 				"	",
 				"	\\$${1:_SELECT}->transaction(function (\\$ERROR) {throw new ErrorException(\\$ERROR, 1);});",
@@ -78,19 +78,19 @@
 	}
 
 	,"Galaxy :: Join": { "scope": "php", "prefix": [ "->join" ],
-		"body": ["->join('${2|INNER,LEFT,RIGHT,FULL OUTER|}','${3:{table}}',' ${4:{table}}.${5:{colum}}=${6:{table}}.${7:{colum}}');",]
+		"body": ["->join('${2|INNER,LEFT,RIGHT,FULL OUTER|}','${3:tblNm}',' ${4:tblNm}.${5:clmNm}=${6:tblNm}.${7:clmNm}');",]
 	}
 	,"Galaxy :: Where": { "scope": "php", "prefix": [ "->where" ],
-		"body": ["->where('${1:{colum}}');",]
+		"body": ["->where('${1:clmNm}');",]
 	}
 	,"Galaxy :: GroupBy": {"scope": "php","prefix": ["->group_by"],
-		"body": ["->group_by('${1:{colum}}');",]
+		"body": ["->group_by('${1:clmNm}');",]
 	}
 	,"Galaxy :: Like": {"scope": "php","prefix": ["->like"],
-		"body": ["->like('${1:{colum}}','%$2%');",]
+		"body": ["->like('${1:clmNm}','%$2%');",]
 	}
 	,"Galaxy :: Order": {"scope": "php","prefix": ["->order"],
-		"body": ["->order('${1:{colum}}','${2|ASC,DESC|}');",]
+		"body": ["->order('${1:clmNm}','${2|ASC,DESC|}');",]
 	}
 	,"Galaxy :: Limit": {"scope": "php","prefix": ["->limit"],
 		"body": ["\\$${1:_SELECT}->limit($2,$3);",]
