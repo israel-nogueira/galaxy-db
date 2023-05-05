@@ -2,6 +2,8 @@
     declare(strict_types = 1);
 
     namespace IsraelNogueira\galaxyDB;
+    use PDOException;
+    use Exception;
 
     trait connection{
 
@@ -9,6 +11,10 @@
          * método open()
          * recebe o nome do banco de dados e instancia o objecto PDO correspondente
          */
+        public static function errorConnection($error){
+            throw new Exception($error->getMessage(), 1);
+            
+        }
         public static function connect($db=[]){
             $conn = null;
 
@@ -45,7 +51,11 @@
                 */
                 case 'pgsql':
                     $port = $port ? $port : '3306';
-                    $conn = new \PDO("pgsql:dbname={$name};user={$user}; password={$pass};host=$host;port={$port}");
+                    try{
+                        $conn = new \PDO("pgsql:dbname={$name};user={$user}; password={$pass};host=$host;port={$port}");
+                    }catch(PDOException $e){
+                        self::errorConnection($e);
+                    }
                     if(!empty($char))
                     {
                         $conn->exec("SET CLIENT_ENCODING TO '{$char}';");
@@ -64,11 +74,19 @@
                     $port = $port ? $port : '3306';
                     if ($char == 'ISO')
                     {
-                        $conn = new \PDO("mysql:host={$host};port={$port};dbname={$name}", $user, $pass);
+                        try{
+                            $conn = new \PDO("mysql:host={$host};port={$port};dbname={$name}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     else
                     {
-                        $conn = new \PDO("mysql:host={$host};port={$port};dbname={$name}", $user, $pass, array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+                        try{
+                            $conn = new \PDO("mysql:host={$host};port={$port};dbname={$name}", $user, $pass, array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     break;
                 /*
@@ -80,7 +98,11 @@
                 |
                 */
                 case 'sqlite':
-                    $conn = new \PDO("sqlite:{$name}");
+                    try{
+                        $conn = new \PDO("sqlite:{$name}");
+                    }catch(PDOException $e){
+                        self::errorConnection($e);
+                    }
                     if (is_null($fkey) OR $fkey == '1')
                     {
                         $conn->query('PRAGMA foreign_keys = ON'); // referential integrity must be enabled
@@ -98,7 +120,11 @@
                 case 'fbird':
                     $db_string = empty($port) ? "{$host}:{$name}" : "{$host}/{$port}:{$name}";
                     $charset = $char ? ";charset={$char}" : '';
-                    $conn = new \PDO("firebird:dbname={$db_string}{$charset}", $user, $pass);
+                    try{
+                        $conn = new \PDO("firebird:dbname={$db_string}{$charset}", $user, $pass);
+                    }catch(PDOException $e){
+                        self::errorConnection($e);
+                    }
                     break;
                 /*
                 |----------------------------------------------------------------------------------------------------
@@ -115,11 +141,19 @@
                     
                     if ($tns)
                     {
-                        $conn = new \PDO("oci:dbname={$tns}{$charset}", $user, $pass);
+                        try{
+                            $conn = new \PDO("oci:dbname={$tns}{$charset}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     else
                     {
-                        $conn = new \PDO("oci:dbname={$host}:{$port}/{$name}{$charset}", $user, $pass);
+                        try{
+                            $conn = new \PDO("oci:dbname={$host}:{$port}/{$name}{$charset}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     
                     if (isset($db['date']))
@@ -151,11 +185,19 @@
                     {
                         if ($port)
                         {
-                            $conn = new \PDO("sqlsrv:Server={$host},{$port};Database={$name}", $user, $pass);
+                            try{
+                                $conn = new \PDO("sqlsrv:Server={$host},{$port};Database={$name}", $user, $pass);
+                            }catch(PDOException $e){
+                                self::errorConnection($e);
+                            }
                         }
                         else
                         {
-                            $conn = new \PDO("sqlsrv:Server={$host};Database={$name}", $user, $pass);
+                            try{
+                                $conn = new \PDO("sqlsrv:Server={$host};Database={$name}", $user, $pass);
+                            }catch(PDOException $e){
+                                self::errorConnection($e);
+                            }
                         }
                     }
                     else
@@ -164,11 +206,19 @@
                         
                         if ($port)
                         {
-                            $conn = new \PDO("dblib:host={$host}:{$port};dbname={$name}{$charset}", $user, $pass);
+                            try{
+                                $conn = new \PDO("dblib:host={$host}:{$port};dbname={$name}{$charset}", $user, $pass);
+                            }catch(PDOException $e){
+                                self::errorConnection($e);
+                            }
                         }
                         else
                         {
-                            $conn = new \PDO("dblib:host={$host};dbname={$name}{$charset}", $user, $pass);
+                            try{
+                                $conn = new \PDO("dblib:host={$host};dbname={$name}{$charset}", $user, $pass);
+                            }catch(PDOException $e){
+                                self::errorConnection($e);
+                            }
                         }
                     }
                     break;
@@ -185,11 +235,19 @@
                     
                     if ($port)
                     {
-                        $conn = new \PDO("dblib:host={$host}:{$port};dbname={$name}{$charset}", $user, $pass);
+                        try{
+                            $conn = new \PDO("dblib:host={$host}:{$port};dbname={$name}{$charset}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     else
                     {
-                        $conn = new \PDO("dblib:host={$host};dbname={$name}{$charset}", $user, $pass);
+                        try{
+                            $conn = new \PDO("dblib:host={$host};dbname={$name}{$charset}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     break;
                 /*
@@ -203,11 +261,19 @@
                 case 'sqlsrv':
                     if ($port)
                     {
-                        $conn = new \PDO("sqlsrv:Server={$host},{$port};Database={$name}", $user, $pass);
+                        try{
+                            $conn = new \PDO("sqlsrv:Server={$host},{$port};Database={$name}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     else
                     {
-                        $conn = new \PDO("sqlsrv:Server={$host};Database={$name}", $user, $pass);
+                        try{
+                            $conn = new \PDO("sqlsrv:Server={$host};Database={$name}", $user, $pass);
+                        }catch(PDOException $e){
+                            self::errorConnection($e);
+                        }
                     }
                     break;
                 /*
@@ -222,6 +288,11 @@
                     throw new \Exception('Driver not Found: ' . $db['type']);
                     break;
             }
+
+
+
+
+
 
             // define para que o PDO lance exceções na ocorrência de erros
             $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
