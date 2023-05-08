@@ -221,6 +221,11 @@
 			return $this;
 		}
 
+		public function where_not_exist(){
+			$this->set_where_not_exist = true;
+			return $this;
+		}
+		
 		public function set_where_not_exist(){
 			$this->set_where_not_exist = true;
 			return $this;

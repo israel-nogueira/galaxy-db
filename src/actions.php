@@ -436,7 +436,6 @@
 			if($this->transactionFn == true){
                 if($this->query==""){ return [];}
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
-				print_r($this->query);
 				try {
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
@@ -447,15 +446,11 @@
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
-
 						if($this->stmt->rowCount()>0){
-
 							$this->startProcessResult($this->stmt,$query,$_ALIAS);
 						}
-
 					}
 					$this->SP_OUTPUTS = [];
-
 					foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
 						$_RESULT = [];
 						foreach ($SP_OUTS as $key2 => $value) {
@@ -465,7 +460,6 @@
 						}
 						$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
 					}
-					
 					$this->connection->commit();
 				} catch (PDOException $exception) {					
 					$this->connection->rollback();
@@ -477,5 +471,4 @@
 				}
             }
         }
-
     }

@@ -3,8 +3,31 @@
 include(__DIR__.'/../../../autoload.php');
 use IsraelNogueira\galaxyDB\galaxyDB;
 
+/**
+ * -------------------------------------------------------------------------
+ *		@author Israel Nogueira <israel@feats.com>
+ *		@package library
+ *		@license GPL-3.0-or-later
+ *		@copyright 2023 Israel Nogueira
+ * -------------------------------------------------------------------------
+ * 
+ * 		Classe responsável por configurar a conexão e criar snippets
+ * 
+ * -------------------------------------------------------------------------
+ */
+
 
 class cli{
+
+	/* 
+	|--------------------------------------------------------------------------------
+	| PROCESSA OS ARGUMENTOS DO CLI
+	|--------------------------------------------------------------------------------
+	|
+	|	Não sei se vamos usar muito, pois o CLI do composer é um pouco diferente
+	|	
+	*/
+
 	static public function parseArgs($argv = null){
 		$argv = $argv ? $argv : $_SERVER['argv'];
 		array_shift($argv);
@@ -45,6 +68,14 @@ class cli{
 		return $o;
 	}
 
+	/* 
+	|--------------------------------------------------------------------------------
+	| MODELO PADRÃO DA MODEL
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	*/
+
 	static public function modeloModel($modelo='myClass') {
 
 		return '<?
@@ -71,6 +102,13 @@ class cli{
 
 	}
 
+	/* 
+	|--------------------------------------------------------------------------------
+	| CORES DOS OUTPUTS DA CLI
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	*/
 	static public function color($cor='vermelho',$_TEXT=null) {try{
 		//ˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑˑ
 			$_COLOR['branco']	="\033[0;97m";
@@ -96,6 +134,14 @@ class cli{
 		return $str;
 	}
 
+	/* 
+	|--------------------------------------------------------------------------------
+	| CRIA O ARQUIVO DE CONEXÃO .ENV NA CLASSE
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	*/
+
     static public function createEnv($_DATA) {
 		$_StringFile = ''
 						.PHP_EOL.'DB_HOST='.$_DATA['host']
@@ -112,6 +158,14 @@ class cli{
 
 	}
 
+	/* 
+	|--------------------------------------------------------------------------------
+	| CRIANDO SNIPPETS
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	*/
+
     static public function createSnippet() {
 		$showTables			= new galaxyDB();
 		$Tables				= $showTables->showDBTables();
@@ -123,8 +177,8 @@ class cli{
 		$showColunms		= new galaxyDB();
 		foreach ($Tables as $_table) {
 			$_colunas = $showColunms->showDBColumns($_table);
-			$_SNIPPET_TABELAS[$_table.' ColumName']=["prefix"=>['colum','clmNm'],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
-			$_SNIPPET_TABELAS[$_table.' ->colum()']=["prefix"=>['->colum'],"body"	=>['${1|->colum("'.implode('");,->colum("',$_colunas).'");|}']];
+			$_SNIPPET_TABELAS[$_table.' ColumName']=["description"=>"Colunas da tabela:\n\n• ".$_table,									"prefix"=>['colum','clmNm','clmNm_'.$_table],"body"	=>['${1|'.implode(',',$_colunas).'|}']];
+			$_SNIPPET_TABELAS[$_table.' ->colum()']=["description"=>"Colunas da tabela:\n\n• ".$_table."\n\nObs.: Em formato de fun ",	"prefix"=>['->colum','->colum_'.$_table],"body"	=>['${1|->colum("'.implode('");,->colum("',$_colunas).'");|}']];
 			$_SNIPPET_TABELAS[$_table.' Lista colunas']=["prefix"=>['lista','columns','colunas'],"body"	=>['/*'.PHP_EOL.'	Colunas da tabela "'.$_table.'":'.PHP_EOL.'	•'.implode(PHP_EOL.'	•',$_colunas).PHP_EOL.'*/']];
 		}
 		
@@ -144,32 +198,62 @@ class cli{
 
 	}
 
+	/* 
+	|--------------------------------------------------------------------------------
+	| CONFIGURANDO PSR-4
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	|	
+	*/
     static public function configPSR4() {
 		echo self::color('cinza','Verificando PSR-4...').PHP_EOL;
+		echo self::color('cinza','Verificando Pre-Push...').PHP_EOL;
 		
 		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));
 		$JSON		= $PATH.DIRECTORY_SEPARATOR.'composer.json';
-		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
-		$PSR4		= (isset($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']))?$_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']:'app/Models';
 		
-		if(!file_exists($PATH.DIRECTORY_SEPARATOR.$PSR4)){
-			@mkdir($PATH.DIRECTORY_SEPARATOR.$PSR4,0777,true);
+		
+		$PRE_PUSH	= $PATH.DIRECTORY_SEPARATOR.'.git/hooks/pre-push.sh';
+		if(file_exists($PATH.DIRECTORY_SEPARATOR.'.git/hooks')){
+			if(!file_exists($PATH.DIRECTORY_SEPARATOR.'.git/hooks/pre-push.sh')){
+				copy(__DIR__.'/pre-push.sh',$PATH.DIRECTORY_SEPARATOR.'.git/hooks/pre-push.sh');
+				echo self::color('verde','Pre-Push instalado').PHP_EOL;
+			}
 		}
 
+		$_COMPOSER	= json_decode(file_get_contents($JSON),true);
+		$PSR4		= (isset($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']))?$_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\']:'app/Models';
+		if(!file_exists($PATH.DIRECTORY_SEPARATOR.$PSR4)){
+			@mkdir($PATH.DIRECTORY_SEPARATOR.$PSR4,0777,true);
+			echo self::color('verde','Path PSR-4 criado').PHP_EOL;
+		}
+		
 		if(
 			empty($_COMPOSER['autoload']) || 
 			empty($_COMPOSER['autoload']['psr-4']) ||
 			empty($_COMPOSER['autoload']['psr-4']['IsraelNogueira\Models\\'])
 		){
-			echo self::color('cinza','Adicionando path Models').PHP_EOL;
-			$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
-			file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+				echo self::color('cinza','Adicionando path Models').PHP_EOL;
+				$_COMPOSER['autoload']['psr-4']["IsraelNogueira\\Models\\"] = 'app/Models/';
+				file_put_contents($JSON, json_encode($_COMPOSER,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+				echo self::color('verde','composer.json atualizado').PHP_EOL;
 		}
 
 
 		return $_COMPOSER;
 	}
 
+
+	/* 
+	|--------------------------------------------------------------------------------
+	| PROCESSA OS COMANDOS QUE VEM VIA CLI
+	|--------------------------------------------------------------------------------
+	|
+	|	
+	|	
+	*/
+	
     static public function processCommands($_ARGS=null) {
 		if(is_null($_ARGS)) throw new Exception("Param is null em classe::methodo", 1);
 		$PATH		= str_replace('\\',DIRECTORY_SEPARATOR,realpath(__DIR__.'/../../../../'));

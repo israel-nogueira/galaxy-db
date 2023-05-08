@@ -7,7 +7,7 @@
 [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 
 
-Classe para controlar a sua base de dados no PHP com facilidade e segurança.
+Classe para controlar a sua base de dados no PHP com facilidade e segurança.<br/>
 
 Essa classe dá suporte as seguintes conexões:
 
