@@ -16,6 +16,12 @@
     [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
 </p>
 
+<p align="center">
+    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg"></a>
+    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/downloads"></a>
+    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg"></a>
+</p>
+
 Classe para controlar a sua base de dados no PHP com facilidade e segurança.<br/>
 
 Essa classe dá suporte as seguintes conexões:
