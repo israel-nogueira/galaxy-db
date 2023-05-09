@@ -1,5 +1,6 @@
-![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg)
-
+<p align="center">
+    <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg" width="650"/>
+</p>
 <p align="center">
     <a href="#instalação" target="_Self">Instalação</a> |
     <a href="#configurando-a-base" target="_Self">Config a base</a> |
