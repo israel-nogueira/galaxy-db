@@ -11,12 +11,6 @@
     <a href="#stored-procedures" target="_Self">Store Procedures</a>
 </p>
 <p align="center">
-    [![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-    [![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-    [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-</p>
-
-<p align="center">
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg"></a>
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/downloads"></a>
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg"></a>
