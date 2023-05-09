@@ -1,11 +1,21 @@
-![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg)
+<p align="center">
+    ![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg)
+</p>
 
----
-
-[![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-[![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-[![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
-
+<p align="center">
+    <a href="#instalação" target="_Self">Instalação</a> |
+    <a href="#configurando-a-base" target="_Self">Config a base</a> |
+    <a href="#snippets-para-vscode" target="_Self">Snippets</a>|
+    <a href="#criando-models" target="_Self">Models</a>|
+    <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a>|
+    <a href="#funções-na-model" target="_Self">Functions</a>|
+    <a href="#stored-procedures" target="_Self">Store Procedures</a>
+</p>
+<p align="center">
+    [![Latest Stable Version](https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+    [![Total Downloads](https://poser.pugx.org/israel-nogueira/galaxy-db/downloads)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+    [![License](https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg)](https://packagist.org/packages/israel-nogueira/galaxy-db)
+</p>
 
 Classe para controlar a sua base de dados no PHP com facilidade e segurança.<br/>
 

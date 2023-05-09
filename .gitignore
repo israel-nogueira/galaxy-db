@@ -1,5 +1,4 @@
 vendor/*
-src/template.psd
-src/topo_README.psd
+src/*.psd
 src/snippets-exemplo.gif
 src/topo_README.jpg
