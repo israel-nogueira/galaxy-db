@@ -1,6 +1,7 @@
 {
     "name": "israel-nogueira/galaxy-db",
     "description": "ORM simples para PHP e Base de Dados",
+    "keywords": [ "ORM", "mariadb", "mysql","pgsql","sqlite","ibase","fbird","oracle","mssql","dblib","sqlsrv"], 
     "type": "library",
     "license": "GPL-3.0-or-later",
     "keywords": [],

@@ -83,8 +83,8 @@
 			$this->limit				= null;
 			$this->stmt					= null;
 
-			
-			$ENV = parse_ini_file(__DIR__.DIRECTORY_SEPARATOR.'.env');
+			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
+
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
 
 
