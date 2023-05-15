@@ -143,7 +143,7 @@ class cli{
 	*/
 
     static public function createEnv($_DATA) {
-		$_StringFile = ''
+		$_StringFile = '#-------------------- BEGIN GALAXY DB ----------------------'.PHP_EOL
 						.PHP_EOL.'DB_HOST='.$_DATA['host']
 						.PHP_EOL.'DB_PORT='.($_DATA['port']??'3306')
 						.PHP_EOL.'DB_DATABASE='.$_DATA['name']
@@ -152,8 +152,11 @@ class cli{
 						.PHP_EOL.'DB_PASSWORD='.$_DATA['pass']
 						.PHP_EOL.'DB_CHAR='.($_DATA['char']??'')
 						.PHP_EOL.'DB_FLOW='.($_DATA['flow']??'')
-						.PHP_EOL.'DB_FKEY='.($_DATA['fkey']??'');
-		file_put_contents(__DIR__.DIRECTORY_SEPARATOR.'.env',$_StringFile);
+						.PHP_EOL.'DB_FKEY='.($_DATA['fkey']??'')
+						.PHP_EOL.PHP_EOL.'#-------------------- END GALAXY DB ----------------------';
+
+		$ENV = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env';
+		file_put_contents($ENV,$_StringFile,FILE_APPEND);
 		echo self::color('verde','Configurações salvas com sucesso!').PHP_EOL;				
 
 	}
