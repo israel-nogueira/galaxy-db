@@ -313,4 +313,6 @@ class cli{
 
 }
 
-cli::processCommands($argv);
+if(isset($argv)){
+	cli::processCommands($argv);
+}
