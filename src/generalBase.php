@@ -116,12 +116,7 @@
 			return $tables;
 		}
 
-		public function getFileLog(){
-			$query =  'SHOW VARIABLES LIKE "%general_log%";';
-			$result = $this->connection->query($query);
-			$tables = $result->fetchAll(PDO::PARAM_STR);
-			return $tables[0]['Value']??'';
-		}
+
 
 
 		public function showProcedures(){
@@ -131,12 +126,18 @@
 			return $tables;
 		}
 
-		public function historyDB(){
-	
-			$_RESULT	= $this->getFileLog();
-			// caso não esteja habilitado 
-			if($_RESULT['general_log']=='OFF')	return json_encode([]);
+		public function getFileLog(){
+			$query =  'SHOW VARIABLES LIKE "%general_log%";';
+			$result = $this->connection->query($query);
+			$tables = $result->fetchAll(PDO::PARAM_STR);
+			$_result=[];
+			foreach ($tables as  $value) $_result[$value['Variable_name']]=$value['Value'];
+			return $_result;
+		}
 
+		public function historyDB(){
+			$_RESULT	= $this->getFileLog();
+			if($_RESULT['general_log']=='OFF')	return json_encode([]);
 			$logLines	= file_get_contents($_RESULT['general_log_file']);
 			$logLines	= explode("\n",$logLines);
 			$_LOG		= [];
@@ -204,7 +205,6 @@
 			}
 			// 
 			return json_encode($_LOG[getEnv('DB_DATABASE')]);
-			
 		}
 
 		public function showDBTables(){
