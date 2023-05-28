@@ -26,20 +26,19 @@
             | busca o array de conexões
             |
             */
-            $type = $db['type']??null;
-            $user = $db['user']??null;
-            $pass = $db['pass']??null;
-            $name = $db['name']??null;
-            $host = $db['host']??null;
-            $port = $db['port']??null;
-            $char = $db['char']??null;
-            $flow = $db['flow']??null;
-            $fkey = $db['fkey']??null;
-            $typeDB = strtolower($db['type']??null);
 
-            
+            $type = getEnv('DB_TYPE');
+            $user = getEnv('DB_USERNAME');
+            $pass = getEnv('DB_PASSWORD');
+            $name = getEnv('DB_DATABASE');
+            $host = getEnv('DB_HOST');
+            $port = getEnv('DB_PORT');
+            $char = getEnv('DB_CHAR');
+            $flow = getEnv('DB_FLOW');
+            $fkey = getEnv('DB_FKEY');
+
             // descobre qual o tipo (driver) de banco de dados a ser utilizado
-            switch ($typeDB)
+            switch ($type)
             {
                 /*
                 |----------------------------------------------------------------------------------------------------
@@ -285,7 +284,7 @@
                 |
                 */
                 default:
-                    throw new \Exception('Driver not Found: ' . $db['type']);
+                    throw new \Exception('Driver not Found: ' . $type);
                     break;
             }
 

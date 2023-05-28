@@ -116,6 +116,13 @@
 			return $tables;
 		}
 
+		public function getFileLog(){
+			$query =  'SHOW VARIABLES LIKE "general_log_file"';
+			$result = $this->connection->query($query);
+			$tables = $result->fetchAll(PDO::PARAM_STR);
+			return $tables[0];
+		}
+
 		public function showProcedures(){
 			$query =  'SHOW PROCEDURE STATUS WHERE Db = "'.getEnv('DB_DATABASE').'" ';
 			$result = $this->connection->query($query);

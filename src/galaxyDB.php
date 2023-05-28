@@ -84,23 +84,11 @@
 			$this->stmt					= null;
 
 			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
-
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
 
-
-			$this->connection			= $this->connect([
-				"user"=>getEnv('DB_USERNAME'),
-				"pass"=>getEnv('DB_PASSWORD'),
-				"name"=>getEnv('DB_DATABASE'),
-				"host"=>getEnv('DB_HOST'),
-				"type"=>getEnv('DB_TYPE'),
-				"port"=>getEnv('DB_PORT'),
-				"char"=>getEnv('DB_CHAR'),
-				"flow"=>getEnv('DB_FLOW'),
-				"fkey"=>getEnv('DB_FKEY'),
-			]);
+			$this->connection	= $this->connect();
 			$this->extended();
-			$this->initialized			= true;
+			$this->initialized	= true;
 			return $this;
 		}
 
