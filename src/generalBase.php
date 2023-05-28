@@ -116,15 +116,13 @@
 			return $tables;
 		}
 
-
-
-
 		public function showProcedures(){
 			$query =  'SHOW PROCEDURE STATUS WHERE Db = "'.getEnv('DB_DATABASE').'" ';
 			$result = $this->connection->query($query);
 			$tables = $result->fetchAll(PDO::PARAM_STR);
 			return $tables;
 		}
+
 
 		public function getFileLog(){
 			$query =  'SHOW VARIABLES LIKE "%general_log%";';
@@ -136,12 +134,26 @@
 		}
 
 		public function historyDB(){
+			/*
+			|--------------------------------------------------------------------
+			|	PRIMEIRO TIRAMOS TODO LIXO DO LOG
+			|--------------------------------------------------------------------
+			*/
+			$this->cleanLogFilePhpMyAdmin();
+
+			/*
+			|--------------------------------------------------------------------
+			|	AGORA SIM PUXAMOS
+			|--------------------------------------------------------------------
+			*/
+
 			$_RESULT	= $this->getFileLog();
 			if($_RESULT['general_log']=='OFF')	return json_encode([]);
 			$logLines	= file_get_contents($_RESULT['general_log_file']);
 			$logLines	= explode("\n",$logLines);
 			$_LOG		= [];
 			$_LOGMAP	= [];
+			$RAW 		= [];
 			foreach ($logLines as $line) {
 				$parts		=	explode('Query', $line);
 				$_QUERY		=	trim($parts[1]??'');
@@ -151,10 +163,12 @@
 					$_CONFIG[2]				=	str_replace('DB	','',$_CONFIG[2]);
 					$id						=	intVal($_CONFIG[0]);
 					$_LOG[$_CONFIG[2]]		=	[];
+					$RAW[$_CONFIG[2]]		=	[];
 					$_LOGMAP[$_CONFIG[2]][] =	$id;
 				}
 			}
 
+			
 			foreach ($logLines as $line) {
 				$parts		=	explode('Query', $line);
 				$_QUERY		=	trim($parts[1]??'');
@@ -192,21 +206,97 @@
 								||	(strpos($_QUERY, 'ALTER DEFINER') !==FALSE && strpos($_QUERY, 'ALTER DEFINER')==0)
 								||	(strpos($_QUERY, 'DROP DEFINER') !==FALSE && strpos($_QUERY, 'DROP DEFINER')==0)
 
-								||	(strpos($_QUERY, 'UPDATE') !==FALSE && strpos($_QUERY, 'UPDATE')==0)
-								||	(strpos($_QUERY, 'INSERT') !==FALSE && strpos($_QUERY, 'INSERT')==0)
-								||	(strpos($_QUERY, 'DELETE') !==FALSE && strpos($_QUERY, 'DELETE')==0)
+								/*
+								|--------------------------------------------------------------------
+								|	REGISTROS DE UPDATE, INSERT E DELETE
+								|--------------------------------------------------------------------
+								|
+								|	Comentei pois isso pesaria demais ter o historico
+								|	Mas quem quiser, pode descomentar
+								|
+								*/
+
+								//--------------------------------------------------------------------
+								// ||	(strpos($_QUERY, 'UPDATE') !==FALSE && strpos($_QUERY, 'UPDATE')==0)
+								// ||	(strpos($_QUERY, 'INSERT') !==FALSE && strpos($_QUERY, 'INSERT')==0)
+								// ||	(strpos($_QUERY, 'DELETE') !==FALSE && strpos($_QUERY, 'DELETE')==0)
+								//--------------------------------------------------------------------
 							) {
-								$_LOG[$BASENAME][] = $_QUERY;
+								$_LOG[$BASENAME][]			= $_QUERY;
+								$RAW[$BASENAME][]		= $line;
 							}
 						}
 					}
 				}
-
 			}
 			// 
-			return json_encode($_LOG[getEnv('DB_DATABASE')]);
+			if(isset($RAW[getEnv('DB_DATABASE')])){
+				return json_encode([$RAW[getEnv('DB_DATABASE')], $_LOG[getEnv('DB_DATABASE')]]);
+			}else{
+				return json_encode([[],[]]);
+			}
+			
 		}
 
+		public function cleanLogFilePhpMyAdmin()
+		{
+			$_RESULT = $this->getFileLog();
+			$logContent = file_get_contents($_RESULT['general_log_file']);
+			$keywords = array(
+				'`phpmyadmin`',
+				'`pma__',
+				'mysql.sock',
+				'FROM `mysql`',
+				'SELECT @@version',
+				'Connect	pma@',
+				'Connect	root@',
+				'Query	SELECT DATABASE()',
+				'Query	SELECT CURRENT_USER()',
+				'Query	SHOW SESSION',
+				'Query	SHOW',
+				"Quit	\n",
+				'Query	SELECT `SCHEMA_NAME',
+				'INFORMATION_SCHEMA',
+				'Query	SET NAMES'
+			);
+			$lines = explode("\n", $logContent);
+			$novalinha = [];
+			$ok = 0;
+			foreach ($lines as $line) {
+				$ok = 0;
+				foreach ($keywords as $proibido) {
+					if (stripos($line, $proibido) !== false) $ok = 1;
+				}
+				if($ok==0) $novalinha[]=$line;
+			}
+
+			file_put_contents($_RESULT['general_log_file'], implode("\n", $novalinha));
+
+		}
+
+
+		public function setHistorySQLfile(){
+
+			$timestamp	= time();
+			$date		= date('d-m-Y-H-i-s', $timestamp);
+			$_FILENAME	= getEnv('DB_DATABASE') . '_' . $date . '.sql';
+			$_RESULT	= $this->getFileLog();
+			$_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
+
+			
+			if($_RESULT['general_log']=='OFF')	return json_encode([]);
+			$_HISTORY	= json_decode($this->historyDB(),true);
+
+			if(count($_HISTORY[0])>0){
+				$GALAXY_FOLDER = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR;
+				if(!file_exists($GALAXY_FOLDER)) mkdir($GALAXY_FOLDER, 0755, true);
+				$_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
+				$_TRATADO	= str_replace($_HISTORY[0],'			Registro em: '.$_FILENAME,$_ORIGINAL);
+				file_put_contents($_RESULT['general_log_file'],$_TRATADO);
+				file_put_contents($GALAXY_FOLDER.$_FILENAME,implode(';'.PHP_EOL,$_HISTORY[1]).';');
+			}
+
+		}
 		public function showDBTables(){
 			$tables = array();
 			$query = 'SHOW TABLES';
