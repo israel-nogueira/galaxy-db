@@ -130,8 +130,77 @@
 			return $tables;
 		}
 
-		public function showDBTables()
-		{
+		public function historyDB(){
+	
+			$_RESULT	= $this->getFileLog();
+			$logLines	= file_get_contents($_RESULT['Value']);
+			$logLines	= explode("\n",$logLines);
+			$_LOG		= [];
+			$_LOGMAP	= [];
+			foreach ($logLines as $line) {
+				$parts		=	explode('Query', $line);
+				$_QUERY		=	trim($parts[1]??'');
+				$_TYPE		=	trim($parts[0]??'');
+				$_CONFIG	=	explode(' ',$_TYPE);
+				if(count($_CONFIG)==3 && $_CONFIG[1]=='Init'){
+					$_CONFIG[2]				=	str_replace('DB	','',$_CONFIG[2]);
+					$id						=	intVal($_CONFIG[0]);
+					$_LOG[$_CONFIG[2]]		=	[];
+					$_LOGMAP[$_CONFIG[2]][] =	$id;
+				}
+			}
+
+			foreach ($logLines as $line) {
+				$parts		=	explode('Query', $line);
+				$_QUERY		=	trim($parts[1]??'');
+				$_TYPE		=	trim($parts[0]??'');
+				$_CONFIG	=	explode(' ',$_TYPE);
+				
+				if(count($_CONFIG)==1){
+					foreach ($_LOG as $BASENAME=>$log) {
+						if(in_array($_CONFIG[0],$_LOGMAP[$BASENAME]) ){
+							if (
+
+									(strpos($_QUERY, 'CREATE TABLE') !==FALSE && strpos($_QUERY, 'CREATE TABLE')==0)
+								||	(strpos($_QUERY, 'ALTER TABLE') !==FALSE && strpos($_QUERY, 'ALTER TABLE')==0)
+								||	(strpos($_QUERY, 'DROP TABLE') !==FALSE && strpos($_QUERY, 'DROP TABLE')==0)
+
+								||	(strpos($_QUERY, 'CREATE FUNCTION') !==FALSE && strpos($_QUERY, 'CREATE FUNCTION')==0)
+								||	(strpos($_QUERY, 'ALTER FUNCTION') !==FALSE && strpos($_QUERY, 'ALTER FUNCTION')==0)
+								||	(strpos($_QUERY, 'DROP FUNCTION') !==FALSE && strpos($_QUERY, 'DROP FUNCTION')==0)
+
+								||	(strpos($_QUERY, 'CREATE PROCEDURE') !==FALSE && strpos($_QUERY, 'CREATE PROCEDURE')==0)
+								||	(strpos($_QUERY, 'ALTER PROCEDURE') !==FALSE && strpos($_QUERY, 'ALTER PROCEDURE')==0)
+								||	(strpos($_QUERY, 'DROP PROCEDURE') !==FALSE && strpos($_QUERY, 'DROP PROCEDURE')==0)
+
+								||	(strpos($_QUERY, 'CREATE TRIGGER') !==FALSE && strpos($_QUERY, 'CREATE TRIGGER')==0)
+								||	(strpos($_QUERY, 'ALTER TRIGGER') !==FALSE && strpos($_QUERY, 'ALTER TRIGGER')==0)
+								||	(strpos($_QUERY, 'DROP TRIGGER') !==FALSE && strpos($_QUERY, 'DROP TRIGGER')==0)
+
+								||	(strpos($_QUERY, 'CREATE EVENT') !==FALSE && strpos($_QUERY, 'CREATE EVENT')==0)
+								||	(strpos($_QUERY, 'ALTER EVENT') !==FALSE && strpos($_QUERY, 'ALTER EVENT')==0)
+								||	(strpos($_QUERY, 'DROP EVENT') !==FALSE && strpos($_QUERY, 'DROP EVENT')==0)
+
+								||	(strpos($_QUERY, 'CREATE DEFINER') !==FALSE && strpos($_QUERY, 'CREATE DEFINER')==0)
+								||	(strpos($_QUERY, 'ALTER DEFINER') !==FALSE && strpos($_QUERY, 'ALTER DEFINER')==0)
+								||	(strpos($_QUERY, 'DROP DEFINER') !==FALSE && strpos($_QUERY, 'DROP DEFINER')==0)
+
+								||	(strpos($_QUERY, 'UPDATE') !==FALSE && strpos($_QUERY, 'UPDATE')==0)
+								||	(strpos($_QUERY, 'INSERT') !==FALSE && strpos($_QUERY, 'INSERT')==0)
+							) {
+								$_LOG[$BASENAME][] = $_QUERY;
+							}
+						}
+					}
+				}
+
+			}
+			// 
+			return json_encode($_LOG[getEnv('DB_DATABASE')]);
+			
+		}
+
+		public function showDBTables(){
 			$tables = array();
 			$query = 'SHOW TABLES';
 			$result = $this->connection->query($query);
@@ -139,8 +208,7 @@
 			return $tables;
 		}
 
-		public function verify()
-		{		
+		public function verify(){		
 			if (!is_null($this->tableClass) && is_null($this->setcolum)){
 				$query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = :databaseName AND table_name = :tableName";
 				$this->stmt = $this->connection->prepare($query);
