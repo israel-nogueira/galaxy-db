@@ -117,11 +117,12 @@
 		}
 
 		public function getFileLog(){
-			$query =  'SHOW VARIABLES LIKE "general_log_file"';
+			$query =  'SHOW VARIABLES LIKE "%general_log%";';
 			$result = $this->connection->query($query);
 			$tables = $result->fetchAll(PDO::PARAM_STR);
-			return $tables[0];
+			return $tables[0]['Value']??'';
 		}
+
 
 		public function showProcedures(){
 			$query =  'SHOW PROCEDURE STATUS WHERE Db = "'.getEnv('DB_DATABASE').'" ';
@@ -133,7 +134,10 @@
 		public function historyDB(){
 	
 			$_RESULT	= $this->getFileLog();
-			$logLines	= file_get_contents($_RESULT['Value']);
+			// caso não esteja habilitado 
+			if($_RESULT['general_log']=='OFF')	return json_encode([]);
+
+			$logLines	= file_get_contents($_RESULT['general_log_file']);
 			$logLines	= explode("\n",$logLines);
 			$_LOG		= [];
 			$_LOGMAP	= [];
@@ -156,8 +160,10 @@
 				$_TYPE		=	trim($parts[0]??'');
 				$_CONFIG	=	explode(' ',$_TYPE);
 				
-				if(count($_CONFIG)==1){
-					foreach ($_LOG as $BASENAME=>$log) {
+				$phpMyAdmin1 = strpos($_QUERY, '`phpmyadmin`') ==FALSE;
+				if(count($_CONFIG)==1 && $phpMyAdmin1){
+							
+					foreach (array_keys($_LOG) as $BASENAME) {
 						if(in_array($_CONFIG[0],$_LOGMAP[$BASENAME]) ){
 							if (
 
@@ -187,6 +193,7 @@
 
 								||	(strpos($_QUERY, 'UPDATE') !==FALSE && strpos($_QUERY, 'UPDATE')==0)
 								||	(strpos($_QUERY, 'INSERT') !==FALSE && strpos($_QUERY, 'INSERT')==0)
+								||	(strpos($_QUERY, 'DELETE') !==FALSE && strpos($_QUERY, 'DELETE')==0)
 							) {
 								$_LOG[$BASENAME][] = $_QUERY;
 							}
