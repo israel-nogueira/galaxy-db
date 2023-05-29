@@ -9,7 +9,7 @@
     <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a> |
     <a href="#funções-na-model" target="_Self">Functions</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
-    <a href="#stored-procedures" target="_Self">Versionamento</a> 
+    <a href="#versionamento" target="_Self">Versionamento</a> 
 </p>
 <p align="center">
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg"></a>
@@ -61,11 +61,11 @@ Caso falte algum ou todos os dados, o prompt irá lhe pedir.
 
 ```
 
-Ou criar manualmente um arquivo ```.env``` preencha os dados de conexão de sua base:
+Ou criar manualmente um arquivo ```/.env``` na raiz do seu projeto e preencha os dados de conexão de sua base:
 
 ```env
 
-    #/vendor/israel-nogueira/galaxy-db/src/.env
+    #/.env
 
     DB_HOST=localhost
     DB_PORT=3306
