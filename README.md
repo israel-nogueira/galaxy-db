@@ -747,8 +747,8 @@ Resultará em:
                 ]
     }
 ```
-    $_OUTPUT:
 
+$_OUTPUT:
 ```json
     {
         "processaDados":{
