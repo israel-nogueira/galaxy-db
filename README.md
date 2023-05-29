@@ -764,8 +764,9 @@ Resultará em:
 
 ## VERSIONAMENTO
 
-O GalaxyDB possúi um sistema de versionamento estrutural;
-Isso quer dizer que todas as alterações feitas na base de dados, como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
+O GalaxyDB possúi um sistema de versionamento estrutural;<br/>
+Isso quer dizer que todas as alterações feitas na base de dados,<br/>
+como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
 
 > Atenção:<br>
 Para que essas funções funcionem, é necessário que o usuário tenha permissões de ADMIN para editar os parametros;
@@ -775,7 +776,7 @@ Em SQL:
 ```sql
 
     SET GLOBAL general_log = 'ON';
-    SET GLOBAL general_log_file="/var/www/html/"'
+    SET GLOBAL general_log_file="/var/www/html/";
 
 ```
 
@@ -797,8 +798,8 @@ Em PHP:
 
 ?>
 ```
-
-Agora que estamos configurados, você pode criar umas tabelas,<br> 
+### EXECUTANDO
+Pronto! Agora que estamos configurados, você pode criar umas tabelas,<br> 
 editar umas colunas, criar algumas triggers e execute o comando:
 
 CLI:
