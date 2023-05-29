@@ -157,6 +157,7 @@
 		}
 
 		public function set_colum($P_COLUMNS = array(),$JSON=false){
+			
 			if (is_null($this->setcolum)){$this->setcolum = array();}
 			if (is_array($P_COLUMNS)) {
 				foreach ($P_COLUMNS as $COLUMNS) {
@@ -414,7 +415,42 @@
 			$this->stmt =$this->connection->prepare('SET @'.$key.' := :value');
 			$this->stmt->bindParam(':value', $value);
 		}
+		
+		public function verifyColunms(){
 
+			if(is_null($this->tableClass)){
+				throw new RuntimeException("É necessário pelo menos uma tabela ou query cadastradas");
+			}
+			if(is_null($this->colum)){				
+				$LIST = $this->showDBColumns($this->tableClass);
+				print_r('------------------------------');
+				print_r($LIST);
+				print_r($this->columnsBlocked);
+				print_r('------------------------------');
+				exit;
+			}
+			
+
+			// showDBColumns
+						if(
+							(
+								count($this->columnsBlocked)==0	&& 
+								count($this->columnsEnabled)==0
+							) ||
+							(
+								count($this->columnsEnabled)>0	&& in_array($COLUMNS, $this->columnsEnabled) &&
+								count($this->columnsBlocked)>0	&& !in_array($COLUMNS, $this->columnsBlocked)
+							) ||
+							(
+
+								count($this->columnsBlocked)>0	&& !in_array($COLUMNS, $this->columnsBlocked) &&
+								count($this->columnsEnabled)==0 
+
+							)  
+						){
+
+						}
+		}
 		public function get_query($type = 'SELECT'){
 			$_QUERY = '';
 			if(!in_array(trim($type),['SELECT', 'INSERT', 'DELETE','UPDATE'])){
@@ -422,7 +458,11 @@
 			}
 			$_QUERY 	.= $type.' ';
 			$_QUERY 	.= $this->DISTINCT	??	'';
-			$_QUERY 	.= $this->colum		??	' * ';	
+
+
+			$_QUERY 	.= $this->verifyColunms();	
+
+
 			$_QUERY 	.= ' FROM ';
 			$_QUERY		.= $this->tableClass??'';
 			$_QUERY		.= (!is_null($this->rell))? ' '.$this->rell . ' ' :'';

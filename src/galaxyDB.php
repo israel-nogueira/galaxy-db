@@ -76,18 +76,19 @@
 			$this->colunmToJson			= [];
 			$this->subQueryAlias		= null;
 			$this->subQuery				= [];
-			$this->columnsBlocked		= [];
-			$this->columnsEnabled		= [];
+			$this->columnsBlock			= [];
+			$this->columnsEnabl			= [];
 			$this->colum				= null;
 			$this->setorder				= [];
-			$this->mysqlFnBlockedClass	= [];
-			$this->mysqlFnEnabledClass	= [];
+			$this->mysqlFnBlockClass	= [];
+			$this->mysqlFnEnabClass		= [];
 			$this->limit				= null;
 			$this->stmt					= null;
 			$this->logFile 				= realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR.'galaxy.log';
 
 			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
+			echo '----------> CONSTRUCT<-----------';
 
 			$this->connection	= $this->connect();
 			$this->extended();
@@ -173,28 +174,29 @@
 		{
 			if (get_parent_class($this) !== false) {
 				$this->tableClass				= $this->gExtnd('table',null);
-				$this->columnsBlocked			= $this->gExtnd('columnsBlocked',[]);
-				$this->columnsEnabled			= $this->gExtnd('columnsEnabled',[]);
-				$this->mysqlFnBlockedClass		= $this->gExtnd('functionsBlocked',[]);
-				$this->mysqlFnEnabledClass		= $this->gExtnd('functionsEnabled',[]);
+				$this->columnsBlock				= $this->gExtnd('columnsBlocked',[]);
+				$this->columnsEnab				= $this->gExtnd('columnsEnabled',[]);
+				$this->mysqlFnBlockClass		= $this->gExtnd('functionsBlocked',[]);
+				$this->mysqlFnEnabClass			= $this->gExtnd('functionsEnabled',[]);
 			} else {
 				return false;
 			}
 		}
 
-		public function gExtnd($_param,$default=null) 
+		public function gExtnd($_param, $default = null)
 		{
-			$reflection	= new ReflectionClass(get_called_class());
-			if ($reflection->hasProperty($_param)) {
-				$paramRoot	= $reflection->getProperty($_param);
-				$paramRoot->setAccessible(true);
-				return $paramRoot->getValue($this);
-			}else{
-				return $default;
+			$reflection = new ReflectionClass($this);
+			$class = $reflection->getName();
+			
+			while ($reflection !== false) {
+				if ($reflection->hasProperty($_param)) {
+					$property = $reflection->getProperty($_param);
+					$property->setAccessible(true);
+					return $property->getValue($this) ?? $default;
+				}
+				$reflection = $reflection->getParentClass();
 			}
+			return $default;
 		}
-
-
-
 
 	}

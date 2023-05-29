@@ -136,14 +136,6 @@ Isso criará automaticamente os seguinte arquivos:
 > **/app/models/usuariosModel.php**  
 > **/app/models/produtosModel.php**
 
-Você também notará, que foi adicionado em seu _composer.json_  
-a rota onde suas Models serão criadas e executadas.
-
-```plaintext
-"psr-4": {
-    "IsraelNogueira\\Models\\": "app/Models/"
-}
-```
 
 ## PADRÃO DAS MODELS
 
