@@ -767,67 +767,66 @@ Resultará em:
 O GalaxyDB possúi um sistema de versionamento estrutural;
 Isso quer dizer que todas as alterações feitas na base de dados, como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
 
-> Atenção:
-Para que essas funções funcionem, é necessário que o usuário tenha permissões necessárias ```ALL PRIVILEGES``` para editar os parametros;
-Caso contrário, você pode adicionar manualmente os parametros; 
+> Atenção:<br>
+Para que essas funções funcionem, é necessário que o usuário tenha permissões de ADMIN para editar os parametros;
+Ou você pode adicionar manualmente os parametros; 
 
+Em SQL:
+```sql
 
+    SET GLOBAL general_log = 'ON';
+    SET GLOBAL general_log_file="/var/www/html/"'
+
+```
+
+Em PHP:
+```php
+<?php
+    include "vendor\autoload.php";
+    use IsraelNogueira\galaxyDB\galaxyDB;
+	
+    /*
+    |--------------------------------------------------------------------
+    |	LEMBRE-SE: 
+    |   Apenas se o usuário da conexão possuir permissões de admin
+    |--------------------------------------------------------------------
+    */
+	$_SELECT =	new galaxyDB();
+	$_SELECT->connect();
+	$_SELECT->enableGeneralLog();
+
+?>
+```
+
+Agora que estamos configurados, você pode criar umas tabelas,<br> 
+editar umas colunas, criar algumas triggers e execute o comando:
+
+CLI:
+```plaintext
+  
+   composer run-script galaxy new-log
+
+```
+PHP:
 ```php
 <?php
     include "vendor\autoload.php";
     use IsraelNogueira\galaxyDB\galaxyDB;
 
-
-    $usuarios = new galaxyDB();
-	$teste->table("produtos");
-	$teste->limit(1);
-	$teste->prepare_select("LISTA_PRODUTOS");
-
-	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
-	$teste->sp_sobePontos(637,'@_NOME');
-	$teste->prepare_sp();
-
-	$teste->transaction(function($ERROR){die($ERROR);});
-	$teste->execQuery();
-
-    $_RESULT = $users->fetch_array();
-	$_OUTPUT = $teste->params_sp();
+	$_SELECT =	new galaxyDB();
+	$_SELECT->connect();
+	$_SELECT->setHistorySQLfile();
 
 ?>
 ```
 
-Resultará em:
+Agora você poderá verificar que foi criado um arquivo na raiz do sistema:<br>  
+```/galaxyDB/{DB_DATABASE}_{d-m-Y-H-i-s}.sql```;
 
-    $_RESULT:
+```sql
 
-```json
+CREATE TABLE `DBNAME`.`NOVA_TABELA` (`ID` INT NOT NULL AUTO_INCREMENT , `COLUNA1` VARCHAR(123) NOT NULL, `COLUNA2` INT(11) NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;
+ALTER TABLE `NOVA_TABELA` DROP `COLUNA1`;
+ALTER TABLE `NOVA_TABELA` DROP `COLUNA2`; 
 
-    {
-        "LISTA_PRODUTOS" : [
-                    {
-                        "id": 654,
-                        "nome": "cadeira de madeira",
-                        "valor": 21.5,
-                    },
-                    {
-                        "id": 655,
-                        "nome": "Mesa de plástico",
-                        "valor": 149.9,
-                    }
-                ]
-    }
 ```
-    $_OUTPUT:
-
-```json
-    {
-        "processaDados":{
-            "@_NOME":"João da Silva",
-            "@_EMAIL":"joao@gmail.com",
-        },
-        "sobePontos":{
-            "@_NOME2":"João da Silva"
-        }
-    }
-```
-
