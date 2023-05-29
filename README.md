@@ -786,7 +786,8 @@ CLI:
    composer run-script galaxy new-log
 
 ```
-PHP:
+
+Você também pode executar programaticamente em PHP:
 ```php
 <?php
     include "vendor\autoload.php";
