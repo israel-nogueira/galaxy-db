@@ -309,6 +309,26 @@ class cli{
 			$output = shell_exec('composer dump-autoload');
 			die(self::color('verde',$output));
 		}
+
+		if($_PARAMS[0]=='new-log'){
+				$_SELECT =	new galaxyDB();
+				$_SELECT->connect();
+				$_LOG = $_SELECT->setHistorySQLfile();
+				if($_LOG['status']){
+					echo (self::color('branco','|----------------------------------------------')).PHP_EOL;
+					echo (self::color('branco','| '));
+					echo (self::color('branco','LOG EFETUADO COM SUCESSO!')).PHP_EOL;
+					echo (self::color('branco','|----------------------------------------------')).PHP_EOL;
+					echo (self::color('branco','| Arquivo:')).PHP_EOL;
+					echo (self::color('branco','| '));
+					echo (self::color('verde',$_LOG['message'])).PHP_EOL;
+					echo (self::color('branco','|----------------------------------------------')).PHP_EOL;
+				}else{
+					die(self::color('vermelho',$_LOG['message']));
+				}
+
+
+		}
 	}
 
 }
