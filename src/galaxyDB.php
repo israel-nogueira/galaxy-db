@@ -4,6 +4,7 @@
 	use IsraelNogueira\galaxyDB\connection;
 	use IsraelNogueira\galaxyDB\queryBuilder;
 	use IsraelNogueira\galaxyDB\actions;
+	use IsraelNogueira\galaxyDB\log;
 	use RuntimeException;
 	use ReflectionClass;
 
@@ -32,6 +33,7 @@
 		use queryBuilder;
 		use actions;
 		use addOns;
+		use log;
 		private $initialized = false;
 		public static $dbaseType;
 
@@ -82,6 +84,7 @@
 			$this->mysqlFnEnabledClass	= [];
 			$this->limit				= null;
 			$this->stmt					= null;
+			$this->logFile 				= realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR.'galaxy.log';
 
 			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
