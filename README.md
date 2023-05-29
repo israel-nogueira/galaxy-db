@@ -767,14 +767,13 @@ Isso quer dizer que todas as alterações feitas na base de dados,<br/>
 como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
 
 > Atenção:<br>
-Para que essas funções funcionem, é necessário que o usuário tenha permissões de ADMIN para editar os parametros;
-Ou você pode adicionar manualmente os parametros; 
+Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL; 
 
 Em SQL:
 ```sql
 
     SET GLOBAL general_log = 'ON';
-    SET GLOBAL general_log_file="/var/www/html/";
+    SET GLOBAL general_log_file="/var/www/html/galaxyDB/galaxy.log";
 
 ```
 
