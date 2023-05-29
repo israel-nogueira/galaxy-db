@@ -777,24 +777,6 @@ Em SQL:
 
 ```
 
-Em PHP:
-```php
-<?php
-    include "vendor\autoload.php";
-    use IsraelNogueira\galaxyDB\galaxyDB;
-	
-    /*
-    |--------------------------------------------------------------------
-    |	LEMBRE-SE: 
-    |   Apenas se o usuário da conexão possuir permissões de admin
-    |--------------------------------------------------------------------
-    */
-	$_SELECT =	new galaxyDB();
-	$_SELECT->connect();
-	$_SELECT->enableGeneralLog();
-
-?>
-```
 ### EXECUTANDO
 Pronto! Agora que estamos configurados, você pode criar umas tabelas,<br> 
 editar umas colunas, criar algumas triggers e execute o comando:
