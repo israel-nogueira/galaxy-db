@@ -769,7 +769,6 @@ como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclu
 > Atenção:<br>
 Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL; 
 
-Em SQL:
 ```sql
 
     SET GLOBAL general_log = 'ON';
