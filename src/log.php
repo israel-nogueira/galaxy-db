@@ -250,7 +250,8 @@
                 $_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
                 $_HISTORY	= json_decode($this->historyDB(),true);
                 $GALAXY_FOLDER = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR;
-                
+				@mkdir($GALAXY_FOLDER,0755,true);
+				
                 if(count($_HISTORY[0])>0){
                     if(!file_exists($GALAXY_FOLDER)) mkdir($GALAXY_FOLDER, 0755, true);
                     $_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
