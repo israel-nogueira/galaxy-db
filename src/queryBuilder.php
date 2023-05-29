@@ -417,40 +417,24 @@
 		}
 		
 		public function verifyColunms(){
-
 			if(is_null($this->tableClass)){
 				throw new RuntimeException("É necessário pelo menos uma tabela ou query cadastradas");
 			}
 			if(is_null($this->colum)){				
-				$LIST = $this->showDBColumns($this->tableClass);
-				print_r('------------------------------');
-				print_r($LIST);
-				print_r($this->columnsBlocked);
-				print_r('------------------------------');
-				exit;
+				$_COLUNAS_QUERY = $this->showDBColumns($this->tableClass);
+			}else{
+				$_COLUNAS_QUERY = explode(',',$this->colum);				
 			}
-			
-
-			// showDBColumns
-						if(
-							(
-								count($this->columnsBlocked)==0	&& 
-								count($this->columnsEnabled)==0
-							) ||
-							(
-								count($this->columnsEnabled)>0	&& in_array($COLUMNS, $this->columnsEnabled) &&
-								count($this->columnsBlocked)>0	&& !in_array($COLUMNS, $this->columnsBlocked)
-							) ||
-							(
-
-								count($this->columnsBlocked)>0	&& !in_array($COLUMNS, $this->columnsBlocked) &&
-								count($this->columnsEnabled)==0 
-
-							)  
-						){
-
-						}
+			$result = $_COLUNAS_QUERY;
+			if(count($this->columnsBlock)>0){
+				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
+			}
+			if(count($this->columnsEnab)>0){
+				$result = array_intersect($result,$this->columnsEnab);
+			}
+			return implode(',',$result);
 		}
+		
 		public function get_query($type = 'SELECT'){
 			$_QUERY = '';
 			if(!in_array(trim($type),['SELECT', 'INSERT', 'DELETE','UPDATE'])){
