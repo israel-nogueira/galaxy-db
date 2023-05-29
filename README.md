@@ -721,15 +721,13 @@ será processado como uma query;
 	$teste->execQuery();
 
     $_RESULT = $users->fetch_array();
-	$_OUTPUT = $teste->params_sp();
+    $_OUTPUT = $teste->params_sp();
 
 ?>
 ```
-
 Resultará em:
 
-    $_RESULT:
-
+$_RESULT:
 ```json
 
     {
