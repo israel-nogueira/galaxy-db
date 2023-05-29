@@ -8,7 +8,8 @@
     <a href="#criando-models" target="_Self">Models</a> |
     <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a> |
     <a href="#funções-na-model" target="_Self">Functions</a> |
-    <a href="#stored-procedures" target="_Self">Store Procedures</a> 
+    <a href="#stored-procedures" target="_Self">Store Procedures</a> |
+    <a href="#stored-procedures" target="_Self">Versionamento</a> 
 </p>
 <p align="center">
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg"></a>
@@ -708,6 +709,76 @@ será processado como uma query;
     use  App\Models\usuariosModel;
 
     $usuarios = new usuariosModel();
+	$teste->table("produtos");
+	$teste->limit(1);
+	$teste->prepare_select("LISTA_PRODUTOS");
+
+	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
+	$teste->sp_sobePontos(637,'@_NOME');
+	$teste->prepare_sp();
+
+	$teste->transaction(function($ERROR){die($ERROR);});
+	$teste->execQuery();
+
+    $_RESULT = $users->fetch_array();
+	$_OUTPUT = $teste->params_sp();
+
+?>
+```
+
+Resultará em:
+
+    $_RESULT:
+
+```json
+
+    {
+        "LISTA_PRODUTOS" : [
+                    {
+                        "id": 654,
+                        "nome": "cadeira de madeira",
+                        "valor": 21.5,
+                    },
+                    {
+                        "id": 655,
+                        "nome": "Mesa de plástico",
+                        "valor": 149.9,
+                    }
+                ]
+    }
+```
+    $_OUTPUT:
+
+```json
+    {
+        "processaDados":{
+            "@_NOME":"João da Silva",
+            "@_EMAIL":"joao@gmail.com",
+        },
+        "sobePontos":{
+            "@_NOME2":"João da Silva"
+        }
+    }
+```
+
+
+## VERSIONAMENTO
+
+O GalaxyDB possúi um sistema de versionamento estrutural;
+Isso quer dizer que todas as alterações feitas na base de dados, como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
+
+> Atenção:
+Para que essas funções funcionem, é necessário que o usuário tenha permissões necessárias ```ALL PRIVILEGES``` para editar os parametros;
+Caso contrário, você pode adicionar manualmente os parametros; 
+
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use IsraelNogueira\galaxyDB\galaxyDB;
+
+
+    $usuarios = new galaxyDB();
 	$teste->table("produtos");
 	$teste->limit(1);
 	$teste->prepare_select("LISTA_PRODUTOS");
