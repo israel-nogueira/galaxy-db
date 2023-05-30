@@ -228,7 +228,7 @@
 	|--------------------------------------------------------------------------
 	*/
 
-		public function prepare_insert($type=null){
+		public function prepare_insert($ALIAS='response'){
 			$queryPrepare = 'INSERT ';
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
@@ -242,14 +242,14 @@
 						$keyvalue[] = 'NULL';
 					}elseif (is_string($value)) {
 						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerify($value);
+						$_verify = $this->functionVerifyArray($value);
 						if($_verify!==false){
-							$keyvalue[] = $_verify['function'].'('.$_verify['params'].')';
+							$keyvalue[] = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
 						}else{
-							$keyvalue[] = '"'.$this->preventMySQLInject($value,$type).'"';
+							$keyvalue[] = '"'.$this->preventMySQLInject($value).'"';
 						}
 					} else {
-						$keyvalue[] 		= $this->preventMySQLInject($value,$type);
+						$keyvalue[] 		= $this->preventMySQLInject($value);
 					}
 				}
 				$queryPrepare .= ' ( ' . implode(',', array_keys($this->InsertVars)) . ' ) ';
@@ -272,13 +272,13 @@
 				$this->query = $queryPrepare;
 			} else {
 				if(!is_array($this->query)){$this->query = [];}
-				$this->query[]		= $queryPrepare;
-				$this->InsertVars	= [];
+				$this->query[$ALIAS]	= $queryPrepare;
+				$this->InsertVars		= [];
 			}
 			$this->clear();
 		}
 
-		public function prepare_replace($type=null){
+		public function prepare_replace($ALIAS='response'){
 			$queryPrepare = 'REPLACE ';
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
@@ -292,14 +292,15 @@
 						$keyvalue[] = 'NULL';
 					}elseif (is_string($value)) {
 						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerify($value);
+
+						$_verify = $this->functionVerifyArray($value);
 						if($_verify!==false){
-							$keyvalue[] = $_verify['function'].'('.$_verify['params'].')';
+							$keyvalue[] = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
 						}else{
-							$keyvalue[] = '"'.$this->preventMySQLInject($value,$type).'"';
+							$keyvalue[] = '"'.$this->preventMySQLInject($value).'"';
 						}
 					} else {
-						$keyvalue[] 		= $this->preventMySQLInject($value,$type);
+						$keyvalue[] 		= $this->preventMySQLInject($value);
 					}
 				}
 				$queryPrepare .= ' ( ' . implode(',', array_keys($this->InsertVars)) . ' ) ';
@@ -322,7 +323,7 @@
 				$this->query = $queryPrepare;
 			} else {
 				if(!is_array($this->query)){$this->query = [];}
-				$this->query[]		= $queryPrepare;
+				$this->query[$ALIAS]= $queryPrepare;
 				$this->InsertVars	= [];
 			}
 		}

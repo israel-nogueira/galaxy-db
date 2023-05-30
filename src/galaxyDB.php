@@ -170,6 +170,7 @@
 	|
 	|
 	*/
+	
 		public function extended() 
 		{
 			if (get_parent_class($this) !== false) {

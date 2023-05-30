@@ -161,26 +161,42 @@
 			if (is_null($this->setcolum)){$this->setcolum = array();}
 			if (is_array($P_COLUMNS)) {
 				foreach ($P_COLUMNS as $COLUMNS) {
+					$COLUMNS = str_replace(',','¸',$COLUMNS);
+
 					if (is_string($COLUMNS) && $COLUMNS != "") {
 						$COLUMNS =  (substr($COLUMNS, 0, 8) == "command:")? substr($COLUMNS, 8):$COLUMNS;
-						$this->setcolum[] = $COLUMNS;
-						if ($JSON == true) {
-							if (stripos($COLUMNS, ' as ') > -1) {
-								$this->colunmToJson[] = preg_split("/ as /i", $COLUMNS);
-							} else {
-								$this->colunmToJson[] = $COLUMNS;
+						if($this->verifyindividualColum($COLUMNS)!=false){
+							$_verify = $this->functionVerifyString($COLUMNS);
+							if($_verify!=false){
+								$this->setcolum[] = $_verify;
+								if ($JSON == true) {
+									if (stripos($COLUMNS, ' as ') > -1) {
+										$this->colunmToJson[] = preg_split("/ as /i", $COLUMNS);
+									} else {
+										$this->colunmToJson[] = $COLUMNS;
+									}
+								}
 							}
 						}
+						
+
 					}
 				}
 			} elseif (is_string($P_COLUMNS) && $P_COLUMNS != "") {
-				$COLUMNS =  (substr($P_COLUMNS, 0, 8) == "command:")? substr($P_COLUMNS, 8):$P_COLUMNS;
-				$this->setcolum[] = $COLUMNS;
-				if($JSON==true){
-					if(stripos($COLUMNS,' as ')>-1){
-						$this->colunmToJson[]=preg_split("/ as /i", $COLUMNS);					
-					}else{
-						$this->colunmToJson[]=$COLUMNS;
+
+				$P_COLUMNS	=	str_replace(',','¸',$P_COLUMNS);
+				$COLUMNS	=	(substr($P_COLUMNS, 0, 8) == "command:")? substr($P_COLUMNS, 8):$P_COLUMNS;			
+				if($this->verifyindividualColum($COLUMNS)!=false){
+					$_verify = $this->functionVerifyString($COLUMNS);
+					if($_verify!=false){
+						$this->setcolum[] = $_verify;
+						if($JSON==true){
+							if(stripos($COLUMNS,' as ')>-1){
+								$this->colunmToJson[]=preg_split("/ as /i", $COLUMNS);					
+							}else{
+								$this->colunmToJson[]=$COLUMNS;
+							}
+						}
 					}
 				}
 			}
@@ -274,7 +290,12 @@
 
 		public function set_insert($colum, $var){
 			if (is_null($var)) {$var = '';}
-			$this->InsertVars[$colum] = $this->preventMySQLInject($var);
+			if($this->verifyindividualColum($colum)!=false){
+				$_verify = $this->functionVerifyString($var);
+				 if($_verify!==false){
+					$this->InsertVars[$colum] = @$_verify;//$this->preventMySQLInject($_verify);
+				 }
+			 }
 			return $this;
 		}
 
@@ -298,18 +319,23 @@
 		}
 
 		public function set_update($colum, $var,$type=null){
-			if (is_string($var)) {
-				if (substr($var, 0, 8) == "command:") {$var = substr($var,8);} 
-				$_verify = $this->functionVerify($var);
-				if($_verify!==false){
-					$var = $_verify['function'].'('.$_verify['params'].')';
-				}else{
-					$var = '"' . $this->preventMySQLInject($var,$type) . '"';
-				}		
-			} else {
-				$var = $this->preventMySQLInject($var,$type);
+
+			if($this->verifyindividualColum($colum)!=false){
+				if (is_string($var)) {
+					if (substr($var, 0, 8) == "command:") {
+						$var = substr($var,8);
+					}
+					$_verify = $this->functionVerifyArray($var);
+					if($_verify!==false){
+						$var = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
+					}else{
+						$var = '"' . $this->preventMySQLInject($var,$type) . '"';
+					}				
+				} else {
+					$var = $this->preventMySQLInject($var,$type);
+				}
+				$this->Insert_Update[] =$colum . '=' . $var;
 			}
-			$this->Insert_Update[] =$colum . '=' . $var;
 			return $this;
 		}
 
@@ -335,9 +361,9 @@
 					}elseif(is_string($value)) {
 
 						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerify($value);
+						$_verify = $this->functionVerifyArray($value);
 						if($_verify!==false){
-							$keyvalue[] = $key.'='.$_verify['function'].'('.$_verify['params'].')';
+							$keyvalue[] =$key.'='. $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value,$type)
 						}else{
 							$keyvalue[] = $key.'="'.$this->preventMySQLInject($value,$type).'"';
 						}
@@ -357,12 +383,8 @@
 						$keyvalue[] = $key . 'NULL';
 					}elseif(is_string($value)) {
 						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerify($value);
-						if($_verify!==false){
-							$keyvalue[] = $key.'='.$_verify['function'].'('.$_verify['params'].')';
-						}else{
-							$keyvalue[] = $key.'="'.$this->preventMySQLInject($value).'"';
-						}
+						$_verify = $this->functionVerifyArray($value);
+						$keyvalue[] = $key.'='.$_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value)
 				} else {
 					$keyvalue[] = $key . "=" . $this->preventMySQLInject($value);
 				}
@@ -416,24 +438,7 @@
 			$this->stmt->bindParam(':value', $value);
 		}
 		
-		public function verifyColunms(){
-			if(is_null($this->tableClass)){
-				throw new RuntimeException("É necessário pelo menos uma tabela ou query cadastradas");
-			}
-			if(is_null($this->colum)){				
-				$_COLUNAS_QUERY = $this->showDBColumns($this->tableClass);
-			}else{
-				$_COLUNAS_QUERY = explode(',',$this->colum);				
-			}
-			$result = $_COLUNAS_QUERY;
-			if(count($this->columnsBlock)>0){
-				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
-			}
-			if(count($this->columnsEnab)>0){
-				$result = array_intersect($result,$this->columnsEnab);
-			}
-			return implode(',',$result);
-		}
+
 		
 		public function get_query($type = 'SELECT'){
 			$_QUERY = '';
@@ -442,11 +447,7 @@
 			}
 			$_QUERY 	.= $type.' ';
 			$_QUERY 	.= $this->DISTINCT	??	'';
-
-
 			$_QUERY 	.= $this->verifyColunms();	
-
-
 			$_QUERY 	.= ' FROM ';
 			$_QUERY		.= $this->tableClass??'';
 			$_QUERY		.= (!is_null($this->rell))? ' '.$this->rell . ' ' :'';
