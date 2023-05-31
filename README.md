@@ -8,6 +8,7 @@
     <a href="#criando-models" target="_Self">Models</a> |
     <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a> |
     <a href="#funções-na-model" target="_Self">Functions</a> |
+    <a href="#" target="_Self">Crypt</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
     <a href="#versionamento" target="_Self">Versionamento</a> 
 </p>
@@ -684,6 +685,77 @@ A variável ```$_RESULT``` representará a seguinte saída:
             "@_NOME2":"João da Silva"
         }
     }
+```
+
+# CRIPTOGRAFIA
+
+Para utilizar essa funcionalidade, será necessário inserir dois parametros no arquivo *_/.env_*:
+```GALAXY_CRYPT_KEY``` e ```GALAXY_CRYPT_IV```;
+
+```env
+
+    #...
+    #...
+    # todas as suas variáveis
+    #...
+    #...
+
+    # aqui irão suas credenciais
+    GALAXY_CRYPT_KEY=  # <-------
+    GALAXY_CRYPT_IV=   # <-------
+
+```
+>
+> Para mais detalhes, leia a documentação do PHP:
+> https://www.php.net/manual/en/function.openssl-encrypt
+> https://www.php.net/manual/en/function.openssl-decrypt
+>
+
+Digamos que você tenha algum dado sensível em sua base,<br>
+e não gostaria de deixar ela solta em meio a outros dados em suas tabelas;
+
+Você poderá utilizar o método ```isCrypt()```
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $users =  new  usuariosModel();
+    $users->NOME                = 'João da Silva';
+    $users->isCrypt()->CPF      = '947.029.456-67';
+    $users->isCrypt()->EMAIL    = 'email@secret.com';
+    $users->isCrypt()->PIN      = '3659';
+    $users->insert();
+
+?>
+```
+Em sua base ficará assim:
+
+| NOME | CPF | EMAIL | PIN
+|--|--|--|--|
+| João da Silva  | NCUB1pM9/orreKyzctvaVg== | QPVQ97LY4cu6IXAWfF+wOvOZFR1hItpTWiwa4m3ntak= | a45EqjRSU0RRrmTEFQifvA== | 
+
+
+E quando for receber esse valor, sete novamente a flag.
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $users =  new  usuariosModel();
+    $users->colum('NOME');
+    $users->isCrypt()->colum('CPF');
+    $users->isCrypt()->colum('EMAIL');
+    $users->isCrypt()->colum('PIN');
+
+    $users->prepare_select('usuarios');
+    $users->transaction(function ($e) {die($e);});
+    $users->execQuery();
+
+
+?>
 ```
 
 ## PARÂMTROS IN OUT MAIS SELECTS
