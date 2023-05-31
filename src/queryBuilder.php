@@ -20,9 +20,20 @@
                 $array = null;
                 $obj = null;
 
-                foreach ($result->fetchAll(PDO::FETCH_ASSOC) as  $value) {
-                    $array[]	= $value;
-                    $obj[]		= (object)$value;
+                foreach ($result->fetchAll(PDO::FETCH_ASSOC) as  $original) {
+
+					// Caso a coluna esteja criptografada, comparamos e descriptografamos
+					$selecionadas = array_intersect_key($original, array_flip($this->prepareDeCrypt));
+					if(count($selecionadas)>0){
+						$resultado = array_map(function($valor) {
+							return $this->decrypta($valor);
+						}, $selecionadas);
+						$original = array_replace($original, $resultado);
+					}
+
+
+                    $array[]	= $original;
+                    $obj[]		= (object)$original;
                 }
                 if(count($this->colunmToJson)>0){	
                     foreach (($array??[]) as $array_key => $array_value) {
@@ -220,15 +231,23 @@
 
 		public function set_colum($P_COLUMNS = array(),$JSON=false){
 			
+
 			if (is_null($this->setcolum)){$this->setcolum = array();}
 			if (is_array($P_COLUMNS)) {
 				foreach ($P_COLUMNS as $COLUMNS) {
 					$COLUMNS = str_replace(',','¸',$COLUMNS);
+								echo 'ADD COLUNA';
+					if($this->isCrypt){
+						$this->prepareDeCrypt[]=$COLUMNS;
+						$this->isCrypt=false;
+					}
 
 					if (is_string($COLUMNS) && $COLUMNS != "") {
 						$COLUMNS =  (substr($COLUMNS, 0, 8) == "command:")? substr($COLUMNS, 8):$COLUMNS;
 						if($this->verifyindividualColum($COLUMNS)!=false){
+
 							$_verify = $this->functionVerifyString($COLUMNS);
+							
 							if($_verify!=false){
 								$this->setcolum[] = $_verify;
 								if ($JSON == true) {
@@ -240,6 +259,7 @@
 								}
 							}
 						}
+
 						
 
 					}
@@ -254,10 +274,13 @@
 						$this->setcolum[] = $_verify;
 						if($JSON==true){
 							if(stripos($COLUMNS,' as ')>-1){
-								$this->colunmToJson[]=preg_split("/ as /i", $COLUMNS);					
-							}else{
-								$this->colunmToJson[]=$COLUMNS;
+								$COLUMNS = preg_split("/ as /i", $COLUMNS);	
 							}
+							$this->colunmToJson[]=$COLUMNS;		
+						}
+						if($this->isCrypt){
+							$this->prepareDeCrypt[]=$COLUMNS;
+							$this->isCrypt=false;
 						}
 					}
 				}
@@ -417,7 +440,13 @@
 			if($this->verifyindividualColum($colum)!=false){
 				$_verify = $this->functionVerifyString($var);
 				 if($_verify!==false){
-					$this->InsertVars[$colum] = @$_verify;//$this->preventMySQLInject($_verify);
+
+					if($this->isCrypt==true){
+						$this->InsertVars[$colum] = $this->crypta($_verify);
+					}else{
+						$this->InsertVars[$colum] = $_verify;
+					}
+
 				 }
 			 }
 			return $this;
@@ -478,12 +507,17 @@
 					if($_verify!==false){
 						$var = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
 					}else{
-						$var = '"' . $this->preventMySQLInject($var,$type) . '"';
+						$var = '"' . $this->preventMySQLInject($var) . '"';
 					}				
 				} else {
-					$var = $this->preventMySQLInject($var,$type);
+					$var = $this->preventMySQLInject($var);
 				}
-				$this->Insert_Update[] =$colum . '=' . $var;
+				if($this->isCrypt==true){
+					$this->Insert_Update[] =$colum . '="' . $this->crypta($var).'"';
+				}else{
+					
+					$this->Insert_Update[] =$colum . '=' . $var;
+				}
 			}
 			return $this;
 		}
@@ -536,10 +570,16 @@
 					}elseif(is_string($value)) {
 						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
 						$_verify = $this->functionVerifyArray($value);
-						$keyvalue[] = $key.'='.$_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value)
-				} else {
-					$keyvalue[] = $key . "=" . $this->preventMySQLInject($value);
-				}
+						if($_verify!==false){
+							$keyvalue[] = $key.'='.$_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value)
+						}else{
+							$keyvalue[] = '"' . $this->preventMySQLInject($value) . '"';
+						}				
+
+				
+					} else {
+						$keyvalue[] = $key . "=" . $this->preventMySQLInject($value);
+					}
 			}
 			$this->on_duplicate = ' ON DUPLICATE KEY UPDATE ' . implode(',', $keyvalue);
 			return $this;

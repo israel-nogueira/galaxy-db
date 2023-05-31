@@ -12,6 +12,72 @@
     trait security{
 		/*
 		|--------------------------------------------------------------------
+		|	ISCRYPT
+		|--------------------------------------------------------------------
+		|
+		|	Transformamos as entradas e saídas criptografas
+		|	Na gravação / update criptografamos
+		|	E na leitura, descryptografamos
+		|
+		|--------------------------------------------------------------------
+		|
+		|	É necessário cadastrar uma senha 
+		|	no arquivo .ENV na raiz do projeto
+		|
+		|--------------------------------------------------------------------
+		*/
+
+		public function isCrypt() {
+			$this->isCrypt = true;
+			return $this;
+		}
+
+		/*
+		|--------------------------------------------------------------------------------------- 
+		|	CRIPTOGRAFIA
+		|--------------------------------------------------------------------------------------- 
+		|	
+		|	A função crypta é responsável por criptografar os dados de inserção usando a cifra AES-256-CBC, 
+		|	que é considerada uma das mais seguras e amplamente utilizadas em criptografia simétrica. 
+		|	Ela recebe um parâmetro $data contendo os dados a serem criptografados e retorna o resultado da criptografia.
+		|
+		*/
+		private function crypta($data) 
+		{	
+			$this->isCrypt = false;
+			$crypt = openssl_encrypt($data, 'aes-256-cbc', getEnv('GALAXY_CRYPT_KEY'), 0, getEnv('GALAXY_CRYPT_IV'));
+			if ($crypt === false) {
+				return $data;
+			} else {
+				return $crypt;
+			}
+		}
+
+		/*
+		|------------------------------------------------------------------------------------------------------- 
+		|	DECRIPTOGRAFIA
+		|------------------------------------------------------------------------------------------------------- 
+		|	
+		|	Já a função decrypta é responsável por descriptografar os dados da base que foram criptografados 
+		|	pela função crypta. Ela também utiliza a cifra AES-256-CBC e recebe um parâmetro $data contendo 
+		|	os dados criptografados. A função retorna os dados originais após a descriptografia.
+		|
+		*/
+		private function decrypta($data) 
+		{ 
+			$this->isCrypt = false;
+			$crypt = openssl_decrypt($data, 'aes-256-cbc', getEnv('GALAXY_CRYPT_KEY'), 0, getEnv('GALAXY_CRYPT_IV'));
+			if ($crypt === false) {
+				return $data;
+			} else {
+				return $crypt;
+			}
+		}
+
+
+
+		/*
+		|--------------------------------------------------------------------
 		|	VERIFICA COLUNAS PERMITIDAS
 		|--------------------------------------------------------------------
 		|
@@ -98,7 +164,10 @@
 		public function functionVerifyArray($str)
 		{
 			if (preg_match('/(\w+)\s*\((.*)\)/', $str, $matches)) {
+
 				$funcao = $matches[1]??'';
+				$params = $matches[2]??'';
+
 				if (
 						(
 							count($this->mysqlFnBlockClass)>0 && in_array($funcao,$this->mysqlFnBlockClass)
@@ -111,7 +180,7 @@
 					) {
 					return ['function' => '', 'params' =>"(NULL)"];
 				}else{
-					return ['function' => $funcao, 'params' => isset($matches[2]) ? $matches[2] :""];
+					return ['function' => $funcao, 'params' => $params];
 				}
 			}
 			return false;

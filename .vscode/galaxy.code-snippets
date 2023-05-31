@@ -31,7 +31,7 @@
 				"	\\$${1:_SELECT}->clmNm_$3$4=$5;",
 				"	\\$${1:_SELECT}->clmNm_$3$6=$7;",
 				"	\\$${1:_SELECT}->clmNm_$3$8=$9;",
-				"	\\$${1:_SELECT}->prepare_inser('param');",
+				"	\\$${1:_SELECT}->prepare_insert('param');",
 				"	",
 				"	\\$${1:_SELECT}->transaction(function (\\$e) {die(\\$e);});",
 				"	\\$${1:_SELECT}->execQuery();",

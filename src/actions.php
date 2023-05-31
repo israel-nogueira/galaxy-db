@@ -229,6 +229,7 @@
 	*/
 
 		public function prepare_insert($ALIAS='response'){
+			$this->prepareCrypt = true;
 			$queryPrepare = 'INSERT ';
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
@@ -279,6 +280,7 @@
 		}
 
 		public function prepare_replace($ALIAS='response'){
+			$this->prepareCrypt = true;
 			$queryPrepare = 'REPLACE ';
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
@@ -329,6 +331,7 @@
 		}
 
 		public function prepare_update($ALIAS='response'){
+
 			$queryPrepare = 'UPDATE ';
 			if ($this->tableClass != null) {
 				$queryPrepare .= $this->tableClass;
@@ -354,6 +357,7 @@
 		}
 		
 		public function prepare_delete(){
+			$this->prepareCrypt = true;
 			$queryPrepare = 'DELETE FROM ';
 			if (!empty($this->tableClass)) {
 				$queryPrepare .= $this->tableClass;
@@ -375,6 +379,7 @@
 		}
 
 		public function prepare_select($alias = null, $script = null){
+			$this->prepareCrypt = true;
 			if (!is_array($this->query)) {$this->query = [];}
 			$this->query[$alias] = (is_null($script)) ? $this->get_query():$script;
 			$this->clear();

@@ -73,6 +73,9 @@
 			$this->CONECT_PARAMS		= [];
 			$this->transactionFn		= false;
 			$this->rollbackFn			= false;
+			$this->isCrypt				= false;
+			$this->prepareDeCrypt		= [];
+			$this->prepareCrypt			= false;
 			$this->colunmToJson			= [];
 			$this->subQueryAlias		= null;
 			$this->subQuery				= [];
@@ -88,8 +91,6 @@
 
 			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
-			echo '----------> CONSTRUCT<-----------';
-
 			$this->connection	= $this->connect();
 			$this->extended();
 			$this->initialized	= true;
@@ -111,8 +112,11 @@
 		public function __set($name, $value) {
 			$VAR_CARREGADAS = array_keys(get_mangled_object_vars($this));
 			if($this->initialized && !in_array($name,$VAR_CARREGADAS)){
+				$crypt = $this->isCrypt; // ok eu sei, mas foi a soluição mais rapida
 				$this->set_insert($name, $value);
-				$this->set_update($name, $value);		
+				$this->isCrypt=$crypt;
+				$this->set_update($name, $value);
+
 			}else{
 				$this->{$name}=$value;
 			}
@@ -186,9 +190,7 @@
 
 		public function gExtnd($_param, $default = null)
 		{
-			$reflection = new ReflectionClass($this);
-			$class = $reflection->getName();
-			
+			$reflection = new ReflectionClass($this);		
 			while ($reflection !== false) {
 				if ($reflection->hasProperty($_param)) {
 					$property = $reflection->getProperty($_param);
