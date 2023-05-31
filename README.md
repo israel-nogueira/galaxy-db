@@ -167,10 +167,6 @@ Nela serão cadastrados os parâmetros de uso da classe.
         protected $functionsBlocked = [];
         //  FUNÇÕES MYSQL PERMITIDAS 
         protected $functionsEnabled = [];
-        //  FUNÇÕES MYSQL PERMITIDAS 
-        protected $charactersEnabled = [];
-        //  FUNÇÕES MYSQL PROIBIDOS 
-        protected $charactersBlocked = [];
 
     }
 ?>
