@@ -19,6 +19,30 @@
 		|	para serem acessadas
 		|
 		*/
+
+		public function verifyJoinColums($string) {
+			$pattern = '/\b([a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_.]*)\b/';
+			preg_match_all($pattern, $string, $matches);
+
+			 $_COLUNAS_QUERY = $matches[1];
+
+			if(count($this->columnsBlock)>0){
+				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
+			}
+			if(count($this->columnsEnab)>0){
+				$result = array_intersect($result,$this->columnsEnab);
+			}
+			$_colunas = [];
+
+			foreach ($result as $value) {
+				$_verify = $this->functionVerifyString($value);
+				if($_verify!=false){
+					$_colunas[] = $_verify;
+				}
+			}
+			return implode(',',$_colunas);		
+		}
+
 		public function verifyindividualColum($_COLUNA){
 
 

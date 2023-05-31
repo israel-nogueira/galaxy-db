@@ -52,6 +52,15 @@
                 return $this;
             }	
 
+		/*
+		|--------------------------------------------------------------------
+		|	FETCH_ARRAY
+		|--------------------------------------------------------------------
+		|
+		|	Retorna a array associativa do resultado de uma query
+		|
+		|
+		*/
             public function fetch_array($variable = null){
                 if ($variable != null) {
                     return $this->fetch_array[$variable] ??[];
@@ -59,7 +68,15 @@
                     return $this->fetch_array ??[];
                 }
             }
-            
+
+		/*
+		|--------------------------------------------------------------------
+		|	FETCH_OBJ
+		|--------------------------------------------------------------------
+		|
+		|	Retorna um objeto do resultado de uma query
+		|
+		*/
             public function fetch_obj($variable = null){
                 if ($variable != null) {
                     return json_encode($this->fetch_array[$variable],JSON_BIGINT_AS_STRING)??[];
@@ -67,7 +84,16 @@
                     return json_encode($this->fetch_array,JSON_BIGINT_AS_STRING)??[];
                 }
             }
-            
+
+		/*
+		|--------------------------------------------------------------------
+		|	STARTPROCESSRESULT
+		|--------------------------------------------------------------------
+		|
+		|	Apenas dá start no processamento do resultado
+		|	enviando ou não o Alias enviado pelo PDO
+		|
+		*/
             public function startProcessResult($result,$query,$_ALIAS){
                 if(gettype($result)=='object'){
                     if($_ALIAS==''){
@@ -78,6 +104,7 @@
                 }
             }
 
+
     /*
     |--------------------------------------------------------------------------
     |	SUBQUERY
@@ -85,8 +112,10 @@
     |
     |	As funções separam o select atual, separam em SubQuerys e armazenam 
     |	para utilização posterior
+	|
+	|	Documentação:
+	|	https://github.com/israel-nogueira/galaxy-db#sub-selects
     |
-    |--------------------------------------------------------------------------
     */
         public function tableSubQuery($subQuery = null){
             if ($subQuery == null) {
@@ -99,6 +128,20 @@
             }
             return $this;
         }
+
+
+		/*
+		|--------------------------------------------------------------------
+		|	COLUMSUBQUERY
+		|--------------------------------------------------------------------
+		|
+		|	As funções separam o select atual, separam em SubQuerys e armazenam 
+    	|	para utilização posterior
+		|
+		|	Documentação:
+		|	https://github.com/israel-nogueira/galaxy-db#sub-selects
+		|
+		*/
 
 		public function columSubQuery($subQuery = null){
 			if ($subQuery == null) {
@@ -122,6 +165,17 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	SETSUBQUERY
+		|--------------------------------------------------------------------
+		|
+		|	Responsável em armazenar a query para pós utilização
+		|
+		|	Documentação:
+		|	https://github.com/israel-nogueira/galaxy-db#sub-selects
+		|
+		*/
 		public function setSubQuery($subQuery = null){
 			if ($subQuery == null) {
 				throw new RuntimeException("Parâmetro incorreto ou inexistente: ->setSubQuery()");
@@ -132,6 +186,14 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	QUERY
+		|--------------------------------------------------------------------
+		|
+		|	Basicamente executa o comando MySQL
+		|
+		*/
 		public function query($script = null){
 			if ($script == null) {
 				throw new RuntimeException("Parâmetro incorreto ou inexistente");
@@ -143,11 +205,11 @@
 
     /*
     |--------------------------------------------------------------------------
-    |	FUNÇÕES DE SET
+    |	SET_COLUM / COLUM
     |--------------------------------------------------------------------------
     |
-    |	São funções que não retornam nada, apenas setam parametros 
-    |	para processamento da query posteriormente
+    |	Cadastra as colunas no local correto para serem utilizadas dentro 
+	|	das queries de cada consulta ou comando
     |
     |--------------------------------------------------------------------------
     */
@@ -212,6 +274,17 @@
 			}
 		}
 
+    /*
+    |--------------------------------------------------------------------------
+    |	SET_TABLE / TABLE
+    |--------------------------------------------------------------------------
+    |
+    |	Cadastra as tabelas no local correto para serem utilizadas dentro 
+	|	das queries de cada consulta ou comando
+    |
+    |--------------------------------------------------------------------------
+    */
+
 		public function table($TABLES, $ALIAS=null){
 			$this->set_table($TABLES, $ALIAS);
 		}
@@ -224,6 +297,17 @@
 			}
 			return $this;
 		}
+
+		/*
+		|--------------------------------------------------------------------
+		|	SET_WHERE / WHERE / WHERE_NOT_EXIST
+		|--------------------------------------------------------------------
+		|
+		|	Documentação simples
+		|	https://dev.mysql.com/doc/refman/5.7/en/where-optimization.html
+		|	https://dev.mysql.com/doc/refman/8.0/en/exists-and-not-exists-subqueries.html
+		|
+		*/
 
 		public function where($WHERES){
 			$this->set_where($WHERES);
@@ -248,6 +332,16 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	ORDER / SET_ORDER
+		|--------------------------------------------------------------------
+		|
+		|	Documentação:
+		|	https://dev.mysql.com/doc/refman/8.0/en/sorting-rows.html
+		|
+		|
+		*/
 		public function order($colum = null, $order = null){
 			$this->set_order($colum, $order);
 		}
@@ -265,6 +359,16 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	GROUP / GROUP_BY
+		|--------------------------------------------------------------------
+		|
+		|	Documentação:
+		|	https://dev.mysql.com/doc/refman/5.7/en/group-by-handling.html
+		|
+		|
+		*/
 		public function group($colum){
 			$this->group_by($colum);
 			return $this;
@@ -274,7 +378,16 @@
 			$this->group[] = $colum;
 			return $this;
 		}
-
+		/*
+		|--------------------------------------------------------------------
+		|	LIMIT / SET_LIMIT
+		|--------------------------------------------------------------------
+		|
+		|	Documentação:
+		|	https://dev.mysql.com/doc/refman/8.0/en/limit-optimization.html
+		|
+		|
+		*/
 		public function limit($init=null, $finit=null){
 			$this->set_limit($init, $finit);
 		}
@@ -288,6 +401,17 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	SET_INSERT
+		|--------------------------------------------------------------------
+		|
+		|	Armazena em cache os dados de inserção de um registro da base
+		|
+		|	Documentação:
+		|	https://dev.mysql.com/doc/refman/8.0/en/insert.html
+		|
+		*/
 		public function set_insert($colum, $var){
 			if (is_null($var)) {$var = '';}
 			if($this->verifyindividualColum($colum)!=false){
@@ -299,6 +423,15 @@
 			return $this;
 		}
 
+
+		/*
+		|--------------------------------------------------------------------
+		|	SET_INSERT_OBJ
+		|--------------------------------------------------------------------
+		|
+		|	Insere um conjunto de dados de um array
+		|
+		*/
 		public function set_insert_obj($object){
 			if(is_array($object)){
 				foreach($object as $key => $var){
@@ -308,7 +441,15 @@
 			}
 			return $this;
 		}
-
+		/*
+		|--------------------------------------------------------------------
+		|	SET_UPDATE_OBJ
+		|--------------------------------------------------------------------
+		|
+		|	Armazena em cache os dados de UPDATE de um registro da base
+		|	utilizando um array
+		|
+		*/
 		public function set_update_obj($object){
 			if(is_array($object)){
 				foreach($object as $key => $var){
@@ -318,8 +459,16 @@
 			return $this;
 		}
 
-		public function set_update($colum, $var,$type=null){
+		/*
+		|--------------------------------------------------------------------
+		|	SET_UPDATE
+		|--------------------------------------------------------------------
+		|
+		|	Armazena em cache os dados de UPDATE de um registro da base
+		|
+		*/
 
+		public function set_update($colum, $var,$type=null){
 			if($this->verifyindividualColum($colum)!=false){
 				if (is_string($var)) {
 					if (substr($var, 0, 8) == "command:") {
@@ -338,12 +487,29 @@
 			}
 			return $this;
 		}
-
+		/*
+		|--------------------------------------------------------------------
+		|	DEBUG
+		|--------------------------------------------------------------------
+		|
+		|	Habilita / desabilita a saída de erros
+		|	Default true
+		|
+		*/
 		public function debug($bolean){
 			$this->debug = $bolean;
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	IGNORE / SET_IGNORE
+		|--------------------------------------------------------------------
+		|
+		|	Documentação:
+		|	https://dev.mysql.com/blog-archive/improvements-to-the-mysql-ignore-implementation/
+		|
+		*/
 		public function ignore($dados){
 			return $this->set_ignore($dados);;
 		}
@@ -353,28 +519,14 @@
 			return $this;
 		}
 
-		public function insert_or_replace($type=null){
-			$keyvalue = array();
-			foreach ($this->InsertVars as $key => $value) {
-				if ($value=='NULL') {
-						$keyvalue[] = $key . 'NULL';
-					}elseif(is_string($value)) {
-
-						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerifyArray($value);
-						if($_verify!==false){
-							$keyvalue[] =$key.'='. $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value,$type)
-						}else{
-							$keyvalue[] = $key.'="'.$this->preventMySQLInject($value,$type).'"';
-						}
-
-				} else {
-					$keyvalue[] = $key . "=" . $this->preventMySQLInject($value,$type);
-				}
-			}
-			$this->on_duplicate = ' ON DUPLICATE KEY UPDATE ' . implode(',', $keyvalue);
-			return $this;
-		}
+		/*
+		|--------------------------------------------------------------------
+		|	ON_DUPLICATE
+		|--------------------------------------------------------------------
+		|
+		|	https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+		|
+		*/
 
 		public function on_duplicate(){
 			$keyvalue = array();
@@ -393,35 +545,121 @@
 			return $this;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	DISTINCT
+		|--------------------------------------------------------------------
+		|
+		|	https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+		|
+		*/
 		public function distinct(){
 			$this->DISTINCT = ' DISTINCT ';
 			return $this;
 		}
 
-		public function join($join = "LEFT", $tabela=null, $on=null){
+		/*
+		|--------------------------------------------------------------------
+		|	JOINS
+		|--------------------------------------------------------------------
+		|	Documentação popular
+		|	https://pt.stackoverflow.com/questions/6441/qual-%C3%A9-a-diferen%C3%A7a-entre-inner-join-e-outer-join
+		|
+		|	Documentação oficial
+		|	https://dev.mysql.com/doc/refman/5.7/en/join.html
+		|
+		*/
+
+		public function innerJoin($tabela=null, $colunas=null){
+		 return $this->join("INNER", $tabela, $colunas);
+		}
+		public function leftJoin($tabela=null, $colunas=null){
+			return $this->join("LEFT", $tabela, $colunas);
+			
+		}
+		public function rightJoin($tabela=null, $colunas=null){
+			return $this->join("RIGHT", $tabela, $colunas);
+			
+		}
+		public function fullOuterJoin($tabela=null, $colunas=null){
+			return $this->join("FULL OUTER", $tabela, $colunas);
+			
+		}
+		public function crossJoin($tabela=null, $colunas=null){
+			return $this->join("CROSS", $tabela, $colunas);
+		}
+
+		public function join($join = "LEFT", $tabela=null, $colunas=null){
 			if(is_null($this->rell)){
-				$this->rell = ' '.$join . ' JOIN ' . $tabela . ' ON ' . $on;
+				$this->rell = ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($colunas);
 			}else{
-				$this->rell .= ' '.$join . ' JOIN ' . $tabela . ' ON ' . $on;
+				$this->rell .= ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($colunas);
 			}
 			return $this;
 		}
 
-		public function like($coluna, $palavra_chave){
-			array_push($this->Insert_like, ' LOWER('.$coluna.') LIKE LOWER("'.$palavra_chave.'")');
-			return $this;
-		}
+		/*
+		|--------------------------------------------------------------------
+		|	LIKE
+		|--------------------------------------------------------------------
+		|
+		|	Documentação oficial:
+		|	https://dev.mysql.com/doc/refman/5.7/en/string-comparison-functions.html#operator_like
+		|
+		|	Documentação simplificada:
+		|	https://www.w3schools.com/mysql/mysql_like.asp
+		|
+		*/
+			public function like($coluna, $palavra_chave){
+				array_push($this->Insert_like, ' LOWER('.$coluna.') LIKE LOWER("'.$palavra_chave.'")');
+				return $this;
+			}
 
-		public function REGEXP($coluna, $palavra_chave){
-			array_push($this->Insert_like, $coluna . ' REGEXP "' . ($palavra_chave) . '"');
-			return $this;
-		}
+		/*
+		|--------------------------------------------------------------------
+		|	EXPRESSÕES REGULARES 
+		|--------------------------------------------------------------------
+		|
+		|	Documentação oficial:
+		|	https://dev.mysql.com/doc/refman/5.7/en/regexp.html
+		|
+		*/
+			public function rlike($coluna, $palavra_chave){
+				return $this->regexp($coluna, $palavra_chave);
+			}
+
+			public function regexp($coluna, $palavra_chave){
+				array_push($this->Insert_like, $coluna . ' REGEXP "' . ($palavra_chave) . '"');
+				return $this;
+			}
+
+
+		/*
+		|--------------------------------------------------------------------
+		|	RETORNA O ID DO ULTIMO ITEM ADICIONADO DA CONEXÃO
+		|--------------------------------------------------------------------
+		|
+		|	Dpocumentação oficial:
+		|	https://dev.mysql.com/doc/refman/8.0/en/information-functions.html#function_last-insert-id
+		|
+		|	Documentação simplificada:
+		|	https://stackoverflow.com/questions/3837990/last-insert-id-mysql
+		|
+		*/
 
 		public function last_id(){
 			return $this->connection->lastInsertId();
 		}
 
-
+		/*
+		|--------------------------------------------------------------------
+		|	JSON TO ARRAY
+		|--------------------------------------------------------------------
+		|
+		|	Percorre recurssivamente o JSON trazendo um array com as strings tratadas
+		|
+		|
+		*/
 
 		public function jsonToArray($json){
 			$array = json_decode($json, true);
@@ -433,12 +671,30 @@
 			return $array;
 		}
 
+		/*
+		|--------------------------------------------------------------------
+		|	FUNÇÃO SET
+		|--------------------------------------------------------------------
+		|
+		|	Documentação oficial:
+		|	https://dev.mysql.com/doc/refman/5.7/en/set-variable.html
+		|
+		|
+		*/
 		public function set_var($key,$value){
 			$this->stmt =$this->connection->prepare('SET @'.$key.' := :value');
 			$this->stmt->bindParam(':value', $value);
 		}
 		
-
+		/*
+		|--------------------------------------------------------------------
+		|	get_query
+		|--------------------------------------------------------------------
+		|
+		|	Retorna a query completa
+		|
+		|
+		*/
 		
 		public function get_query($type = 'SELECT'){
 			$_QUERY = '';
@@ -451,16 +707,17 @@
 			$_QUERY 	.= ' FROM ';
 			$_QUERY		.= $this->tableClass??'';
 			$_QUERY		.= (!is_null($this->rell))? ' '.$this->rell . ' ' :'';
-			$array_like	= (count($this->Insert_like) > 0) ? implode(' OR ', $this->Insert_like):"";
+			$array_like	 = (count($this->Insert_like) > 0) ? implode(' OR ', $this->Insert_like):"";
 
 			if (!is_null($this->where) || (count($this->Insert_like) > 0)) {
 				if (!is_null($this->where) && $array_like != "") {
 					$this->where = $this->where . " AND ";
 				}
-				$not	= ($this->set_where_not_exist == true)		?	" NOT EXISTS "	:	"";
-				$_QUERY .= ' WHERE' . $not . '(' . $this->where . '(' . $array_like . '))';
+				$not		= ($this->set_where_not_exist == true)		?	" NOT EXISTS "	:	"";
+				$_QUERY		.= ' WHERE' . $not . '(' . $this->where . '(' . $array_like . '))';
 				$_QUERY		= str_replace('())', ')', $_QUERY);
 			}
+
 			$_QUERY .= (count($this->group)>0) 	?	' GROUP BY '.implode(',',$this->group).' ' :'' ;
 			$_QUERY .= (!empty($this->order)) 	?	$this->order . ' ' : '';
 			$_QUERY .= (!is_null($this->limit)) ?	$this->limit : '';
