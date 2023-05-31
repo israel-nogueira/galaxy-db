@@ -687,6 +687,68 @@ A variável ```$_RESULT``` representará a seguinte saída:
     }
 ```
 
+## PARÂMTROS IN OUT MAIS SELECTS
+
+Caso a sua Store Procedure possúa algum select interno, 
+será processado como uma query;
+
+```php
+<?php
+    include "vendor\autoload.php";
+    use  App\Models\usuariosModel;
+
+    $usuarios = new usuariosModel();
+	$teste->table("produtos");
+	$teste->limit(1);
+	$teste->prepare_select("LISTA_PRODUTOS");
+
+	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
+	$teste->sp_sobePontos(637,'@_NOME');
+	$teste->prepare_sp();
+
+	$teste->transaction(function($ERROR){die($ERROR);});
+	$teste->execQuery();
+
+    $_RESULT = $users->fetch_array();
+    $_OUTPUT = $teste->params_sp();
+
+?>
+```
+Resultará em:
+
+$_RESULT:
+```json
+
+    {
+        "LISTA_PRODUTOS" : [
+                    {
+                        "id": 654,
+                        "nome": "cadeira de madeira",
+                        "valor": 21.5,
+                    },
+                    {
+                        "id": 655,
+                        "nome": "Mesa de plástico",
+                        "valor": 149.9,
+                    }
+                ]
+    }
+```
+
+$_OUTPUT:
+```json
+    {
+        "processaDados":{
+            "@_NOME":"João da Silva",
+            "@_EMAIL":"joao@gmail.com",
+        },
+        "sobePontos":{
+            "@_NOME2":"João da Silva"
+        }
+    }
+```
+
+
 # CRIPTOGRAFIA
 
 Para utilizar essa funcionalidade, será necessário inserir dois parametros no arquivo *_/.env_*:<br>
@@ -755,68 +817,6 @@ E quando for receber esse valor, sete novamente a flag.
 
 ?>
 ```
-
-## PARÂMTROS IN OUT MAIS SELECTS
-
-Caso a sua Store Procedure possúa algum select interno, 
-será processado como uma query;
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $usuarios = new usuariosModel();
-	$teste->table("produtos");
-	$teste->limit(1);
-	$teste->prepare_select("LISTA_PRODUTOS");
-
-	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
-	$teste->sp_sobePontos(637,'@_NOME');
-	$teste->prepare_sp();
-
-	$teste->transaction(function($ERROR){die($ERROR);});
-	$teste->execQuery();
-
-    $_RESULT = $users->fetch_array();
-    $_OUTPUT = $teste->params_sp();
-
-?>
-```
-Resultará em:
-
-$_RESULT:
-```json
-
-    {
-        "LISTA_PRODUTOS" : [
-                    {
-                        "id": 654,
-                        "nome": "cadeira de madeira",
-                        "valor": 21.5,
-                    },
-                    {
-                        "id": 655,
-                        "nome": "Mesa de plástico",
-                        "valor": 149.9,
-                    }
-                ]
-    }
-```
-
-$_OUTPUT:
-```json
-    {
-        "processaDados":{
-            "@_NOME":"João da Silva",
-            "@_EMAIL":"joao@gmail.com",
-        },
-        "sobePontos":{
-            "@_NOME2":"João da Silva"
-        }
-    }
-```
-
 
 ## VERSIONAMENTO
 
