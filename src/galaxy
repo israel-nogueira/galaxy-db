@@ -89,8 +89,6 @@ class cli{
 				protected $columnsEnabled		= [];
 				protected $functionsBlocked		= [];
 				protected $functionsEnabled		= [];
-				protected $charactersEnabled	= [];
-				protected $charactersBlocked	= [];
 
 				public function exemplo_de_extend_function() {
 					return $this->join("LEFT", "minha_tabela minha"," minha.code='.$modelo.'.code");
@@ -334,7 +332,6 @@ class cli{
 
 		}
 	}
-
 }
 
 if(isset($argv)){
