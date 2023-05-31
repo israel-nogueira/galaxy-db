@@ -705,10 +705,10 @@ Para utilizar essa funcionalidade, será necessário inserir dois parametros no 
     GALAXY_CRYPT_IV=   # <-------
 
 ```
->
-> Para mais detalhes, leia a documentação do PHP:
-> https://www.php.net/manual/en/function.openssl-encrypt
-> https://www.php.net/manual/en/function.openssl-decrypt
+><br>
+> Para mais detalhes, leia a documentação do PHP:<br>
+> https://www.php.net/manual/en/function.openssl-encrypt<br>
+> https://www.php.net/manual/en/function.openssl-decrypt<br>
 >
 
 Digamos que você tenha algum dado sensível em sua base,<br>
