@@ -6,14 +6,16 @@
     <a href="#configurando-a-base" target="_Self">Config a base</a> |
     <a href="#snippets-para-vscode" target="_Self">Snippets</a> |
     <a href="#criando-models" target="_Self">Models</a> |
-    <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a> |
+    <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a><br>
     <a href="#funções-na-model" target="_Self">Functions</a> |
     <a href="#criptografia" target="_Self">Crypt</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
     <a href="#versionamento" target="_Self">Versionamento</a> 
 </p>
 <p align="center">
-    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg"></a>
+    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db">
+        <img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg">
+    </a>
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/downloads"></a>
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg"></a>
 </p>
