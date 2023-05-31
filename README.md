@@ -8,7 +8,7 @@
     <a href="#criando-models" target="_Self">Models</a> |
     <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a> |
     <a href="#funções-na-model" target="_Self">Functions</a> |
-    <a href="#" target="_Self">Crypt</a> |
+    <a href="#criptografia" target="_Self">Crypt</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
     <a href="#versionamento" target="_Self">Versionamento</a> 
 </p>
@@ -689,27 +689,25 @@ A variável ```$_RESULT``` representará a seguinte saída:
 
 # CRIPTOGRAFIA
 
-Para utilizar essa funcionalidade, será necessário inserir dois parametros no arquivo *_/.env_*:
+Para utilizar essa funcionalidade, será necessário inserir dois parametros no arquivo *_/.env_*:<br>
 ```GALAXY_CRYPT_KEY``` e ```GALAXY_CRYPT_IV```;
 
 ```env
 
-    #...
-    #...
-    # todas as suas variáveis
-    #...
-    #...
+    # /var/www/.env
 
-    # aqui irão suas credenciais
-    GALAXY_CRYPT_KEY=  # <-------
-    GALAXY_CRYPT_IV=   # <-------
+    # Uma chave forte
+    GALAXY_CRYPT_KEY=
+
+    # 16 caracteres
+    GALAXY_CRYPT_IV=
 
 ```
 ><br>
 > Para mais detalhes, leia a documentação do PHP:<br>
 > https://www.php.net/manual/en/function.openssl-encrypt<br>
 > https://www.php.net/manual/en/function.openssl-decrypt<br>
->
+><br>
 
 Digamos que você tenha algum dado sensível em sua base,<br>
 e não gostaria de deixar ela solta em meio a outros dados em suas tabelas;
@@ -734,7 +732,7 @@ Em sua base ficará assim:
 
 | NOME | CPF | EMAIL | PIN
 |--|--|--|--|
-| João da Silva  | NCUB1pM9/orreKyzctvaVg== | QPVQ97LY4cu6IXAWfF+wOvOZFR1hItpTWiwa4m3ntak= | a45EqjRSU0RRrmTEFQifvA== | 
+| João da Silva  | NCUB1pM9/orreKyzctvaVg== | wOvOZFR1hItpTWiwa4m3ntak= | a45EqjRSU0RRrmTEFQifvA== | 
 
 
 E quando for receber esse valor, sete novamente a flag.
