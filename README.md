@@ -127,9 +127,7 @@ E com tempo vamos incrementando a lista de atalhos.
 <h2 align="center"> Exemplo de instalação </h2>
 
 
-<div class="iframe_container">
-  <iframe src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/demo.mp4" frameborder="0" allowfullscreen="allowfullscreen"> </iframe>
-</div>
+https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/demo.mp4
 
 
 ## CRIANDO MODELS
