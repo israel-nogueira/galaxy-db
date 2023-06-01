@@ -2,3 +2,4 @@ vendor/*
 src/*.psd
 src/snippets-exemplo.gif
 src/topo_README.jpg
+src/video_source/
