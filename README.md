@@ -126,7 +126,7 @@ E com tempo vamos incrementando a lista de atalhos.
 
 <h2 align="center"> Exemplo de instalação </h2>
 
-https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/demo.mp4
+![Exemplo de instalação](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/demo.mp4)
 
 
 ## CRIANDO MODELS
