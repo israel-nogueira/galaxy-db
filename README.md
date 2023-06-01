@@ -121,13 +121,12 @@ Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 Você pode retornar uma lista de tabelas ou colunas de sua base de dados
 
 
-
 E com tempo vamos incrementando a lista de atalhos.
 
 <h2 align="center"> Exemplo de instalação </h2>
 
+https://github.com/israel-nogueira/galaxy-db/assets/12586467/00903fb4-cffa-4557-8460-0f2140fd3f5d.mp4
 
-https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/demo.mp4
 
 
 ## CRIANDO MODELS
