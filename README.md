@@ -45,6 +45,13 @@ Acrescente em seu _composer.json_:
         "galaxy": "php vendor/israel-nogueira/galaxy-db/src/galaxy"
     }
 ```
+## GUIA PRÁTICO
+<p align="center">
+    <a href="https://studio.youtube.com/video/ih4Q--q-Vng/edit?o=U" target="_blank">
+        <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/player.png">
+    </a>
+</p>
+
 
 ## CONFIGURANDO A BASE
 
