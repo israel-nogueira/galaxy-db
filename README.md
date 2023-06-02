@@ -48,7 +48,7 @@ Acrescente em seu _composer.json_:
 ## GUIA PRÁTICO
 <p align="center">
     <a href="https://studio.youtube.com/video/ih4Q--q-Vng/edit?o=U" target="_blank">
-        <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/player.png">
+        <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/player.png?v=2">
     </a>
 </p>
 
