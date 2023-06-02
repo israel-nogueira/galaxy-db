@@ -118,7 +118,7 @@
 
 			if(
 				in_array($_COLUNA , $this->columnsBlock)||
-				count($this->columnsEnab)>0 && !in_array($matches[1] , $this->columnsEnab)
+				count($this->columnsEnab??[])>0 && !in_array($matches[1] , $this->columnsEnab)
 			){
 				return false;
 			}

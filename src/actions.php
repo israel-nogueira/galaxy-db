@@ -470,6 +470,7 @@
 						}
 						$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
 					}
+					 $this->connection->commit();
 
 				} catch (PDOException $exception) {					
 					$this->connection->rollback();
