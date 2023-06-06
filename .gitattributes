@@ -1,0 +1,4 @@
+composer.lock export-ignore
+/src/*.png export-ignore
+/src/*.jpg export-ignore
+/src/*.psd export-ignore
