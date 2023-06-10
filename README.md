@@ -868,6 +868,10 @@ Isso criará uma tabela em sua base chamada ``GALAXY__RAC`` onde será inserido 
 - ``ROLLBACK``: Query "ctrl+z", voltará ao estado anterior da ação executada 
 - ``DATA_HORA``: Data e hora que foi executado o comando
 
+<p align="center">
+    <img src="https://github.com/israel-nogueira/galaxy-db/blob/0b67fbc4fde366716a4e1170227a31cfaa36e0cb/src/tabela_rollback.png"/>
+</p>
+
 # MIGRATIONS
 
 O GalaxyDB também possúi um sistema de migration próprio;<br/>
