@@ -861,6 +861,13 @@ Você também pode executar programaticamente em PHP:
 ?>
 ```
 
+Isso criará uma tabela em sua base chamada ``GALAXY__RAC`` onde será inserido 5 colunas:<br>
+- ``TABELA``	
+- ``ACTION``	
+- ``QUERY``	
+- ``ROLLBACK``	
+- ``DATA_HORA``
+
 ## MIGRATIONS
 
 O GalaxyDB também possúi um sistema de migration próprio;<br/>
