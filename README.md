@@ -865,7 +865,7 @@ editar umas colunas, criar algumas triggers e execute o comando:
 CLI:
 ```plaintext
   
-   composer run-script galaxy new-log
+   composer run-script galaxy new-migration
 
 ```
 
