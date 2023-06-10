@@ -828,7 +828,7 @@ E quando for receber esse valor, sete novamente a flag.
 ?>
 ```
 
-## RAC - REGISTRO DE ALTERAÇÕES DE CONTEÚDO
+# RAC - REGISTRO DE ALTERAÇÕES DE CONTEÚDO
 
 O GalaxyDB possui um mecanismo integrado de registro de alterações de conteúdo que permite rastrear e visualizar todas as modificações feitas nos dados do conteúdo. Esse recurso permite uma gestão mais eficiente e um histórico completo das alterações realizadas, facilitando a auditoria e o controle de versões.
 
@@ -862,13 +862,13 @@ Você também pode executar programaticamente em PHP:
 ```
 
 Isso criará uma tabela em sua base chamada ``GALAXY__RAC`` onde será inserido 5 colunas:<br>
-- ``TABELA``: tabela que foi feita a ação	
+- ``TABELA``: Tabela que foi feita a ação	
 - ``ACTION``: INSERT | UPDATE | DELETE
 - ``QUERY``: Query que foi executada	
 - ``ROLLBACK``: Query "ctrl+z", voltará ao estado anterior da ação executada 
 - ``DATA_HORA``: Data e hora que foi executado o comando
 
-## MIGRATIONS
+# MIGRATIONS
 
 O GalaxyDB também possúi um sistema de migration próprio;<br/>
 Isso quer dizer que todas as alterações estruturais feitas na base de dados,<br/>
