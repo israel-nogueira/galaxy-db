@@ -312,9 +312,16 @@ class cli{
 			die(self::color('verde',$output));
 		}
 
-		if($_PARAMS[0]=='create-log-triggers'){
+		if($_PARAMS[0]=='disable-rac'){
+			$_SELECT = new galaxyDB();
+			$_SELECT->excluiTriggers();
+			die(self::color('verde',"Registro de Alterações de Conteúdo desabilitado com sucesso!"));
+		}
+		
+		if($_PARAMS[0]=='enable-rac'){
 			$_SELECT = new galaxyDB();
 			$_SELECT->triggersLog();
+			die(self::color('verde',"Registro de Alterações de Conteúdo abilitado com sucesso!"));
 		}
 
 		if($_PARAMS[0]=='new-migration'){

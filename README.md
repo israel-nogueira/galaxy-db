@@ -10,7 +10,7 @@
     <a href="#funções-na-model" target="_Self">Functions</a> |
     <a href="#criptografia" target="_Self">Crypt</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
-    <a href="#versionamento" target="_Self">Versionamento</a> 
+    <a href="#migrations" target="_Self">Migrations</a> 
 </p>
 <p align="center">
     <a href="https://packagist.org/packages/israel-nogueira/galaxy-db">
@@ -827,15 +827,29 @@ E quando for receber esse valor, sete novamente a flag.
 ?>
 ```
 
-## VERSIONAMENTO
+## REGISTRO DE ALTERAÇÕES DE CONTEÚDO
 
-O GalaxyDB possúi um sistema de versionamento estrutural;<br/>
-Isso quer dizer que todas as alterações feitas na base de dados,<br/>
-como criação de ```TABELAS```, ou alterações em ```COLUNAS``` ou ainda exclusões ou criações de ```TRIGGERS``` ou ```STORE PROCEDURES```.
+O GalaxyDB possui um mecanismo integrado de registro de alterações de conteúdo que permite rastrear e visualizar todas as modificações feitas nos dados do conteúdo. Esse recurso permite uma gestão mais eficiente e um histórico completo das alterações realizadas, facilitando a auditoria e o controle de versões.
+
+Para ativar serviço:
+```plaintext
+$   composer run-script galaxy enable-rac
+```
+
+Para desativar serviço:
+```plaintext
+$   composer run-script galaxy disable-rac
+```
+
+## MIGRATIONS
+
+O GalaxyDB também possúi um sistema de migration próprio;<br/>
+Isso quer dizer que todas as alterações estruturais feitas na base de dados,<br/>
+como criação/alterações/exclusões  de ```TABELAS```,```COLUNAS```, ```TRIGGERS``` ou ```STORE PROCEDURES```.
 
 > Atenção:<br>
-Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL; 
-
+>Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL;<br>
+>Coloque o PATH do seu arquivo da sua preferencia<br>
 ```sql
 
     SET GLOBAL general_log = 'ON';

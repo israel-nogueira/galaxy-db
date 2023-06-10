@@ -5,6 +5,23 @@
 	use RuntimeException;
 	use PDOException;
 
+        /*
+        |--------------------------------------------------------------------------
+        |		GENERAL BASE
+        |--------------------------------------------------------------------------
+        |   Retorna dados gerais da nossa base
+        |--------------------------------------------------------------------------
+        | 
+        |  triggersLog:		CRIA TRIGGERS DE LOG
+        |  getDB_Tables:	RETORNA APENAS AS TABELAS
+        |  getDB_Data:  	RETORNA APENAS CONTEUDO
+        |  getDB_Columns:   RETORNA COLUNAS DE UMA TABELA
+        |  Verify:  		VERIFICA SE UMA TABELA OU COLUNA EXISTE
+        |  
+        |--------------------------------------------------------------------------
+        */
+
+
     trait generalBase{
 		
         /*
@@ -160,23 +177,6 @@
 
 
 
-
-
-
-        /*
-        |--------------------------------------------------------------------------
-        |		GENERAL BASE
-        |--------------------------------------------------------------------------
-        |   Retorna dados gerais da nossa base
-        |--------------------------------------------------------------------------
-        | 
-        |  getDB_Tables:	RETORNA APENAS AS TABELAS
-        |  getDB_Data:  	RETORNA APENAS CONTEUDO
-        |  getDB_Columns:  RETORNA COLUNAS DE UMA TABELA
-        |  Verify:  		VERIFICA SE UMA TABELA OU COLUNA EXISTE
-        |  
-        |--------------------------------------------------------------------------
-        */
 		public function getDB_Tables($tables='*')
 		{
 			$return = '';			
