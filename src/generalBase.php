@@ -41,14 +41,15 @@
 			| TABELA QUE RECEBERÁ TODOS OS UPDATES
 			|----------------------------------------------------
 			*/
-			$this->connection->exec('CREATE TABLE IF NOT EXISTS `GALAXY__LOG_CONTENT` (
-						`ID` int(11) NOT NULL,
-						`TABELA` varchar(200) DEFAULT NULL,
-						`ACTION` varchar(100) DEFAULT NULL,
-						`OLD` text DEFAULT NULL,
-						`NEW` text DEFAULT NULL,
-						`DATA_HORA` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-						) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;');
+			$this->connection->exec('CREATE TABLE IF NOT EXISTS `GALAXY__RAC` (
+										`ID` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+										`TABELA` varchar(200) DEFAULT NULL,
+										`ACTION` varchar(100) DEFAULT NULL,
+										`QUERY` text DEFAULT NULL,
+										`ROLLBACK` text DEFAULT NULL,
+										`DATA_HORA` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+									) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;');
+
 
 			// primeiro excluimos todas antes de começar
 			$this->disableRAC();
@@ -59,7 +60,7 @@
 			|----------------------------------------------------
 			*/
 			foreach ($tables as $table) {
-				if($table=='GALAXY__LOG_CONTENT'){ continue;}
+				if($table=='GALAXY__RAC'){ continue;}
 
 				/*
 				|----------------------------------------------------
@@ -79,16 +80,16 @@
 					if($column['Key']=='PRI'){
 						$priKey = $column['Field'];
 					}else{
-						 $triggerUPDATE .= '    IF (IFNULL(OLD.'.$column['Field'].', "") <> IFNULL(NEW.'.$column['Field'].', "")) THEN';
-						 $triggerUPDATE .= '        SET array_old = CONCAT(array_old, "'.$column['Field'].'=",\'"\',OLD.'.$column['Field'].',\'"\');';
-						 $triggerUPDATE .= '        SET array_new = CONCAT(array_new, "'.$column['Field'].'=",\'"\',NEW.'.$column['Field'].',\'"\');';
-						 $triggerUPDATE .= '    END IF;';
+						$triggerUPDATE .= '    IF (IFNULL(OLD.'.$column['Field'].', "") <> IFNULL(NEW.'.$column['Field'].', "")) THEN';
+						$triggerUPDATE .= '        SET array_old = TRIM(BOTH "," FROM CONCAT_WS(",", array_old, CONCAT("'.$column['Field'].'=", \'"\', OLD.'.$column['Field'].', \'"\')));';
+						$triggerUPDATE .= '        SET array_new = TRIM(BOTH "," FROM CONCAT_WS(",", array_new, CONCAT("'.$column['Field'].'=", \'"\', NEW.'.$column['Field'].', \'"\')));';
+						$triggerUPDATE .= '    END IF;';
 					 }
 				}
 				if($priKey!=''){
 					$triggerUPDATE .= '    SET old_query = CONCAT(\'UPDATE `'.$table.'` SET \',array_old,\' WHERE `'.$table.'`.`'.$priKey.'`=\', OLD.'.$priKey.');';
 					$triggerUPDATE .= '    SET new_query = CONCAT(\'UPDATE `'.$table.'` SET \',array_new,\' WHERE `'.$table.'`.`'.$priKey.'`=\', NEW.'.$priKey.');';
-					$triggerUPDATE .= '    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES (\''.$table.'\', \'UPDATE\', old_query, new_query);';
+					$triggerUPDATE .= '    INSERT INTO `GALAXY__RAC` (`TABELA`, `ACTION`, `ROLLBACK`, `QUERY`) VALUES (\''.$table.'\', \'UPDATE\', old_query, new_query);';
 				}
 				$triggerUPDATE .= 'END';
 
@@ -111,14 +112,14 @@
 					if ($column['Key'] == 'PRI') {
 						$priKey = $column['Field'];
 					} else {
-						$triggerDELETE .= ' SET array_colum_old = TRIM(BOTH "," FROM CONCAT_WS(",", array_colum_old, "'.$column['Field'].'"));';
+						$triggerDELETE .= '	SET array_colum_old = TRIM(BOTH "," FROM CONCAT_WS(",", array_colum_old, "'.$column['Field'].'"));';
 						$triggerDELETE .= "	SET array_value_old = TRIM(BOTH ',' FROM CONCAT_WS(',', array_value_old, CONCAT('\"', OLD.".$column['Field'].", '\"')));";
 					}
 				}
 				if ($priKey != '') {
 					$triggerDELETE .= "    SET old_query = CONCAT('INSERT INTO `".$table."` (',array_colum_old,') VALUES (',array_value_old,')');";
 					$triggerDELETE .= "    SET new_query = CONCAT('DELETE FROM `".$table."` WHERE `".$priKey."`=', OLD.".$priKey.");";
-					$triggerDELETE .= "    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES ('".$table."', 'DELETE', old_query, new_query);";
+					$triggerDELETE .= "    INSERT INTO `GALAXY__RAC` (`TABELA`, `ACTION`, `ROLLBACK`, `QUERY`) VALUES ('".$table."', 'DELETE', old_query, new_query);";
 				}
 				$triggerDELETE .= 'END';	
 
@@ -148,16 +149,13 @@
 				if ($priKey != '') {
 					$triggerINSERT .= "    SET old_query = CONCAT('DELETE FROM `".$table."` WHERE `".$priKey."`=', NEW.".$priKey.");";
 					$triggerINSERT .= "    SET new_query = CONCAT('INSERT INTO `".$table."` (',array_colum_new,') VALUES (',array_value_new,')');";
-					$triggerINSERT .= "    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES ('".$table."', 'INSERT', old_query, new_query);";
+					$triggerINSERT .= "    INSERT INTO `GALAXY__RAC` (`TABELA`, `ACTION`, `ROLLBACK`, `QUERY`) VALUES ('".$table."', 'INSERT', old_query, new_query);";
 				}
 				$triggerINSERT .= 'END';
-
 				$this->connection->exec($triggerDELETE);
 				$this->connection->exec($triggerUPDATE);
 				$this->connection->exec($triggerINSERT);
-
 			}
-
 		}
 
 		/*
