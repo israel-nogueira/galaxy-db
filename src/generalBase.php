@@ -12,7 +12,7 @@
         |   Retorna dados gerais da nossa base
         |--------------------------------------------------------------------------
         | 
-        |  triggersLog:		CRIA TRIGGERS DE LOG
+        |  enableRAC:		CRIA TRIGGERS DE LOG
         |  getDB_Tables:	RETORNA APENAS AS TABELAS
         |  getDB_Data:  	RETORNA APENAS CONTEUDO
         |  getDB_Columns:   RETORNA COLUNAS DE UMA TABELA
@@ -31,7 +31,7 @@
         |   Cria pequenos backups das alterações da base
         |--------------------------------------------------------------------------
         */
-		public function triggersLog(){ 
+		public function enableRAC(){ 
 			$this->stmt = $this->connection->query('SHOW TABLES');
 			$tables = $this->stmt->fetchAll(PDO::FETCH_COLUMN);
 			$this->query = [];
@@ -51,7 +51,7 @@
 						) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;');
 
 			// primeiro excluimos todas antes de começar
-			$this->excluiTriggers();
+			$this->disableRAC();
 
 			/*
 			|----------------------------------------------------
@@ -165,7 +165,7 @@
 		| EXCLUIMOS AS TRIGGERS DE LOG 
 		|----------------------------------------------------
 		*/
-		public function excluiTriggers(){ 
+		public function disableRAC(){ 
 			$this->stmt = $this->connection->query('SHOW TABLES');
 			foreach ($this->stmt->fetchAll(PDO::FETCH_COLUMN) as $table) {
 				$this->connection->exec('DROP TRIGGER IF EXISTS `GALAXY___UPDATE_'.$table.'`');

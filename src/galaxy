@@ -312,15 +312,16 @@ class cli{
 			die(self::color('verde',$output));
 		}
 
+
 		if($_PARAMS[0]=='disable-rac'){
 			$_SELECT = new galaxyDB();
-			$_SELECT->excluiTriggers();
+			$_SELECT->disableRAC();
 			die(self::color('verde',"Registro de Alterações de Conteúdo desabilitado com sucesso!"));
 		}
 		
 		if($_PARAMS[0]=='enable-rac'){
 			$_SELECT = new galaxyDB();
-			$_SELECT->triggersLog();
+			$_SELECT->enableRAC();
 			die(self::color('verde',"Registro de Alterações de Conteúdo abilitado com sucesso!"));
 		}
 

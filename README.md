@@ -828,7 +828,7 @@ E quando for receber esse valor, sete novamente a flag.
 ?>
 ```
 
-## REGISTRO DE ALTERAÇÕES DE CONTEÚDO
+## RAC - REGISTRO DE ALTERAÇÕES DE CONTEÚDO
 
 O GalaxyDB possui um mecanismo integrado de registro de alterações de conteúdo que permite rastrear e visualizar todas as modificações feitas nos dados do conteúdo. Esse recurso permite uma gestão mais eficiente e um histórico completo das alterações realizadas, facilitando a auditoria e o controle de versões.
 
@@ -840,6 +840,25 @@ $   composer run-script galaxy enable-rac
 Para desativar serviço:
 ```plaintext
 $   composer run-script galaxy disable-rac
+```
+
+Você também pode executar programaticamente em PHP:
+```php
+<?php
+    include "vendor\autoload.php";
+    use IsraelNogueira\galaxyDB\galaxyDB;
+
+    // ATIVA SERVIÇO
+	$_SELECT =	new galaxyDB();
+	$_SELECT->connect();
+	$_SELECT->enableRAC();
+
+    // DESATIVA SERVIÇO
+	$_SELECT =	new galaxyDB();
+	$_SELECT->connect();
+	$_SELECT->disableRAC();
+
+?>
 ```
 
 ## MIGRATIONS
