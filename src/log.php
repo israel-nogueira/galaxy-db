@@ -99,6 +99,7 @@
 				$this->enableGeneralLog();
 				return json_encode([]);
 			}
+	
 			$logLines	= file_get_contents($_RESULT['general_log_file']);
 			$logLines	= explode("\n",$logLines);
 			$_LOG		= [];
@@ -249,19 +250,16 @@
                 $_RESULT	= $this->getFileLog();
                 $_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
                 $_HISTORY	= json_decode($this->historyDB(),true);
-                $GALAXY_FOLDER = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR;
-				@mkdir($GALAXY_FOLDER,0755,true);
-				
                 if(count($_HISTORY[0])>0){
+					$GALAXY_FOLDER = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR;
+					@mkdir($GALAXY_FOLDER,0755,true);
                     if(!file_exists($GALAXY_FOLDER)) mkdir($GALAXY_FOLDER, 0755, true);
                     $_ORIGINAL	= file_get_contents($_RESULT['general_log_file']);
                     $_TRATADO	= str_replace($_HISTORY[0],'			Registro em: '.$_FILENAME,$_ORIGINAL);
                     file_put_contents($_RESULT['general_log_file'],$_TRATADO);
                     file_put_contents($GALAXY_FOLDER.$_FILENAME,implode(';'.PHP_EOL,$_HISTORY[1]).';');
-                }else{
-                    file_put_contents($GALAXY_FOLDER.$_FILENAME,'-- Nenhuma alteração na estrutura foi detectada;');
+					return ['status'=>true,'message'=>$GALAXY_FOLDER.$_FILENAME];
                 }
-                return ['status'=>true,'message'=>$GALAXY_FOLDER.$_FILENAME];
 
             } catch (\Throwable $th) {
                 return ['status'=>false,'message'=>$th];

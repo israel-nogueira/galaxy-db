@@ -312,7 +312,12 @@ class cli{
 			die(self::color('verde',$output));
 		}
 
-		if($_PARAMS[0]=='new-log'){
+		if($_PARAMS[0]=='create-log-triggers'){
+			$_SELECT = new galaxyDB();
+			$_SELECT->triggersLog();
+		}
+
+		if($_PARAMS[0]=='new-migration'){
 				$_SELECT =	new galaxyDB();
 				$_SELECT->connect();
 				$_LOG = $_SELECT->setHistorySQLfile();
@@ -328,8 +333,6 @@ class cli{
 				}else{
 					die(self::color('vermelho',$_LOG['message']));
 				}
-
-
 		}
 	}
 }

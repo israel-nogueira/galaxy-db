@@ -6,6 +6,162 @@
 	use PDOException;
 
     trait generalBase{
+		
+        /*
+        |--------------------------------------------------------------------------
+        |	TRIGGERS DE LOG DE CONTEUDOS 
+        |--------------------------------------------------------------------------
+        |   Cria pequenos backups das alterações da base
+        |--------------------------------------------------------------------------
+        */
+		public function triggersLog(){ 
+			$this->stmt = $this->connection->query('SHOW TABLES');
+			$tables = $this->stmt->fetchAll(PDO::FETCH_COLUMN);
+			$this->query = [];
+
+			/*
+			|----------------------------------------------------
+			| TABELA QUE RECEBERÁ TODOS OS UPDATES
+			|----------------------------------------------------
+			*/
+			$this->connection->exec('CREATE TABLE IF NOT EXISTS `GALAXY__LOG_CONTENT` (
+						`ID` int(11) NOT NULL,
+						`TABELA` varchar(200) DEFAULT NULL,
+						`ACTION` varchar(100) DEFAULT NULL,
+						`OLD` text DEFAULT NULL,
+						`NEW` text DEFAULT NULL,
+						`DATA_HORA` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+						) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;');
+
+			// primeiro excluimos todas antes de começar
+			$this->excluiTriggers();
+
+			/*
+			|----------------------------------------------------
+			| VARREMOS TODAS AS TABELAS E INSERIMOS AS TRIGGERS
+			|----------------------------------------------------
+			*/
+			foreach ($tables as $table) {
+				if($table=='GALAXY__LOG_CONTENT'){ continue;}
+
+				/*
+				|----------------------------------------------------
+				| LISTNER DE UPDATE
+				|----------------------------------------------------
+				*/
+				$triggerUPDATE = 'CREATE TRIGGER `GALAXY___UPDATE_'.$table.'` BEFORE UPDATE ON `'.$table.'` FOR EACH ROW BEGIN';
+				$triggerUPDATE .= '    DECLARE old_query VARCHAR(255);';
+				$triggerUPDATE .= '    DECLARE new_query VARCHAR(255);';
+				$triggerUPDATE .= '    DECLARE array_old TEXT DEFAULT "";';
+				$triggerUPDATE .= '    DECLARE array_new TEXT DEFAULT "";';
+				$query = "SHOW COLUMNS FROM $table";
+				$stmt = $this->connection->query($query);
+				$columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$priKey = '';
+				foreach ($columns as $column) {
+					if($column['Key']=='PRI'){
+						$priKey = $column['Field'];
+					}else{
+						 $triggerUPDATE .= '    IF (IFNULL(OLD.'.$column['Field'].', "") <> IFNULL(NEW.'.$column['Field'].', "")) THEN';
+						 $triggerUPDATE .= '        SET array_old = CONCAT(array_old, "'.$column['Field'].'=",\'"\',OLD.'.$column['Field'].',\'"\');';
+						 $triggerUPDATE .= '        SET array_new = CONCAT(array_new, "'.$column['Field'].'=",\'"\',NEW.'.$column['Field'].',\'"\');';
+						 $triggerUPDATE .= '    END IF;';
+					 }
+				}
+				if($priKey!=''){
+					$triggerUPDATE .= '    SET old_query = CONCAT(\'UPDATE `'.$table.'` SET \',array_old,\' WHERE `'.$table.'`.`'.$priKey.'`=\', OLD.'.$priKey.');';
+					$triggerUPDATE .= '    SET new_query = CONCAT(\'UPDATE `'.$table.'` SET \',array_new,\' WHERE `'.$table.'`.`'.$priKey.'`=\', NEW.'.$priKey.');';
+					$triggerUPDATE .= '    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES (\''.$table.'\', \'UPDATE\', old_query, new_query);';
+				}
+				$triggerUPDATE .= 'END';
+
+				/*
+				|----------------------------------------------------
+				| LISTNER DE DELETE
+				|----------------------------------------------------
+				*/
+				$triggerDELETE = 'CREATE TRIGGER `GALAXY___DELETE_'.$table.'` AFTER DELETE ON `'.$table.'` FOR EACH ROW BEGIN';
+				$triggerDELETE .= '    DECLARE old_query VARCHAR(255);';
+				$triggerDELETE .= '    DECLARE new_query VARCHAR(255);';
+				$triggerDELETE .= '    DECLARE array_colum_old TEXT DEFAULT "";';
+				$triggerDELETE .= '    DECLARE array_value_old TEXT DEFAULT "";';
+				$triggerDELETE .= '    DECLARE array_new TEXT DEFAULT "";';
+				$query = "SHOW COLUMNS FROM $table";
+				$stmt = $this->connection->query($query);
+				$columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$priKey = '';
+				foreach ($columns as $column) {
+					if ($column['Key'] == 'PRI') {
+						$priKey = $column['Field'];
+					} else {
+						$triggerDELETE .= ' SET array_colum_old = TRIM(BOTH "," FROM CONCAT_WS(",", array_colum_old, "'.$column['Field'].'"));';
+						$triggerDELETE .= "	SET array_value_old = TRIM(BOTH ',' FROM CONCAT_WS(',', array_value_old, CONCAT('\"', OLD.".$column['Field'].", '\"')));";
+					}
+				}
+				if ($priKey != '') {
+					$triggerDELETE .= "    SET old_query = CONCAT('INSERT INTO `".$table."` (',array_colum_old,') VALUES (',array_value_old,')');";
+					$triggerDELETE .= "    SET new_query = CONCAT('DELETE FROM `".$table."` WHERE `".$priKey."`=', OLD.".$priKey.");";
+					$triggerDELETE .= "    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES ('".$table."', 'DELETE', old_query, new_query);";
+				}
+				$triggerDELETE .= 'END';	
+
+				/*
+				|----------------------------------------------------
+				| LISTNER DE INSERT
+				|----------------------------------------------------
+				*/
+				$triggerINSERT = 'CREATE TRIGGER `GALAXY___INSERT_'.$table.'` AFTER INSERT ON `'.$table.'` FOR EACH ROW BEGIN';
+				$triggerINSERT .= '    DECLARE old_query VARCHAR(255);';
+				$triggerINSERT .= '    DECLARE new_query VARCHAR(255);';
+				$triggerINSERT .= '    DECLARE array_colum_new TEXT DEFAULT "";';
+				$triggerINSERT .= '    DECLARE array_value_new TEXT DEFAULT "";';
+				$triggerINSERT .= '    DECLARE array_old TEXT DEFAULT "";';
+				$query = "SHOW COLUMNS FROM $table";
+				$stmt = $this->connection->query($query);
+				$columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$priKey = '';
+				foreach ($columns as $column) {
+					if ($column['Key'] == 'PRI') {
+						$priKey = $column['Field'];
+					} else {
+						$triggerINSERT .= '    SET array_colum_new = TRIM(BOTH "," FROM CONCAT_WS(",", array_colum_new, "'.$column['Field'].'"));';
+						$triggerINSERT .= "    SET array_value_new = TRIM(BOTH ',' FROM CONCAT_WS(',', array_value_new, CONCAT('\"', NEW.".$column['Field'].", '\"')));";
+					}
+				}
+				if ($priKey != '') {
+					$triggerINSERT .= "    SET old_query = CONCAT('DELETE FROM `".$table."` WHERE `".$priKey."`=', NEW.".$priKey.");";
+					$triggerINSERT .= "    SET new_query = CONCAT('INSERT INTO `".$table."` (',array_colum_new,') VALUES (',array_value_new,')');";
+					$triggerINSERT .= "    INSERT INTO `galaxy__log_content` (`TABELA`, `ACTION`, `OLD`, `NEW`) VALUES ('".$table."', 'INSERT', old_query, new_query);";
+				}
+				$triggerINSERT .= 'END';
+
+				$this->connection->exec($triggerDELETE);
+				$this->connection->exec($triggerUPDATE);
+				$this->connection->exec($triggerINSERT);
+
+			}
+
+		}
+
+		/*
+		|----------------------------------------------------
+		| EXCLUIMOS AS TRIGGERS DE LOG 
+		|----------------------------------------------------
+		*/
+		public function excluiTriggers(){ 
+			$this->stmt = $this->connection->query('SHOW TABLES');
+			foreach ($this->stmt->fetchAll(PDO::FETCH_COLUMN) as $table) {
+				$this->connection->exec('DROP TRIGGER IF EXISTS `GALAXY___UPDATE_'.$table.'`');
+				$this->connection->exec('DROP TRIGGER IF EXISTS `GALAXY___DELETE_'.$table.'`');
+				$this->connection->exec('DROP TRIGGER IF EXISTS `GALAXY___INSERT_'.$table.'`');
+			}
+		}
+
+
+
+
+
+
 
         /*
         |--------------------------------------------------------------------------
