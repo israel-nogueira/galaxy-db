@@ -862,11 +862,11 @@ Você também pode executar programaticamente em PHP:
 ```
 
 Isso criará uma tabela em sua base chamada ``GALAXY__RAC`` onde será inserido 5 colunas:<br>
-- ``TABELA``	
-- ``ACTION``	
-- ``QUERY``	
-- ``ROLLBACK``	
-- ``DATA_HORA``
+- ``TABELA``: tabela que foi feita a ação	
+- ``ACTION``: INSERT | UPDATE | DELETE
+- ``QUERY``: Query que foi executada	
+- ``ROLLBACK``: Query "ctrl+z", voltará ao estado anterior da ação executada 
+- ``DATA_HORA``: Data e hora que foi executado o comando
 
 ## MIGRATIONS
 
