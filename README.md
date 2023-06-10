@@ -10,7 +10,7 @@
     <a href="#funções-na-model" target="_Self">Functions</a> |
     <a href="#criptografia" target="_Self">Crypt</a> |
     <a href="#stored-procedures" target="_Self">Store Procedures</a> |
-    <a href="#registro-de-alterações-de-conteúdo" target="_Self">RAC</a> |
+    <a href="#rac---registro-de-alterações-de-conteúdo" target="_Self">RAC</a> |
     <a href="#migrations" target="_Self">Migrations</a> 
 </p>
 <p align="center">
