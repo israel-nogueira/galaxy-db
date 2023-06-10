@@ -850,7 +850,7 @@ como criação/alterações/exclusões  de ```TABELAS```,```COLUNAS```, ```TRIGG
 
 > Atenção:<br>
 >Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL;<br>
->Coloque o PATH do seu arquivo da sua preferencia<br>
+>Obs.: Coloque o PATH do seu arquivo da sua preferencia<br>
 ```sql
 
     SET GLOBAL general_log = 'ON';
