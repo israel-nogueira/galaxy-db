@@ -236,7 +236,6 @@
 			if (is_array($P_COLUMNS)) {
 				foreach ($P_COLUMNS as $COLUMNS) {
 					$COLUMNS = str_replace(',','¸',$COLUMNS);
-								echo 'ADD COLUNA';
 					if($this->isCrypt){
 						$this->prepareDeCrypt[]=$COLUMNS;
 						$this->isCrypt=false;

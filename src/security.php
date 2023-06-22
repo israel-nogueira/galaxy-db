@@ -95,7 +95,7 @@
 			if(count($this->columnsBlock)>0){
 				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
 			}
-			if(count($this->columnsEnab)>0){
+			if(count($this->columnsEnab??[])>0){
 				$result = array_intersect($result,$this->columnsEnab);
 			}
 			$_colunas = [];
@@ -139,7 +139,7 @@
 			if(count($this->columnsBlock)>0){
 				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
 			}
-			if(count($this->columnsEnab)>0){
+			if(count($this->columnsEnab??[])>0){
 				$result = array_intersect($result,$this->columnsEnab);
 			}
 			$_colunas = [];
