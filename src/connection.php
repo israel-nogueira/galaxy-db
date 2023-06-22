@@ -49,7 +49,7 @@
                 |
                 */
                 case 'pgsql':
-                    $port = $port ? $port : '3306';
+                    $port = $port ? $port : '5432';
                     try{
                         $conn = new \PDO("pgsql:dbname={$name};user={$user}; password={$pass};host=$host;port={$port}");
                     }catch(PDOException $e){
