@@ -187,12 +187,17 @@
 
 
 		public function functionVerifyString($STRING_COLUNA){
-			preg_match_all('/\b(\w+)\s*\(/i', $STRING_COLUNA, $matches);
-			$LISTA_FUNCTIONS	= $matches[1];	
-			$arrayBloqueio		= count($this->mysqlFnBlockClass)	> 0;
-			$arrayLiberados		= count($this->mysqlFnEnabClass)	> 0;
-			$bloqueados			= count(array_intersect($LISTA_FUNCTIONS, $this->mysqlFnBlockClass)) >0;
-			$liberados			= count(array_intersect($LISTA_FUNCTIONS, $this->mysqlFnEnabClass))  >0;			
+
+			preg_match_all('/\b(\w+)\s*\(/i', strval($STRING_COLUNA), $matches);
+
+
+
+			$LISTA_FUNCTIONS	= $matches[1]??[];	
+			$arrayBloqueio		= count(($this->mysqlFnBlockClass??[]))	> 0;
+			$arrayLiberados		= count(($this->mysqlFnEnabClass??[]))	> 0;
+			$bloqueados			= count(array_intersect($LISTA_FUNCTIONS, ($this->mysqlFnBlockClass??[]))) >0;
+			$liberados			= count(array_intersect($LISTA_FUNCTIONS, ($this->mysqlFnEnabClass??[])))  >0;	
+
 			if ($bloqueados  || ($arrayLiberados && !$liberados)){
 				return false;
 			}else{
