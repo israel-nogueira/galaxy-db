@@ -2,6 +2,7 @@
     namespace IsraelNogueira\galaxyDB;
 	use PDO;
 	use RuntimeException;
+	use Exception;
 
     trait queryBuilder{
 
@@ -137,6 +138,7 @@
                 $_alias		= $matches[2]??'';
                 $this->tableClass ='('.$this->subQuery[$_suQuery].') '.$_alias;
             }
+			
             return $this;
         }
 
@@ -307,16 +309,17 @@
     |--------------------------------------------------------------------------
     */
 
-		public function table($TABLES, $ALIAS=null){
-			$this->set_table($TABLES, $ALIAS);
+		public function table($TABLES="base", $ALIAS=null){
+			return $this->set_table($TABLES, $ALIAS);
 		}
 
-		public function set_table($TABLES, $ALIAS=null){
-			if($ALIAS==null){
+		public function set_table($TABLES="base", $ALIAS=null){
+			if(is_null($ALIAS)){
 				$this->tableClass =$TABLES;
 			}else{
-				$this->tableClass =trim($TABLES).' as '.$ALIAS;
+				$this->tableClass =trim($TABLES).' AS '.trim($ALIAS);
 			}
+
 			return $this;
 		}
 
@@ -368,15 +371,11 @@
 			$this->set_order($colum, $order);
 		}
 
-		public function set_order($colum = null, $order = null){
-			if ($colum == null && $order == null) {
+		public function set_order($colum = null, $order='ASC'){
+			if ($colum == null) {
 				throw new RuntimeException('Valor set_order indefinido');
 			}
-			if ($colum != null && $order == null) {
-				$this->setorder[] = $colum;
-			} else {
-				$this->setorder[] = $colum . ' ' . $order;
-			}
+			$this->setorder[] = $colum . ' ' . $order;
 			$this->order = ' ORDER BY ' . implode(',',$this->setorder);
 			return $this;
 		}
@@ -736,16 +735,22 @@
 		*/
 		
 		public function get_query($type = 'SELECT'){
-			$_QUERY = '';
+			$this->_QUERY='';
 			if(!in_array(trim($type),['SELECT', 'INSERT', 'DELETE','UPDATE'])){
 				throw new RuntimeException("->get_query() com parâmetro incorreto. Utilize 'SELECT', 'INSERT', 'DELETE' ou 'UPDATE'");
 			}
-			$_QUERY 	.= $type.' ';
-			$_QUERY 	.= $this->DISTINCT	??	'';
-			$_QUERY 	.= $this->verifyColunms();	
-			$_QUERY 	.= ' FROM ';
-			$_QUERY		.= $this->tableClass??'';
-			$_QUERY		.= (!is_null($this->rell))? ' '.$this->rell . ' ' :'';
+			$this->_QUERY 	.= $type.' ';
+			$this->_QUERY 	.= $this->DISTINCT	??	'';
+			$this->_QUERY 	.= $this->verifyColunms();	
+			$this->_QUERY 	.= ' FROM ';
+			
+			if (!is_null($this->tableClass)) {
+				$this->_QUERY		.= $this->tableClass;
+			} else {
+				throw new Exception('$this->tableClass UNDEFINED, linha:'.__LINE__,1);
+			}
+
+			$this->_QUERY		.= (!is_null($this->rell))? ' '.$this->rell . ' ' :'';
 			$array_like	 = (count($this->Insert_like) > 0) ? implode(' OR ', $this->Insert_like):"";
 
 			if (!is_null($this->where) || (count($this->Insert_like) > 0)) {
@@ -753,15 +758,15 @@
 					$this->where = $this->where . " AND ";
 				}
 				$not		= ($this->set_where_not_exist == true)		?	" NOT EXISTS "	:	"";
-				$_QUERY		.= ' WHERE' . $not . '(' . $this->where . '(' . $array_like . '))';
-				$_QUERY		= str_replace('())', ')', $_QUERY);
+				$this->_QUERY		.= ' WHERE' . $not . '(' . $this->where . '(' . $array_like . '))';
+				$this->_QUERY		= str_replace('())', ')', $this->_QUERY);
 			}
 
-			$_QUERY .= (count($this->group)>0) 	?	' GROUP BY '.implode(',',$this->group).' ' :'' ;
-			$_QUERY .= (!empty($this->order)) 	?	$this->order . ' ' : '';
-			$_QUERY .= (!is_null($this->limit)) ?	$this->limit : '';
-
-			return $_QUERY;
+			$this->_QUERY .= (count($this->group)>0) 	?	' GROUP BY '.implode(',',$this->group).' ' :'' ;
+			$this->_QUERY .= (!empty($this->order)) 	?	$this->order . ' ' : '';
+			$this->_QUERY .= (!is_null($this->limit)) ?	$this->limit : '';
+			
+			return $this->_QUERY;
 		}
 
 

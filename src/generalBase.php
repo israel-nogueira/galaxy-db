@@ -264,7 +264,10 @@
 		}
 
 		public function showDBColumns($table){
-			$query =  'SHOW COLUMNS FROM ' . $table;
+			$pattern = '/\b(\w+)\b/i';
+			preg_match($pattern, $table, $matches);
+			$tableName = $matches[1];
+			$query =  'SHOW COLUMNS FROM ' . $tableName;
 			$result = $this->connection->query($query);
 			$tables = $result->fetchAll(PDO::FETCH_COLUMN);
 			return $tables;

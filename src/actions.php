@@ -60,6 +60,7 @@
 
 		public function clear(){
 			
+			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
 			$this->SP_OUTPUTS			=[];
 			$this->SP_NEW_PARAMS		=[];
@@ -78,9 +79,11 @@
 			$this->replace_isso			= array();
 			$this->replace_porisso		= array();
 			$this->where				= null;
+			$this->_QUERY				= '';
 			$this->set_where_not_exist	= null;
 			$this->colum				= null;
 			$this->setorder				= [];
+			$this->order				= null;
 			$this->setwhere				= null;
 			$this->limit				= null;
 			$this->SP_OUTPUTS			= [];

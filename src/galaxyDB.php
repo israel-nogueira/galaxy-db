@@ -39,6 +39,7 @@
 
 
 		public function __construct(){
+			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
 			$this->SP_OUTPUTS			=[];
 			$this->SP_NEW_PARAMS		=[];
@@ -82,7 +83,9 @@
 			$this->columnsBlock			= [];
 			$this->columnsEnabl			= [];
 			$this->colum				= null;
+			$this->_QUERY				= '';
 			$this->setorder				= [];
+			$this->order				= null;
 			$this->mysqlFnBlockClass	= [];
 			$this->mysqlFnEnabClass		= [];
 			$this->limit				= null;

@@ -2,6 +2,7 @@
     declare(strict_types = 1);
     namespace IsraelNogueira\galaxyDB;
 	use RuntimeException;
+	use Exception;
 	/*
 	|--------------------------------------------------------------------------
 	|		GENERAL BASE
@@ -86,31 +87,29 @@
 		|
 		*/
 
-		public function verifyJoinColums($string) {
-			$pattern = '/\b([a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_.]*)\b/';
-			preg_match_all($pattern, $string, $matches);
+		public function verifyJoinColums($expression) {
 
-			 $_COLUNAS_QUERY = $matches[1];
-
-			if(count($this->columnsBlock)>0){
-				$result = array_diff($_COLUNAS_QUERY, $this->columnsBlock);
-			}
-			if(count($this->columnsEnab??[])>0){
-				$result = array_intersect($result,$this->columnsEnab);
-			}
-			$_colunas = [];
-
-			foreach ($result as $value) {
-				$_verify = $this->functionVerifyString($value);
-				if($_verify!=false){
-					$_colunas[] = $_verify;
-				}
-			}
-			return implode(',',$_colunas);		
+			$pattern = '/([a-zA-Z0-9_]+\.[a-zA-Z0-9_]+)/';
+			preg_match_all($pattern, $expression, $matches);
+			$_COLUNAS_QUERY = $matches[1];
+						
+			$colunasPermitidas = $this->columnsEnab		??[];
+			$colunasBloqueadas = $this->columnsBlock	??[];
+			$colunasEscolhidas = $_COLUNAS_QUERY;
+			$colunasInvalidas = array_diff($colunasEscolhidas, $colunasPermitidas);
+			$colunasBloqueadasEncontradas = array_intersect($colunasEscolhidas, $colunasBloqueadas);
+			
+			if (!empty($colunasInvalidas) && count($colunasPermitidas)>0) {
+				throw new Exception("Colunas inválidas selecionadas: " . implode(', ', $colunasInvalidas), 1);
+				
+			} elseif (!empty($colunasBloqueadasEncontradas) && count($colunasBloqueadas)>0) {
+				throw new Exception("Colunas bloqueadas selecionadas: " . implode(', ', $colunasBloqueadasEncontradas), 1);
+			} 
+			
+			return $expression;
 		}
 
 		public function verifyindividualColum($_COLUNA){
-
 
 			if(is_null($this->tableClass)){
 				throw new RuntimeException("É necessário pelo menos uma tabela ou query cadastradas");
@@ -129,7 +128,7 @@
 		public function verifyColunms(){
 			if(is_null($this->tableClass)){
 				throw new RuntimeException("É necessário pelo menos uma tabela ou query cadastradas");
-			}
+			}		
 			if(is_null($this->colum)){				
 				$_COLUNAS_QUERY = $this->showDBColumns($this->tableClass);
 			}else{
