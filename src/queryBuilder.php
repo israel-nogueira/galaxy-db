@@ -564,20 +564,17 @@
 			$keyvalue = array();
 			foreach ($this->InsertVars as $key => $value) {
 				if ($value=='NULL') {
-						$keyvalue[] = $key . 'NULL';
-					}elseif(is_string($value)) {
-						if (substr($value, 0, 8) == "command:") {$value = substr($value,8);} 
-						$_verify = $this->functionVerifyArray($value);
-						if($_verify!==false){
-							$keyvalue[] = $key.'='.$_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");//$this->preventMySQLInject($value)
-						}else{
-							$keyvalue[] = '"' . $this->preventMySQLInject($value) . '"';
-						}				
-
-				
-					} else {
-						$keyvalue[] = $key . "=" . $this->preventMySQLInject($value);
+						$keyvalue[] = $key.'=NULL';
+				}elseif(is_string($value)) {
+						if (substr($value, 0, 8) == "command:") {
+						$value = substr($value,8);
+						$keyvalue[] = $key.'='.$this->preventMySQLInject($value);
+					} else{
+						$keyvalue[] = $key.'="'.$this->preventMySQLInject($value).'"';
 					}
+				} else {
+					$keyvalue[] = $key . "=" . $this->preventMySQLInject($value);
+				}
 			}
 			$this->on_duplicate = ' ON DUPLICATE KEY UPDATE ' . implode(',', $keyvalue);
 			return $this;

@@ -441,7 +441,7 @@
 	|	EXEC FUNCTION
 	|--------------------------------------------------------------------------
 	*/
-        public function execQuery($P_ALIAS='response'){
+        public function execQuery(){
 			if($this->transactionFn == true){
                 if($this->query==""){ return [];}
 
@@ -457,9 +457,7 @@
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
-						if($this->stmt->rowCount()>0){
-							$this->startProcessResult($this->stmt,$query,$_ALIAS);
-						}
+						$this->startProcessResult($this->stmt,$query,$_ALIAS);
 						$this->stmt->closeCursor();
 					}
 
