@@ -396,33 +396,37 @@
 	*/
 
 
-		public function insert(){
+		public function insert($alias="alias"){
 			$this->query= null;
-			$this->prepare_insert();
+			$this->prepare_insert($alias);
+			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
 			$this->clear();
 			return $this;
 		}
 
-		public function replace(){
+		public function replace($alias="alias"){
 			$this->query= null;
-			$this->prepare_replace();
+			$this->prepare_replace($alias);
+			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
 			$this->clear();
 			return $this;
 		}
 
-		public function update(){
+		public function update($alias="alias"){
 			$this->query = null;
-			$this->prepare_update();
+			$this->prepare_update($alias);
+			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
 			$this->clear();
 			return $this;
 		}
 		
-		public function delete(){
+		public function delete($alias="alias"){
 			$this->query = null;
-			$this->prepare_delete();
+			$this->prepare_delete($alias);
+			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
 			$this->clear();
 			return $this;
@@ -430,6 +434,7 @@
 
 		public function select($alias = null, $script = null){	
 			$this->prepare_select($alias, $script);
+			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
 			$this->clear();
 			return $this;
