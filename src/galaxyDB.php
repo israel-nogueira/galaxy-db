@@ -39,6 +39,7 @@
 
 
 		public function __construct(){
+			$this->_lastID				=[];
 			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
 			$this->SP_OUTPUTS			=[];

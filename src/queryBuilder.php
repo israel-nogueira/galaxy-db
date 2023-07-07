@@ -53,11 +53,13 @@
                 }
 
                 if ($alias == null) {
-                    $this->_num_rows['response']	=  $this->stmt->rowCount();
+                    $this->_lastID['response']		= intVal($this->connection->lastInsertId());
+                    $this->_num_rows['response']	= intVal($this->stmt->rowCount());
                     $this->fetch_array['response']	= $array??[];
                     $this->obj['response']			= (object) $obj??[];
                 } else {
-                    $this->_num_rows[$alias]		=  $this->stmt->rowCount();
+                    $this->_lastID[$alias]			= intVal($this->connection->lastInsertId());
+                    $this->_num_rows[$alias]		= intVal($this->stmt->rowCount());
                     $this->fetch_array[$alias]		= $array??[];
                     $this->obj[$alias]				= (object) $obj??[];
                 }
@@ -106,9 +108,9 @@
 		|	enviando ou não o Alias enviado pelo PDO
 		|
 		*/
-            public function startProcessResult($result,$query,$_ALIAS){
+            public function startProcessResult($result,$query,$_ALIAS=null){
                 if(gettype($result)=='object'){
-                    if($_ALIAS==''){
+                    if(is_null($_ALIAS)){
                         $this->process_result($result);
                     }else{
                         $this->process_result($result,$_ALIAS);
