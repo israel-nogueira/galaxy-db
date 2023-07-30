@@ -387,7 +387,7 @@
 			$this->prepareCrypt = true;
 			if (!is_array($this->query)) {$this->query = [];}
 			$this->query[$alias] = (is_null($script)) ? $this->get_query():$script;
-			// $this->clear();
+			$this->clear();
 			return $this;
 		}
 

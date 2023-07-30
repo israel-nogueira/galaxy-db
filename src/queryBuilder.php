@@ -75,6 +75,11 @@
 		|
 		|
 		*/
+		
+            public function array($variable = null){
+                return $this->fetch_array($variable);
+            }
+
             public function fetch_array($variable = null){
                 if ($variable != null) {
                     return $this->fetch_array[$variable] ??[];
