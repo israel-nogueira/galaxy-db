@@ -121,6 +121,7 @@
                         $this->process_result($result,$_ALIAS);
                     }
                 }
+				return $this;
             }
 
 
@@ -236,6 +237,7 @@
 
 		public function colum($P_COLUMNS = array(),$JSON=false){
 			$this->set_colum($P_COLUMNS,$JSON);
+			return $this;
 		}
 
 		public function set_colum($P_COLUMNS = array(),$JSON=false){
@@ -303,6 +305,7 @@
 			if (is_null($this->colum)) {
 				$this->colum = "*";
 			}
+			return $this;
 		}
 
     /*
@@ -317,7 +320,8 @@
     */
 
 		public function table($TABLES="base", $ALIAS=null){
-			return $this->set_table($TABLES, $ALIAS);
+			$this->set_table($TABLES, $ALIAS);
+			return $this;
 		}
 
 		public function set_table($TABLES="base", $ALIAS=null){
