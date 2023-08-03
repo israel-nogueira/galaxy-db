@@ -343,6 +343,7 @@
 
 		public function where($WHERES){
 			$this->set_where($WHERES);
+			return $this;
 		}
 
 		public function set_where($WHERES){
@@ -376,6 +377,7 @@
 		*/
 		public function order($colum = null, $order = null){
 			$this->set_order($colum, $order);
+			return $this;
 		}
 
 		public function set_order($colum = null, $order='ASC'){
@@ -418,6 +420,7 @@
 		*/
 		public function limit($init=null, $finit=null){
 			$this->set_limit($init, $finit);
+			return $this;
 		}
 		
 		public function set_limit($init=null, $finit=null){
@@ -550,7 +553,8 @@
 		|
 		*/
 		public function ignore($dados){
-			return $this->set_ignore($dados);;
+			return $this->set_ignore($dados);
+			return $this;
 		}
 
 		public function set_ignore($dados){
@@ -613,22 +617,27 @@
 		*/
 
 		public function innerJoin($tabela=null, $colunas=null){
-		 return $this->join("INNER", $tabela, $colunas);
+		 $this->join("INNER", $tabela, $colunas);
+		 return $this;
 		}
 		public function leftJoin($tabela=null, $colunas=null){
-			return $this->join("LEFT", $tabela, $colunas);
+			$this->join("LEFT", $tabela, $colunas);
+			return $this;
 			
 		}
 		public function rightJoin($tabela=null, $colunas=null){
-			return $this->join("RIGHT", $tabela, $colunas);
+			$this->join("RIGHT", $tabela, $colunas);
+			return $this;
 			
 		}
 		public function fullOuterJoin($tabela=null, $colunas=null){
-			return $this->join("FULL OUTER", $tabela, $colunas);
+			$this->join("FULL OUTER", $tabela, $colunas);
+			return $this;
 			
 		}
 		public function crossJoin($tabela=null, $colunas=null){
-			return $this->join("CROSS", $tabela, $colunas);
+			$this->join("CROSS", $tabela, $colunas);
+			return $this;
 		}
 
 		public function join($join = "LEFT", $tabela=null, $colunas=null){
@@ -667,7 +676,8 @@
 		|
 		*/
 			public function rlike($coluna, $palavra_chave){
-				return $this->regexp($coluna, $palavra_chave);
+				$this->regexp($coluna, $palavra_chave);
+				return $this;
 			}
 
 			public function regexp($coluna, $palavra_chave){
@@ -726,6 +736,7 @@
 		public function set_var($key,$value){
 			$this->stmt =$this->connection->prepare('SET @'.$key.' := :value');
 			$this->stmt->bindParam(':value', $value);
+			return $this;
 		}
 		
 		/*
