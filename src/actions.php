@@ -100,12 +100,14 @@
         public function transaction($return='none'){
             $this->transactionFn = true;
             $this->rollbackFn = $return;
+			return $this;
         }
 
         public function rollbackExec($return){
             if($this->rollbackFn!='none'){
                 call_user_func_array($this->rollbackFn,array($return));
             }
+			return $this;
         }
     
 	/*
@@ -488,7 +490,7 @@
 						throw new RuntimeException($exception);
 					}
 				}
-
+				return $this;
 				// $this->clear();
             }
         }
