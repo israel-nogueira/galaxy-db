@@ -25,18 +25,18 @@
 				$order		= $colunas[$order]['data'];
 				$order		= [$order=>$oAjaxData['order'][0]['dir']];
 
+				
+
 				// RESGATAMOS O TOTAL DA BASE SEM FILTRO SEM NADA
 				$numrow_sem_filtros			= clone $this;
 				$numrow_sem_filtros->set_colum('COUNT(*) as TOTAL');
-				
-				// COLOCAR ISSO LÁ NA CHAMADA PRINCIPAL
-				$allQuery = $numrow_sem_filtros->get_query();
-				
-				$numrow_sem_filtros->select();
-				$_fetch_array = $numrow_sem_filtros->fetch_array() ?? [];
-				$recordsTotal = ($_fetch_array!=[]) ? $numrow_sem_filtros->fetch_array()['response'][0]['TOTAL'] : 0;
+				$numrow_sem_filtros->prepare_select('param');
+				$numrow_sem_filtros->transaction(function($e) {die($e);});
+				$numrow_sem_filtros->execQuery();
+				$_RESULT = $numrow_sem_filtros->fetch_array('param')[0]['TOTAL'] ?? [];
+				$recordsTotal = ($_RESULT!=[]) ? $_RESULT : 0;
 
-
+				
 				//INSERE AS PALAVRAS DE SEARCH 
 				$busca_por_coluna = false;
 				foreach ($colunas as $value) {
@@ -75,22 +75,24 @@
 					$_FILTRADO 	= intVal($recordsTotal);
 				}
 
-
 				// AGORA TOTAL COM A PAGINAÇÃO 
 				$this->set_limit($start,$length);
-				$query = $this->get_query();
-				$fire = new galaxyDB();
-				$fire->connect();
-				$fire->select('DataTable',$query);
 
+				$select_result = clone $this;
+				$select_result->prepare_select('param');
+				$select_result->transaction(function($e) {die($e);});
+				$select_result->execQuery();
+				$_RESULT = $select_result->fetch_array('param');
+	
+				
 				$_TOTAL		= intVal($recordsTotal);
 				return [
-					"query"				=>	$query,
+					"query"				=>	$select_result->query['param'],
 					"paginate"			=>	$start.' - '.$length,
 					"draw"				=>	$draw,
 					"recordsFiltered"	=>	$_FILTRADO,
 					"recordsTotal"		=>	$_TOTAL,
-					"data"				=>	$fire->fetch_array()['DataTable'] ?? []
+					"data"				=>	$_RESULT ?? []
 				];
 			}
 

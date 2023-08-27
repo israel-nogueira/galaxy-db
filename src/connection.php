@@ -12,8 +12,7 @@
          * recebe o nome do banco de dados e instancia o objecto PDO correspondente
          */
         public static function errorConnection($error){
-            // die(\app\system\lib\system::ajaxReturn($error->getMessage(),0));
-            // throw new Exception($error->getMessage(), 1);
+            throw new Exception($error->getMessage(), 1);
             
         }
         public static function connect($db=[]){
@@ -27,20 +26,20 @@
             | busca o array de conexões
             |
             */
-            
-            $type = (!getEnv('DB_TYPE')     || is_null(getEnv('DB_TYPE')))     ? '' : getEnv('DB_TYPE');
-            $user = (!getEnv('DB_USERNAME') || is_null(getEnv('DB_USERNAME'))) ? '' : getEnv('DB_USERNAME');
-            $pass = (!getEnv('DB_PASSWORD') || is_null(getEnv('DB_PASSWORD'))) ? '' : getEnv('DB_PASSWORD');
-            $name = (!getEnv('DB_DATABASE') || is_null(getEnv('DB_DATABASE'))) ? '' : getEnv('DB_DATABASE');
-            $host = (!getEnv('DB_HOST')     || is_null(getEnv('DB_HOST')))     ? '' : getEnv('DB_HOST');
-            $port = (!getEnv('DB_PORT')     || is_null(getEnv('DB_PORT')))     ? '' : getEnv('DB_PORT');
-            $char = (!getEnv('DB_CHAR')     || is_null(getEnv('DB_CHAR')))     ? '' : getEnv('DB_CHAR');
-            $flow = (!getEnv('DB_FLOW')     || is_null(getEnv('DB_FLOW')))     ? '' : getEnv('DB_FLOW');
-            $fkey = (!getEnv('DB_FKEY')     || is_null(getEnv('DB_FKEY')))     ? '' : getEnv('DB_FKEY');
 
+            $type = getEnv('DB_TYPE');
+            $user = getEnv('DB_USERNAME');
+            $pass = getEnv('DB_PASSWORD');
+            $name = getEnv('DB_DATABASE');
+            $host = getEnv('DB_HOST');
+            $port = getEnv('DB_PORT');
+            $char = getEnv('DB_CHAR');
+            $flow = getEnv('DB_FLOW');
+            $fkey = getEnv('DB_FKEY');
 
             // descobre qual o tipo (driver) de banco de dados a ser utilizado
-            switch ($type){
+            switch ($type)
+            {
                 /*
                 |----------------------------------------------------------------------------------------------------
                 | pgsql

@@ -60,7 +60,6 @@
 
 		public function clear(){
 			
-			$this->_lastID				=[];
 			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
 			$this->SP_OUTPUTS			=[];
@@ -100,14 +99,12 @@
         public function transaction($return='none'){
             $this->transactionFn = true;
             $this->rollbackFn = $return;
-			return $this;
         }
 
         public function rollbackExec($return){
             if($this->rollbackFn!='none'){
                 call_user_func_array($this->rollbackFn,array($return));
             }
-			return $this;
         }
     
 	/*
@@ -137,7 +134,7 @@
 		public function execSP($_ALIAS='RESPONSE', $_RETORNO=null){				
 				$this->prepare_sp($_ALIAS,$_RETORNO);
 				$this->execQuery();
-				// $this->clear();
+				$this->clear();
 				return $this;	
 		}
 
@@ -275,15 +272,14 @@
 			if (!empty($this->on_duplicate)) {
 				$queryPrepare .= $this->on_duplicate;
 			}
-			
 			if (is_null($this->query)) {
-				$this->query[$ALIAS] = $queryPrepare;
+				$this->query = $queryPrepare;
 			} else {
 				if(!is_array($this->query)){$this->query = [];}
 				$this->query[$ALIAS]	= $queryPrepare;
 				$this->InsertVars		= [];
 			}
-			// $this->clear();
+			$this->clear();
 		}
 
 		public function prepare_replace($ALIAS='response'){
@@ -360,7 +356,7 @@
 			}
 			if(!is_array($this->query)){$this->query = [];}
 			$this->query[$ALIAS] = $queryPrepare;
-			// $this->clear();
+			$this->clear();
 		}
 		
 		public function prepare_delete(){
@@ -381,7 +377,7 @@
 			} else {
 				if(!is_array($this->query)){$this->query = [];}
 				$this->query[] = $queryPrepare;
-				// $this->clear();
+				$this->clear();
 			}
 		}
 
@@ -400,47 +396,42 @@
 	*/
 
 
-		public function insert($alias="alias"){
+		public function insert(){
 			$this->query= null;
-			$this->prepare_insert($alias);
-			$this->transaction(function ($e) {throw new Exception($e, 1);});
+			$this->prepare_insert();
 			$this->execQuery();
-			// $this->clear();
-			return $this; 
-		}
-
-		public function replace($alias="alias"){
-			$this->query= null;
-			$this->prepare_replace($alias);
-			$this->transaction(function ($e) {throw new Exception($e, 1);});
-			$this->execQuery();
-			// $this->clear();
+			$this->clear();
 			return $this;
 		}
 
-		public function update($alias="alias"){
-			$this->query = null;
-			$this->prepare_update($alias);
-			$this->transaction(function ($e) {throw new Exception($e, 1);});
+		public function replace(){
+			$this->query= null;
+			$this->prepare_replace();
 			$this->execQuery();
-			// $this->clear();
+			$this->clear();
+			return $this;
+		}
+
+		public function update(){
+			$this->query = null;
+			$this->prepare_update();
+			$this->execQuery();
+			$this->clear();
 			return $this;
 		}
 		
-		public function delete($alias="alias"){
+		public function delete(){
 			$this->query = null;
-			$this->prepare_delete($alias);
-			$this->transaction(function ($e) {throw new Exception($e, 1);});
+			$this->prepare_delete();
 			$this->execQuery();
-			// $this->clear();
+			$this->clear();
 			return $this;
 		}
 
 		public function select($alias = null, $script = null){	
 			$this->prepare_select($alias, $script);
-			$this->transaction(function ($e) {throw new Exception($e, 1);});
 			$this->execQuery();
-			// $this->clear();
+			$this->clear();
 			return $this;
 		}
 
@@ -452,9 +443,9 @@
 	*/
         public function execQuery(){
 			if($this->transactionFn == true){
-
                 if($this->query==""){ return [];}
-                $_QUERY = (is_string($this->query))? [$this->query] : $this->query;
+
+                $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
 
 				try {
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
@@ -490,8 +481,6 @@
 						throw new RuntimeException($exception);
 					}
 				}
-				return $this;
-				// $this->clear();
             }
         }
     }

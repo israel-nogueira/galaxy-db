@@ -53,13 +53,11 @@
                 }
 
                 if ($alias == null) {
-                    $this->_lastID['response']		= intVal($this->connection->lastInsertId());
-                    $this->_num_rows['response']	= intVal($this->stmt->rowCount());
+                    $this->_num_rows['response']	=  $this->stmt->rowCount();
                     $this->fetch_array['response']	= $array??[];
                     $this->obj['response']			= (object) $obj??[];
                 } else {
-                    $this->_lastID[$alias]			= intVal($this->connection->lastInsertId());
-                    $this->_num_rows[$alias]		= intVal($this->stmt->rowCount());
+                    $this->_num_rows[$alias]		=  $this->stmt->rowCount();
                     $this->fetch_array[$alias]		= $array??[];
                     $this->obj[$alias]				= (object) $obj??[];
                 }
@@ -75,11 +73,6 @@
 		|
 		|
 		*/
-		
-            public function array($variable = null){
-                return $this->fetch_array($variable);
-            }
-
             public function fetch_array($variable = null){
                 if ($variable != null) {
                     return $this->fetch_array[$variable] ??[];
@@ -113,15 +106,14 @@
 		|	enviando ou não o Alias enviado pelo PDO
 		|
 		*/
-            public function startProcessResult($result,$query,$_ALIAS=null){
+            public function startProcessResult($result,$query,$_ALIAS){
                 if(gettype($result)=='object'){
-                    if(is_null($_ALIAS)){
+                    if($_ALIAS==''){
                         $this->process_result($result);
                     }else{
                         $this->process_result($result,$_ALIAS);
                     }
                 }
-				return $this;
             }
 
 
@@ -215,11 +207,12 @@
 		|	Basicamente executa o comando MySQL
 		|
 		*/
-		public function query($script = null){
+		public function query($script = null,$alias="query"){
 			if ($script == null) {
 				throw new RuntimeException("Parâmetro incorreto ou inexistente");
 			} else {
-				return $this->select('query', $script);
+				if(is_string($this->query)){$this->query=[];}
+				$this->query[$alias] = $script;
 			}
 			return $this;
 		}
@@ -237,7 +230,6 @@
 
 		public function colum($P_COLUMNS = array(),$JSON=false){
 			$this->set_colum($P_COLUMNS,$JSON);
-			return $this;
 		}
 
 		public function set_colum($P_COLUMNS = array(),$JSON=false){
@@ -305,7 +297,6 @@
 			if (is_null($this->colum)) {
 				$this->colum = "*";
 			}
-			return $this;
 		}
 
     /*
@@ -320,8 +311,7 @@
     */
 
 		public function table($TABLES="base", $ALIAS=null){
-			$this->set_table($TABLES, $ALIAS);
-			return $this;
+			return $this->set_table($TABLES, $ALIAS);
 		}
 
 		public function set_table($TABLES="base", $ALIAS=null){
@@ -347,7 +337,6 @@
 
 		public function where($WHERES){
 			$this->set_where($WHERES);
-			return $this;
 		}
 
 		public function set_where($WHERES){
@@ -381,7 +370,6 @@
 		*/
 		public function order($colum = null, $order = null){
 			$this->set_order($colum, $order);
-			return $this;
 		}
 
 		public function set_order($colum = null, $order='ASC'){
@@ -424,7 +412,6 @@
 		*/
 		public function limit($init=null, $finit=null){
 			$this->set_limit($init, $finit);
-			return $this;
 		}
 		
 		public function set_limit($init=null, $finit=null){
@@ -557,8 +544,7 @@
 		|
 		*/
 		public function ignore($dados){
-			return $this->set_ignore($dados);
-			return $this;
+			return $this->set_ignore($dados);;
 		}
 
 		public function set_ignore($dados){
@@ -621,27 +607,22 @@
 		*/
 
 		public function innerJoin($tabela=null, $colunas=null){
-		 $this->join("INNER", $tabela, $colunas);
-		 return $this;
+		 return $this->join("INNER", $tabela, $colunas);
 		}
 		public function leftJoin($tabela=null, $colunas=null){
-			$this->join("LEFT", $tabela, $colunas);
-			return $this;
+			return $this->join("LEFT", $tabela, $colunas);
 			
 		}
 		public function rightJoin($tabela=null, $colunas=null){
-			$this->join("RIGHT", $tabela, $colunas);
-			return $this;
+			return $this->join("RIGHT", $tabela, $colunas);
 			
 		}
 		public function fullOuterJoin($tabela=null, $colunas=null){
-			$this->join("FULL OUTER", $tabela, $colunas);
-			return $this;
+			return $this->join("FULL OUTER", $tabela, $colunas);
 			
 		}
 		public function crossJoin($tabela=null, $colunas=null){
-			$this->join("CROSS", $tabela, $colunas);
-			return $this;
+			return $this->join("CROSS", $tabela, $colunas);
 		}
 
 		public function join($join = "LEFT", $tabela=null, $colunas=null){
@@ -680,8 +661,7 @@
 		|
 		*/
 			public function rlike($coluna, $palavra_chave){
-				$this->regexp($coluna, $palavra_chave);
-				return $this;
+				return $this->regexp($coluna, $palavra_chave);
 			}
 
 			public function regexp($coluna, $palavra_chave){
@@ -740,7 +720,6 @@
 		public function set_var($key,$value){
 			$this->stmt =$this->connection->prepare('SET @'.$key.' := :value');
 			$this->stmt->bindParam(':value', $value);
-			return $this;
 		}
 		
 		/*
