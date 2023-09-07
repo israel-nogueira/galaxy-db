@@ -27,15 +27,15 @@
             |
             */
 
-            $type = getEnv('DB_TYPE');
-            $user = getEnv('DB_USERNAME');
-            $pass = getEnv('DB_PASSWORD');
-            $name = getEnv('DB_DATABASE');
-            $host = getEnv('DB_HOST');
-            $port = getEnv('DB_PORT');
-            $char = getEnv('DB_CHAR');
-            $flow = getEnv('DB_FLOW');
-            $fkey = getEnv('DB_FKEY');
+            $user = $db['DB_USERNAME']	??	getEnv('DB_USERNAME');
+            $type = $db['DB_TYPE']		??	getEnv('DB_TYPE');
+            $pass = $db['DB_PASSWORD']	??	getEnv('DB_PASSWORD');
+            $name = $db['DB_DATABASE']	??	getEnv('DB_DATABASE');
+            $host = $db['DB_HOST']		??	getEnv('DB_HOST');
+            $port = $db['DB_PORT']		??	getEnv('DB_PORT');
+            $char = $db['DB_CHAR']		??	getEnv('DB_CHAR');
+            $flow = $db['DB_FLOW']		??	getEnv('DB_FLOW');
+            $fkey = $db['DB_FKEY']		??	getEnv('DB_FKEY');
 
             // descobre qual o tipo (driver) de banco de dados a ser utilizado
             switch ($type)
