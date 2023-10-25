@@ -32,6 +32,21 @@
 			$this->isCrypt = true;
 			return $this;
 		}
+		/*
+		|--------------------------------------------------------------------
+		|	ESCAPE
+		|--------------------------------------------------------------------
+		|
+		|	Transformamos as entradas em base64encode
+		|	antes da gravação/update
+		|	E na base, colamos limpo
+		|--------------------------------------------------------------------
+		*/
+
+		public function escape() {
+			$this->isEscape = true;
+			return $this;
+		}
 
 		/*
 		|--------------------------------------------------------------------------------------- 
@@ -189,8 +204,6 @@
 		public function functionVerifyString($STRING_COLUNA){
 
 			preg_match_all('/\b(\w+)\s*\(/i', strval($STRING_COLUNA), $matches);
-
-
 
 			$LISTA_FUNCTIONS	= $matches[1]??[];	
 			$arrayBloqueio		= count(($this->mysqlFnBlockClass??[]))	> 0;

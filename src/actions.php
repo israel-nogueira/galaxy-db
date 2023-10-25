@@ -72,6 +72,7 @@
 			$this->setcolum				= null;
 			$this->debug				= true;
 			$this->decode				= false;
+			$this->isEscape				= false;
 			$this->rell					= null;
 			$this->ignore				= array();
 			$this->on_duplicate			= array();
@@ -233,6 +234,7 @@
 
 		public function prepare_insert($ALIAS='response'){
 			$this->prepareCrypt = true;
+
 			$queryPrepare = 'INSERT ';
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
@@ -354,6 +356,12 @@
 			if (!empty($this->where)) {
 				$queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')';
 			}
+
+			
+			$queryPrepare = str_replace("command:",'',$queryPrepare);
+
+
+
 			if(!is_array($this->query)){$this->query = [];}
 			$this->query[$ALIAS] = $queryPrepare;
 			$this->clear();

@@ -12,18 +12,18 @@
         |--------------------------------------------------------------------------
         */
 
-         	public function dataTable(array $oAjaxData=[]){
+         	public function dataTable(array $oAjaxData=[],$fail=null){
 
 				// PREPARAMOS OS FILTROS DO DATATABLE
 
-				$draw		= $oAjaxData['draw'];
-				$colunas	= $oAjaxData['columns'];
-				$start		= $oAjaxData['start'];
-				$length		= $oAjaxData['length'];
-				$search		= $oAjaxData['search']['value'];
+				$draw		= $oAjaxData['draw'] ?? 1;
+				$colunas	= $oAjaxData['columns']??[];
+				$start		= $oAjaxData['start']??0;
+				$length		= $oAjaxData['length']??10;
+				$search		= $oAjaxData['search']['value']??"";
 				$order		= $oAjaxData['order'][0]['column'];
 				$order		= $colunas[$order]['data'];
-				$order		= [$order=>$oAjaxData['order'][0]['dir']];
+				$order		= [$order=>$oAjaxData['order'][0]['dir']]??"ID ASC";
 
 				
 
@@ -80,7 +80,11 @@
 
 				$select_result = clone $this;
 				$select_result->prepare_select('param');
-				$select_result->transaction(function($e) {die($e);});
+				$select_result->transaction(function($e)use($fail){
+					if(is_callable($fail)){
+						$fail($e);
+					}
+				});
 				$select_result->execQuery();
 				$_RESULT = $select_result->fetch_array('param');
 	

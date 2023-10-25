@@ -53,10 +53,12 @@
                 }
 
                 if ($alias == null) {
+                    $this->_last_id['response']		=  $this->last_id();
                     $this->_num_rows['response']	=  $this->stmt->rowCount();
                     $this->fetch_array['response']	= $array??[];
                     $this->obj['response']			= (object) $obj??[];
                 } else {
+                    $this->_last_id[$alias]			=  $this->last_id();
                     $this->_num_rows[$alias]		=  $this->stmt->rowCount();
                     $this->fetch_array[$alias]		= $array??[];
                     $this->obj[$alias]				= (object) $obj??[];
@@ -439,12 +441,22 @@
 			if($this->verifyindividualColum($colum)!=false){
 				$_verify = $this->functionVerifyString($var);
 				 if($_verify!==false){
-
-					if($this->isCrypt==true){
-						$this->InsertVars[$colum] = $this->crypta($_verify);
-					}else{
-						$this->InsertVars[$colum] = $_verify;
+					
+					 if($this->isCrypt==true){
+						$_verify =$this->crypta($_verify);
 					}
+
+					if($this->isEscape==true){
+						$_verify ='FROM_BASE64("'.base64_encode($var).'")';
+						$this->isEscape=false;
+					}
+
+
+					$this->InsertVars[$colum] = $_verify;
+
+
+
+
 
 				 }
 			 }
@@ -498,25 +510,53 @@
 
 		public function set_update($colum, $var,$type=null){
 			if($this->verifyindividualColum($colum)!=false){
-				if (is_string($var)) {
-					if (substr($var, 0, 8) == "command:") {
-						$var = substr($var,8);
-					}
-					$_verify = $this->functionVerifyArray($var);
-					if($_verify!==false){
-						$var = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
-					}else{
-						$var = '"' . $this->preventMySQLInject($var) . '"';
-					}				
-				} else {
-					$var = $this->preventMySQLInject($var);
+
+				if ($this->isCrypt == true) {
+					$var = $this->crypta($var);
 				}
-				if($this->isCrypt==true){
-					$this->Insert_Update[] =$colum . '="' . $this->crypta($var).'"';
-				}else{
+
+				if ($this->isEscape == true) {
+					$var = 'command:FROM_BASE64("' . base64_encode($var) . '")';
+				}
+
+				if(substr($var, 0, 8) == "command:"){
+
+
+				}
+
+
+				/*
+				|----------------------------------------------------
+				|	COMO O CRYPT E O ESCAPE É APENAS STRING CRIPTADA
+				|	ENTÃO NAO PRECISA VERIFICAR.
+				|	PORTANTO, VERIFICAMOS APENAS AS INSERÇÕES NORMAIS
+				|----------------------------------------------------
+				*/
+				// if(!$this->isCrypt && !$this->isEscape){
+
+						// if (substr($var, 0, 8) == "command:") {
+						// 	$var2		= substr($var,8);
+						// }
+						// $_verify = $this->functionVerifyArray($var2);
+						// if($_verify!==false){
+						// 	$var = $_verify['function'].(($_verify['function']!="")?'('.$_verify['params'].')':"NULL");
+						// }else{
+						// 	$var = $this->preventMySQLInject($var);
+						// }				
+
+				// }
 					
+
+				if(is_string($var) && !is_numeric($var) && (substr($var, 0, 8) != "command:")) {
+					$this->Insert_Update[] =$colum . '="' .trim($var,'"').'"';
+				}else{
 					$this->Insert_Update[] =$colum . '=' . $var;
 				}
+
+			
+				$this->isEscape = false;
+
+
 			}
 			return $this;
 		}

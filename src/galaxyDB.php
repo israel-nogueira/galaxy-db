@@ -39,6 +39,7 @@
 
 
 		public function __construct(){
+			$this->_last_id				=[];
 			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
 			$this->SP_OUTPUTS			=[];
@@ -75,6 +76,7 @@
 			$this->transactionFn		= false;
 			$this->rollbackFn			= false;
 			$this->isCrypt				= false;
+			$this->isEscape				= false;
 			$this->prepareDeCrypt		= [];
 			$this->prepareCrypt			= false;
 			$this->colunmToJson			= [];
@@ -115,9 +117,16 @@
 		public function __set($name, $value) {
 			$VAR_CARREGADAS = array_keys(get_mangled_object_vars($this));
 			if($this->initialized && !in_array($name,$VAR_CARREGADAS)){
-				$crypt = $this->isCrypt; // ok eu sei, mas foi a soluição mais rapida
-				$this->set_insert($name, $value);
-				$this->isCrypt=$crypt;
+
+				// coloquei antes, pq a função "set_insert" transforma em false ao final
+				// então copio e seto novamente depois o valor
+				$crypt		= $this->isCrypt;
+				$isEscape	= $this->isEscape;
+				$this->set_insert($name, $value); 
+
+				// setamos novamente com o valor antigo
+				$this->isCrypt	=$crypt;
+				$this->isEscape	=$isEscape;
 				$this->set_update($name, $value);
 
 			}else{
@@ -147,6 +156,7 @@
 					$this->sp(substr($_name,3), $arguments);
 					return $this;
 				} else {
+					// die(\app\system\lib\system::ajaxReturn('MariaDB error: Função '.$_name.' desconhecida',0));;
 					throw new RuntimeException('MariaDB error: Função '.$_name.' desconhecida');
 				}
 			}
