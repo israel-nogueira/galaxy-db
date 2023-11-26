@@ -474,9 +474,12 @@
 		*/
 		public function set_insert_obj($object){
 			if(is_array($object)){
+				$colunas = $this->showDBColumns($this->tableClass);
 				foreach($object as $key => $var){
 					if (is_null($var)) {$var = '';}
-					$this->set_insert($key,$var);
+					if(in_array($key,$colunas)){
+						$this->set_insert($key,$var);
+					}
 				}
 			}
 			return $this;
@@ -492,8 +495,12 @@
 		*/
 		public function set_update_obj($object){
 			if(is_array($object)){
+				$colunas = $this->showDBColumns($this->tableClass);
 				foreach($object as $key => $var){
-					$this->set_update($key,$var);
+					if (is_null($var)) {$var = '';}
+					if(in_array($key,$colunas)){
+						$this->set_update($key,$var);
+					}
 				}
 			}
 			return $this;

@@ -449,24 +449,33 @@
 	|	EXEC FUNCTION
 	|--------------------------------------------------------------------------
 	*/
-        public function execQuery(){
+
+	
+        public function execQuery($successCallback=null){
 			if($this->transactionFn == true){
                 if($this->query==""){ return [];}
 
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
-
+				
 				try {
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
-					foreach ($_QUERY as $_ALIAS => $query) {	
+					foreach ($_QUERY as $_ALIAS => $query) {
+
 						$this->stmt = $this->connection->query($query);
 						if (!$this->stmt) {
 							$this->connection->rollBack();
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
+						
 						$this->startProcessResult($this->stmt,$query,$_ALIAS);
+						// if (is_callable($successCallback)) {
+						// 	$successCallback();
+						// }
+
 						$this->stmt->closeCursor();
+
 					}
 
 					$this->SP_OUTPUTS = [];
@@ -481,7 +490,22 @@
 					}
 					 $this->connection->commit();
 
+					/*
+					|--------------------------------------------------------------------
+					|	RETORNA NO SUCESSO UM CALLBACK
+					|--------------------------------------------------------------------
+					*/
+					if (is_callable($successCallback)) {
+						$successCallback($this);
+					}
+					
+					
 				} catch (PDOException $exception) {					
+					/*
+					|--------------------------------------------------------------------
+					|	RETORNA NO ERRO UM CALLBACK
+					|--------------------------------------------------------------------
+					*/
 					$this->connection->rollback();
 					if ($this->rollbackFn != false) {
 						$this->rollbackExec($exception->getMessage());
@@ -492,3 +516,12 @@
             }
         }
     }
+
+
+
+
+
+
+
+	
+        

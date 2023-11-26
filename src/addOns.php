@@ -78,8 +78,11 @@
 				// AGORA TOTAL COM A PAGINAÇÃO 
 				$this->set_limit($start,$length);
 
+
+
 				$select_result = clone $this;
 				$select_result->prepare_select('param');
+
 				$select_result->transaction(function($e)use($fail){
 					if(is_callable($fail)){
 						$fail($e);

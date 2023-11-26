@@ -47,6 +47,8 @@
 			$this->isEscape = true;
 			return $this;
 		}
+		
+		public function base64() {return $this->escape();}
 
 		/*
 		|--------------------------------------------------------------------------------------- 
