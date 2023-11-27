@@ -356,7 +356,7 @@ Podemos também executar múltiplos selects em uma só instancia:
     $users->prepare_select('valores');//Guardamos a query
 
     // executamos todas as querys 
-    $getInfoBanner->execQuery();
+    $getInfoBanner->execQuery(function($galaxy){});
 
     $_ARRAY = $users->fetch_array(); 
 
@@ -430,7 +430,7 @@ Podemos inserir dados de algumas formas diferentes:
     });
 
     //EXECUTA OS INSERTS
-    $users->execQuery();
+    $users->execQuery(function($galaxy){});
 ?>
 ```
 
@@ -455,7 +455,7 @@ Podemos inserir dados de algumas formas diferentes:
     });
 
     //EXECUTA OS INSERTS
-    $users->execQuery();
+    $users->execQuery(function($galaxy){});
 ?>
 ```
 
@@ -507,7 +507,7 @@ Podemos inserir dados de algumas formas diferentes:
     });
     
     //EXECUTA OS UPDATES
-    $users->execQuery();
+    $users->execQuery(function($galaxy){});
 ?>
 ```
 
@@ -532,7 +532,7 @@ Podemos inserir dados de algumas formas diferentes:
     });
 
     //EXECUTA OS INSERTS
-    $users->execQuery();
+    $users->execQuery(function($galaxy){});
 ?>
 ```
 
@@ -563,7 +563,7 @@ Podemos inserir dados de algumas formas diferentes:
     });
 
     //EXECUTA OS DELETES
-    $users->execQuery();
+    $users->execQuery(function($galaxy){});
 ?>
 ```
 
@@ -629,8 +629,10 @@ E quando for utilizar a classe:
     $usuarios = new usuariosModel();
     $usuarios->sp("processaDados",['PARAM0','PARAM1','PARAM2']);
     $usuarios->prepare_sp();
-    $usuarios->transaction(function($ERROR){die($ERROR);});
-    $usuarios->execQuery();
+    $usuarios->transaction(function ($ERROR) {
+        throw  new  ErrorException($ERROR, 1); // erro
+    });
+    $usuarios->execQuery(function($galaxy){});
 
     $_RESULT = $users->fetch_array();
 
@@ -655,8 +657,10 @@ Exemplo:
 	$teste->sp_sobePontos('PARAM0','PARAM1','PARAM2');
 	$teste->prepare_sp();
 
-	$teste->transaction(function($ERROR){die($ERROR);});
-	$teste->execQuery();
+	$teste->transaction(function ($ERROR) {
+        throw  new  ErrorException($ERROR, 1); // erro
+    });
+	$teste->execQuery(function($galaxy){});
 
 ?>
 ```
@@ -676,8 +680,10 @@ a classe identifica que é um parâmetro de saída.
 	$teste->sp_sobePontos(637,'@_NOME');
 	$teste->prepare_sp();
 
-	$teste->transaction(function($ERROR){die($ERROR);});
-	$teste->execQuery();
+	$teste->transaction(function ($ERROR) {
+        throw  new  ErrorException($ERROR, 1); // erro
+    });
+	$teste->execQuery(function($galaxy){});
 
 	$_RESULT = $teste->params_sp();
 
@@ -708,19 +714,21 @@ será processado como uma query;
     use  App\Models\usuariosModel;
 
     $usuarios = new usuariosModel();
-	$teste->table("produtos");
-	$teste->limit(1);
-	$teste->prepare_select("LISTA_PRODUTOS");
+	$usuarios->table("produtos");
+	$usuarios->limit(1);
+	$usuarios->prepare_select("LISTA_PRODUTOS");
 
-	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
-	$teste->sp_sobePontos(637,'@_NOME');
-	$teste->prepare_sp();
+	$usuarios->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
+	$usuarios->sp_sobePontos(637,'@_NOME');
+	$usuarios->prepare_sp();
 
-	$teste->transaction(function($ERROR){die($ERROR);});
-	$teste->execQuery();
+	$usuarios->transaction(function ($ERROR) {
+        throw  new  ErrorException($ERROR, 1); // erro
+    });
+	$usuarios->execQuery(function($galaxy){});
 
-    $_RESULT = $users->fetch_array();
-    $_OUTPUT = $teste->params_sp();
+    $_RESULT = $usuarios->fetch_array();
+    $_OUTPUT = $usuarios->params_sp();
 
 ?>
 ```
@@ -821,8 +829,10 @@ E quando for receber esse valor, sete novamente a flag.
     $users->isCrypt()->colum('PIN');
 
     $users->prepare_select('usuarios');
-    $users->transaction(function ($e) {die($e);});
-    $users->execQuery();
+    $users->transaction(function ($ERROR) {
+        throw  new  ErrorException($ERROR, 1); // erro
+    });
+    $users->execQuery(function($galaxy){});
 
 
 ?>
