@@ -465,26 +465,26 @@ Para termos um callback de sucesso ou erro basta inserir:
 ```php
 <?
 
-	$users =	new galaxyDB();
-	$users->connect();
-	$users->table('usuarios');
-    $users->UID = 3456;
-    $users->NOME='João';
-    $users->IDADE=27;
-    $users->prepare_insert('adiciona_user');
+        $users =	new galaxyDB();
+        $users->connect();
+        $users->table('usuarios');
+        $users->UID = 3456;
+        $users->NOME='João';
+        $users->IDADE=27;
+        $users->prepare_insert('adiciona_user');
 
-    $users->transaction(function ($ERROR) {
-        // Callback de erro!
-        // Aqui o $ERROR, é o proprio retorno do MySQL
-        throw  new  ErrorException($ERROR, 1);
-    });
-    
-    $users->execQuery(function($galaxy){
-        // Callback de sucesso!
-        // Aqui o $galaxy, é o proprio objeto da classe
-        // que no caso é  $users
-        die(var_dump($galaxy->_last_id));
-    });
+        $users->transaction(function ($ERROR) {
+            // Callback de erro!
+            // Aqui o $ERROR, é o proprio retorno do MySQL
+            throw  new  ErrorException($ERROR, 1);
+        });
+
+        $users->execQuery(function($galaxy){
+            // Callback de sucesso!
+            // Aqui o $galaxy, é o proprio objeto da classe
+            // que no caso é  $users
+            die(var_dump($galaxy->_last_id));
+        });
 
 
 ?>
