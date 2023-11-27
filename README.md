@@ -465,7 +465,9 @@ Para termos um callback de sucesso ou erro basta inserir:
 ```php
 <?
 
-    $users =  new  usuariosModel();
+	$users =	new galaxyDB();
+	$users->connect();
+	$users->table('usuarios');
     $users->UID = 3456;
     $users->NOME='João';
     $users->IDADE=27;
