@@ -172,11 +172,7 @@
 			}
 		}
 
-
-
-
-		public function getDB_Tables($tables='*')
-		{
+		public function getDB_Tables($tables='*'){
 			$return = '';			
 			$this->connection->exec("SET NAMES 'utf8'");
 			if($tables == '*'){
@@ -201,10 +197,8 @@
 			return $return;
 		}
 
-		public function getDB_Data($tables='*')
-		{
-			$return = '';
-			// Configurações do dump
+		public function getDB_Data($tables='*'){
+			$return = '';// Configurações do dump
 			$tables = '*'; // Dump de todas as tabelas
 			$ignore = array(); // Tabelas a serem ignoradas no dump
 
@@ -263,13 +257,24 @@
 			}
 		}
 
-		public function showDBColumns($table){
+		public function getIndexes($tableName){
+			$query =  'SELECT	INDEX_NAME, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS COLUMN_LIST, NON_UNIQUE, INDEX_TYPE 
+						FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA="'.getEnv('DB_DATABASE').'" AND TABLE_NAME = "'.$tableName.'" GROUP BY INDEX_NAME, NON_UNIQUE, INDEX_TYPE; ';
+			$result = $this->connection->query($query);
+			return $result->fetchAll();
+		}
+
+		public function showDBColumns($table,$type=false){
 			$pattern = '/\b(\w+)\b/i';
 			preg_match($pattern, $table, $matches);
 			$tableName = $matches[1];
 			$query =  'SHOW COLUMNS FROM ' . $tableName;
 			$result = $this->connection->query($query);
-			$tables = $result->fetchAll(PDO::FETCH_COLUMN);
+			if(!$type){
+				$tables = $result->fetchAll(PDO::FETCH_COLUMN);
+			}else{
+				$tables = $result->fetchAll(PDO::PARAM_STR);
+			}
 			return $tables;
 		}
 
