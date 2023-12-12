@@ -1,6 +1,7 @@
 <?
     namespace IsraelNogueira\galaxyDB;
 	use PDO;
+	use Exception;
 	trait addOns{
         /*
         |--------------------------------------------------------------------------
@@ -106,9 +107,9 @@
 
 
 			public function multi_language($_TABLE){
-					$COLUNA_PRIMARY = null;
-					$_MYSQL = new galaxyDB();
-					$_MYSQL->connect();
+					$COLUNA_PRIMARY		=	null;
+					$_MYSQL				=	new galaxyDB();
+					$_MYSQL					->connect();
 					$_INDEX				=	$_MYSQL->getIndexes($_TABLE);
 					$_COLUNAS			=	$_MYSQL->showDBColumns($_TABLE,true);
 					$_TABELA_TRANSLATE	=	$_TABLE.'__TRANSLATE';
@@ -294,5 +295,8 @@
 					$_MYSQL->connection->query($SECURITY_DELETE);
 
 			}
+
+
+
 
     }
