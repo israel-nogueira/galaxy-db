@@ -238,10 +238,12 @@
 			$this->prepareCrypt = true;
 
 			$queryPrepare = 'INSERT ';
+
 			if (!empty($this->ignore)) {
 				$queryPrepare .= $this->ignore;
 			}
 			$queryPrepare .= ' INTO ';
+			
 			if ($this->tableClass != null) {$queryPrepare .= $this->tableClass;} 
 			if (count($this->InsertVars) > 0) {
 				$keyvalue = array();
@@ -261,13 +263,13 @@
 					}
 				}
 				$queryPrepare .= ' ( ' . implode(',', array_keys($this->InsertVars)) . ' ) ';
-			} 
-			$queryPrepare .= ' VALUES ';
-			if (count($this->InsertVars) > 0) {
+				$queryPrepare .= ' VALUES ';
 				$queryPrepare .= ' (' . implode(',', $keyvalue) . ') ';
-			} else {
+			} else{
 				exit;
-			};
+
+			}
+			
 			if ($this->set_where_not_exist == true) {$not = " NOT EXISTS ";
 			} else { $not = "";}
 			if (!empty($this->where)) {
@@ -276,13 +278,12 @@
 			if (!empty($this->on_duplicate)) {
 				$queryPrepare .= $this->on_duplicate;
 			}
-			if (is_null($this->query)) {
-				$this->query = $queryPrepare;
-			} else {
-				if(!is_array($this->query)){$this->query = [];}
-				$this->query[$ALIAS]	= $queryPrepare;
-				$this->InsertVars		= [];
-			}
+
+
+			if(!is_array($this->query)){$this->query = [];}
+			$this->query[$ALIAS]	= $queryPrepare;
+			$this->InsertVars		= [];
+
 			$this->clear();
 		}
 

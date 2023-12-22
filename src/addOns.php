@@ -106,12 +106,13 @@
 
 
 
-			public function multi_language($_TABLE){
+			public function multi_language($_TABLE,$IDIOMAS=['pt','en','es']){
 					$COLUNA_PRIMARY		=	null;
 					$_MYSQL				=	new galaxyDB();
-					$_MYSQL					->connect();
+					$_MYSQL->connect();
 					$_INDEX				=	$_MYSQL->getIndexes($_TABLE);
 					$_COLUNAS			=	$_MYSQL->showDBColumns($_TABLE,true);
+					$COLUNAS_FIELDS		=	$_MYSQL->showDBColumns($_TABLE,false);
 					$_TABELA_TRANSLATE	=	$_TABLE.'__TRANSLATE';
 
 				/*
@@ -121,8 +122,8 @@
 				*/
 					
 						$QUERY	='ALTER TABLE '.$_TABLE.' DROP COLUMN IF EXISTS FW_LANG;';
-						$QUERY .='ALTER TABLE '.$_TABLE.' DROP COLUMN IF EXISTS ID_FW_PAI;';
-						// $QUERY .='DROP TABLE IF EXISTS '.$_TABELA_TRANSLATE.';';
+						$QUERY .='ALTER TABLE '.$_TABLE.' DROP COLUMN IF EXISTS FW_UID_LANG;';
+						$QUERY .='DROP TRIGGER IF EXISTS `INSERT_PRIMARY__'.$_TABLE.'`;';
 						$QUERY .='DROP TRIGGER IF EXISTS `UPDATE__'.$_TABLE.'`;';
 						$QUERY .="DROP TRIGGER IF EXISTS `INSERT__{$_TABLE}`;";				
 						$QUERY .="DROP TRIGGER IF EXISTS `DELETE__{$_TABLE}`;";
@@ -145,7 +146,9 @@
 								break;
 							}
 						}				
-						if(is_null($COLUNA_PRIMARY)){die(\app\system\lib\system::ajaxReturn("Não foi encontrato INDEX PRIMARY KEY da tabela ".$_TABLE,0));}
+						if(is_null($COLUNA_PRIMARY)){
+							die(\system\lib\system::ajaxReturn("Não foi encontrato INDEX PRIMARY KEY da tabela ".$_TABLE,0));
+						}
 
 				/*
 				|--------------------------------------------------------------------
@@ -153,23 +156,68 @@
 				|--------------------------------------------------------------------
 				|
 				|	Aqui retiramos da lista a CHAVE PRIMÁRIA 
-				|	Também retiramos a coluna da trigger "FW_LANG"
+				|	Também retiramos a coluna da trigger "FW_LANG" "FW_UID_LANG"
 				|
 				|
 				*/
 
 					$COLUNAS_TRATADAS = $_COLUNAS;
 					foreach ($COLUNAS_TRATADAS as $index=>$coluna) {
-						if ($coluna['Field'] === $COLUNA_PRIMARY || $coluna['Field'] === 'FW_LANG') {
+						if (
+							$coluna['Field'] === $COLUNA_PRIMARY || 
+							$coluna['Field'] === 'FW_UID_LANG' || 
+							$coluna['Field'] === 'ID_FW_PAI' || 
+							$coluna['Field'] === 'FW_LANG'
+						) {
 							unset($COLUNAS_TRATADAS[$index]);
 						}
 					}
-					$COLUNAS_TRATADAS = array_values($COLUNAS_TRATADAS);
-					$COLUNAS_FIELDS = [];
-					foreach ($COLUNAS_TRATADAS as $COLUNA) {
-						$COLUNAS_FIELDS[]= $COLUNA['Field'];
 
+				/*
+				|--------------------------------------------------------------------
+				|	PRIMEIRO TRANSFORMAMOS AS COLUNAS DA TABELA ORIGINAL PARA NULL
+				|--------------------------------------------------------------------
+				|
+				|	todas as colunas precisarão aceitar NULL
+				|
+				*/
+					
+				foreach ($COLUNAS_TRATADAS as $COLUNA) {			
+					if($COLUNA['Field']!='ID'){
+						if($COLUNA['Default']=='current_timestamp()'){
+							$default = 'CURRENT_TIMESTAMP';
+						}elseif(is_numeric($COLUNA['Default'])){
+							$default = $COLUNA['Default'];
+						}elseif( $COLUNA['Null'] == 'YES'){
+							$default = 'NULL';
+						}else{
+							$default = '"'.$COLUNA['Default'].'"';
+						}
+						$QUERY1 = 'ALTER TABLE `'.$_TABLE.'` CHANGE `'.$COLUNA['Field'].'` `'.$COLUNA['Field'].'` '.$COLUNA['Type'].' NULL DEFAULT '.$default.';';
+						try {$_MYSQL->connection->query($QUERY1);} catch (\Throwable $th) {}
 					}
+				}
+
+				/*
+				|--------------------------------------------------------------------
+				|	DA MESMA FORMA A COLUNA FW_LANG NA TABELA ORIGINAL
+				|--------------------------------------------------------------------
+				*/
+			
+					$_INSERE=	new galaxyDB();
+					$_INSERE->connect();
+
+					$QUERY 	= 'ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_LANG VARCHAR(5) DEFAULT "pt";'.PHP_EOL;
+					$QUERY .= 'ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_UID_LANG BIGINT(25) DEFAULT NULL;';
+					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {}
+
+
+					$QUERY	= 'CREATE INDEX FW_UID_LANG ON '.$_TABLE.' (FW_UID_LANG);'.PHP_EOL;
+					$QUERY .= 'CREATE INDEX FW_UID_LANG ON '.$_TABELA_TRANSLATE.' (FW_UID_LANG);'.PHP_EOL;
+					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {
+						die(\system\lib\system::ajaxReturn($th,0));
+					}
+
 
 
 				/*
@@ -182,25 +230,25 @@
 				|	se nao existir, insere
 				|
 				*/
-					$CREATE_TRANSLATE			= 'CREATE TABLE IF NOT EXISTS '.$_TABELA_TRANSLATE.' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, FW_LANG VARCHAR(5) DEFAULT "pt", ID_FW_PAI int(11));'.PHP_EOL;
-					foreach ($COLUNAS_TRATADAS as $COLUNA) {				
-						$CREATE_TRANSLATE		.=	'SET @columnCount = ( SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA="'.getEnv('DB_DATABASE').'" AND TABLE_NAME ="'.$_TABELA_TRANSLATE.'" AND COLUMN_NAME ="'.$COLUNA['Field'].'");'.PHP_EOL;
-						$CREATE_TRANSLATE		.=	'IF  @columnCount = 0 THEN ' . PHP_EOL;
-						$CREATE_TRANSLATE		.=	'	ALTER TABLE `'.$_TABELA_TRANSLATE.'` ADD `'.$COLUNA['Field'].'` '.$COLUNA['Type'].';'.PHP_EOL;
-						$CREATE_TRANSLATE		.=	'END IF;'.PHP_EOL.PHP_EOL;
-					}
-					$_MYSQL->connection->query($CREATE_TRANSLATE);
 
-				/*
-				|--------------------------------------------------------------------
-				|	DA MESMA FORMA A COLUNA FW_LANG NA TABELA ORIGINAL
-				|--------------------------------------------------------------------
-				*/
-					$ORIGINAL_FW_LANG		=	'SET @columnCount = ( SELECT COUNT(*) FROM information_schema.columns WHERE TABLE_SCHEMA="'.getEnv('DB_DATABASE').'" AND TABLE_NAME ="'.$_TABLE.'" AND COLUMN_NAME="FW_LANG");'.PHP_EOL;
-					$ORIGINAL_FW_LANG		.=	'IF  @columnCount = 0 THEN ' . PHP_EOL;
-					$ORIGINAL_FW_LANG		=	'	ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_LANG VARCHAR(5) DEFAULT "pt";'.PHP_EOL;
-					$ORIGINAL_FW_LANG		.=	'END IF;'.PHP_EOL.PHP_EOL;					
-					$_MYSQL->connection->query($ORIGINAL_FW_LANG);
+				
+					$QUERY = 'CREATE TABLE IF NOT EXISTS '.$_TABELA_TRANSLATE.' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, FW_LANG VARCHAR(5) DEFAULT "pt", ID_FW_PAI INT, FW_UID_LANG BIGINT(25),UNIQUE KEY UNIQUE_FW_LANG (FW_LANG, FW_UID_LANG));'.PHP_EOL;
+					// $QUERY .= 'ALTER TABLE `'.$_TABELA_TRANSLATE.'` ADD CONSTRAINT `LANG_KEY` FOREIGN KEY (`FW_UID_LANG`) REFERENCES `'.$_TABLE.'`(`FW_UID_LANG`) ON DELETE NO ACTION ON UPDATE NO ACTION;';
+
+					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {}
+					
+					
+					foreach ($COLUNAS_TRATADAS as $COLUNA) {			
+						if(
+							$COLUNA['Field']!='ID' &&
+							$COLUNA['Field']!='FW_LANG' &&
+							$COLUNA['Field']!='FW_UID_LANG'
+						){
+							try {$_MYSQL->connection->query('ALTER TABLE `'.$_TABELA_TRANSLATE.'` ADD `'.$COLUNA['Field'].'` '.$COLUNA['Type'].';');} catch (\Throwable $th) {}
+						}
+					}
+
+					
 
 				/*
 				|--------------------------------------------------------------------
@@ -208,36 +256,64 @@
 				|--------------------------------------------------------------------
 				*/
 				
-						$TRIGGER_UPDATE	='	CREATE TRIGGER UPDATE__'.$_TABLE.' AFTER UPDATE ON '.$_TABLE.' FOR EACH ROW';
+						$TRIGGER_UPDATE	='	CREATE TRIGGER UPDATE__'.$_TABLE.' BEFORE UPDATE ON '.$_TABLE.' FOR EACH ROW';
 						$TRIGGER_UPDATE	.='		BEGIN'.PHP_EOL;
-						$TRIGGER_UPDATE	.='		    DECLARE record_count INT;'.PHP_EOL;
-						$TRIGGER_UPDATE .='			SET @permitir_atualizacao = 1;'.PHP_EOL;
-						$TRIGGER_UPDATE	.='			SET @record_count = ( SELECT COUNT(*) FROM '.$_TABELA_TRANSLATE.' WHERE ID_FW_PAI = NEW.ID AND FW_LANG = NEW.FW_LANG );'.PHP_EOL;
-						$TRIGGER_UPDATE .='			IF  @record_count > 0 THEN '.PHP_EOL;
-						$TRIGGER_UPDATE .='				UPDATE '.$_TABELA_TRANSLATE.' SET '.PHP_EOL;
+						$TRIGGER_UPDATE	.='			DECLARE record_count INT;'.PHP_EOL;
+						$TRIGGER_UPDATE .= "		IF @atualiza_id = 1 THEN".PHP_EOL;
+						$TRIGGER_UPDATE .= "			SET @atualiza_id = 0;".PHP_EOL;
+						$TRIGGER_UPDATE .= "		ELSE" . PHP_EOL. PHP_EOL;
+						$TRIGGER_UPDATE .='				SET @permitir_atualizacao = 1;'.PHP_EOL;
+						$TRIGGER_UPDATE .='				SELECT COUNT(*) INTO @record_count FROM '.$_TABELA_TRANSLATE.' WHERE FW_UID_LANG=NEW.FW_UID_LANG AND FW_LANG=NEW.FW_LANG;'.PHP_EOL;
+						$TRIGGER_UPDATE .='				IF @record_count > 0 THEN'.PHP_EOL;
+						$TRIGGER_UPDATE .='					UPDATE '.$_TABELA_TRANSLATE.' SET '.PHP_EOL;
 						$COLUNAS_DECLARADAS =[]; 
-						foreach ($COLUNAS_TRATADAS as $COLUNA) {if($COLUNA['Field']!=$COLUNA_PRIMARY){	$COLUNAS_DECLARADAS[]=$COLUNA['Field'].'=IF(OLD.'.$COLUNA['Field'].'!=NEW.'.$COLUNA['Field'].', NEW.'.$COLUNA['Field'].', '.$COLUNA['Field'].')';}}
-						$TRIGGER_UPDATE .= '						'.implode(','.PHP_EOL.'					 	',$COLUNAS_DECLARADAS).PHP_EOL;
-						$TRIGGER_UPDATE .='				WHERE ID_FW_PAI = NEW.'.$COLUNA_PRIMARY.' AND FW_LANG = NEW.FW_LANG; '.PHP_EOL;					
-						$TRIGGER_UPDATE .='			ELSE'.PHP_EOL;
-						$TRIGGER_UPDATE .='				INSERT INTO '.$_TABELA_TRANSLATE.' ( '.implode(',',$COLUNAS_FIELDS).', ID_FW_PAI, FW_LANG) VALUES ( NEW.'.IMPLODE(',NEW.',$COLUNAS_FIELDS).',NEW.'.$COLUNA_PRIMARY.', NEW.FW_LANG);'.PHP_EOL;
-						$TRIGGER_UPDATE .='			END IF; '.PHP_EOL.PHP_EOL;
-						$TRIGGER_UPDATE .='		END;'.PHP_EOL;
-						$_MYSQL->connection->query($TRIGGER_UPDATE);
+						foreach ($COLUNAS_TRATADAS as $COLUNA) {
+							if($COLUNA['Field']!=$COLUNA_PRIMARY && $COLUNA['Field']!='FW_UID_LANG'){
+									$COLUNAS_DECLARADAS[]=$COLUNA['Field'].'=IF(NEW.'.$COLUNA['Field'].' IS NULL , '.$COLUNA['Field'].', NEW.'.$COLUNA['Field'].')'.PHP_EOL;
+								}
+							}
+							$TRIGGER_UPDATE .= implode(',',$COLUNAS_DECLARADAS);
+							$TRIGGER_UPDATE .=' WHERE FW_UID_LANG=NEW.FW_UID_LANG AND FW_LANG=NEW.FW_LANG; '.PHP_EOL;					
+							$TRIGGER_UPDATE .='			ELSE'.PHP_EOL;
+							$TRIGGER_UPDATE .='				INSERT INTO '.$_TABELA_TRANSLATE.' ( '.implode(',',$COLUNAS_FIELDS).', FW_UID_LANG, FW_LANG) VALUES ( NEW.'.IMPLODE(',NEW.',$COLUNAS_FIELDS).',NEW.FW_UID_LANG, NEW.FW_LANG);'.PHP_EOL;
+							$TRIGGER_UPDATE .='			END IF;'.PHP_EOL;
+							foreach ($COLUNAS_TRATADAS as $COLUNA) {
+								
+								if($COLUNA['Field']!=$COLUNA_PRIMARY){
+									if($COLUNA['Null']=='YES'){
+										$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'=NULL;'.PHP_EOL;
+									}else{
+										if(is_numeric($COLUNA['Default']) || $COLUNA['Default']=='null'){
+											$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'='.$COLUNA['Default'].';'.PHP_EOL;
+										}else{
+											$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'="'.$COLUNA['Default'].'";'.PHP_EOL;
+										}
+										
+									}
+									
+								}
+							}
+						$TRIGGER_UPDATE .= "			END IF;" . PHP_EOL. PHP_EOL;
+						$TRIGGER_UPDATE .='		END;'.PHP_EOL.PHP_EOL;
+						
+						
+						// echo($TRIGGER_UPDATE);exit;
+						try {$_MYSQL->connection->prepare($TRIGGER_UPDATE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
 
 						$SECURITY_UPDATE ="	CREATE TRIGGER {$_TABLE}__SECURITY_UPDATE BEFORE UPDATE ON {$_TABELA_TRANSLATE}";
-						$SECURITY_UPDATE .="	FOR EACH ROW";
-						$SECURITY_UPDATE .="	BEGIN";
-						$SECURITY_UPDATE .= "		DECLARE mensagem_erro VARCHAR(255);" . PHP_EOL;
-						$SECURITY_UPDATE .= "		SET mensagem_erro = '0';" . PHP_EOL;
-						$SECURITY_UPDATE .= "		IF @permitir_atualizacao=1 THEN " . PHP_EOL;
-						$SECURITY_UPDATE .= "			SET mensagem_erro = '';" . PHP_EOL;
-						$SECURITY_UPDATE .= "		ELSE" . PHP_EOL;
-						$SECURITY_UPDATE .= "			SET mensagem_erro = 'ATENÇÃO! Faça alterações APENAS pela tabela principal.';" . PHP_EOL;
-						$SECURITY_UPDATE .= "			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;" . PHP_EOL;
-						$SECURITY_UPDATE .= "		END IF;" . PHP_EOL;
-						$SECURITY_UPDATE .="	END;".PHP_EOL;
-						$_MYSQL->connection->query($SECURITY_UPDATE);
+							$SECURITY_UPDATE .="	FOR EACH ROW";
+							$SECURITY_UPDATE .="	BEGIN";
+							$SECURITY_UPDATE .= "		DECLARE mensagem_erro VARCHAR(255);" . PHP_EOL;
+							$SECURITY_UPDATE .= "		SET mensagem_erro = '0';" . PHP_EOL;
+							$SECURITY_UPDATE .= "		IF @permitir_atualizacao=1 THEN " . PHP_EOL;
+							$SECURITY_UPDATE .= "			SET mensagem_erro = '';" . PHP_EOL;
+							$SECURITY_UPDATE .= "		ELSE" . PHP_EOL;
+							$SECURITY_UPDATE .= "			SET mensagem_erro = 'ATENÇÃO! Faça alterações APENAS pela tabela principal.';" . PHP_EOL;
+							$SECURITY_UPDATE .= "			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;" . PHP_EOL;
+							$SECURITY_UPDATE .= "		END IF;" . PHP_EOL;
+							$SECURITY_UPDATE .="	END;".PHP_EOL;
+
+						try {$_MYSQL->connection->prepare($SECURITY_UPDATE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
 
 
 				/*
@@ -245,14 +321,45 @@
 				|	INICIAMOS A TRIGGER DE INSERT
 				|--------------------------------------------------------------------
 				*/
-					$TRIGGER_INSERT  ="	CREATE TRIGGER INSERT__{$_TABLE} AFTER INSERT ON {$_TABLE}".PHP_EOL;
+
+
+					$INSERT_PRIMARY	 ='	CREATE TRIGGER INSERT_PRIMARY__'.$_TABLE.' AFTER INSERT ON '.$_TABLE.' FOR EACH ROW';
+					$INSERT_PRIMARY	.='	BEGIN'.PHP_EOL;
+					$INSERT_PRIMARY .='		SET @permitir_atualizacao = 1;'.PHP_EOL;
+					$INSERT_PRIMARY .='		SET @atualiza_id = 1;'.PHP_EOL;
+					$INSERT_PRIMARY .='		UPDATE '.$_TABELA_TRANSLATE.' SET ID_FW_PAI=NEW.'.$COLUNA_PRIMARY.' WHERE(FW_UID_LANG=NEW.FW_UID_LANG);'.PHP_EOL;
+					$INSERT_PRIMARY .='	END;'.PHP_EOL.PHP_EOL;
+
+					try {$_MYSQL->connection->prepare($INSERT_PRIMARY)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+
+
+					$TRIGGER_INSERT  ="	CREATE TRIGGER INSERT__{$_TABLE} BEFORE INSERT ON {$_TABLE}".PHP_EOL;
 					$TRIGGER_INSERT .="		FOR EACH ROW BEGIN".PHP_EOL;
-					$TRIGGER_INSERT .= '			SET @permitir_atualizacao= 1;' . PHP_EOL;
-					$TRIGGER_INSERT .="			INSERT INTO {$_TABELA_TRANSLATE} (".implode(',',$COLUNAS_FIELDS).", ID_FW_PAI, FW_LANG) VALUES (NEW.".implode(',NEW.',$COLUNAS_FIELDS).", NEW.{$COLUNA_PRIMARY}, 'pt');".PHP_EOL;
-					$TRIGGER_INSERT .="			INSERT INTO {$_TABELA_TRANSLATE} (ID_FW_PAI, FW_LANG) VALUES (NEW.{$COLUNA_PRIMARY}, 'en');".PHP_EOL;
-					$TRIGGER_INSERT .="			INSERT INTO {$_TABELA_TRANSLATE} (ID_FW_PAI, FW_LANG) VALUES (NEW.{$COLUNA_PRIMARY}, 'es');".PHP_EOL;
+					$TRIGGER_INSERT .= '		SET @permitir_atualizacao= 1;' . PHP_EOL;
+					$TRIGGER_INSERT .= '		SET new.FW_UID_LANG=UUID_SHORT();' . PHP_EOL;
+					
+					// CRIAMOS AS LINGUAGENS VAZIAS 
+					foreach ($IDIOMAS as $value) {$TRIGGER_INSERT .="			INSERT INTO {$_TABELA_TRANSLATE} (FW_UID_LANG, FW_LANG) VALUES (NEW.FW_UID_LANG, '$value');".PHP_EOL;}
+					// E DA UPDATE NO REGISTRO INSERIDO 
+					$TRIGGER_INSERT .=PHP_EOL.'			UPDATE '.$_TABELA_TRANSLATE.' SET ';
+					$COLUNAS_DECLARADAS =[]; 
+					foreach ($COLUNAS_TRATADAS as $COLUNA) {
+						if($COLUNA['Field']!=$COLUNA_PRIMARY){	
+							$COLUNAS_DECLARADAS[]=$COLUNA['Field'].'=NEW.'.$COLUNA['Field'];
+						}
+					}
+					$TRIGGER_INSERT .= implode(',',$COLUNAS_DECLARADAS);
+					$TRIGGER_INSERT .=' WHERE FW_UID_LANG = new.FW_UID_LANG AND FW_LANG=NEW.FW_LANG; '.PHP_EOL;					
+					
+					foreach ($COLUNAS_TRATADAS as $COLUNA) {
+						if($COLUNA['Field']!=$COLUNA_PRIMARY){
+							$TRIGGER_INSERT.='			SET NEW.'.$COLUNA['Field'].'=DEFAULT;'.PHP_EOL;
+						}
+					}
+
 					$TRIGGER_INSERT .="	END;".PHP_EOL.PHP_EOL;
-					$_MYSQL->connection->query($TRIGGER_INSERT);
+					try {$_MYSQL->connection->prepare($TRIGGER_INSERT)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+
 
 					$SECURITY_INSERT ="	CREATE TRIGGER {$_TABLE}__SECURITY_INSERT BEFORE INSERT ON {$_TABELA_TRANSLATE}";
 					$SECURITY_INSERT .="	FOR EACH ROW";
@@ -266,8 +373,8 @@
 					$SECURITY_INSERT .="			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;".PHP_EOL;
 					$SECURITY_INSERT .="		END IF;".PHP_EOL;
 					$SECURITY_INSERT .="	END;".PHP_EOL;
-					$_MYSQL->connection->query($SECURITY_INSERT);
-					
+					try {$_MYSQL->connection->prepare($SECURITY_INSERT)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+
 				/*
 				|--------------------------------------------------------------------
 				|    INICIAMOS A TRIGGER DE DELETE
@@ -276,9 +383,9 @@
 
 					$TRIGGER_DELETE ="	CREATE TRIGGER DELETE__{$_TABLE} AFTER DELETE ON {$_TABLE} FOR EACH ROW BEGIN ".PHP_EOL;
 					$TRIGGER_DELETE .='	SET @permitir_atualizacao=1;'.PHP_EOL;
-					$TRIGGER_DELETE .="	DELETE FROM {$_TABELA_TRANSLATE} WHERE ID_FW_PAI=OLD.ID; ".PHP_EOL;
+					$TRIGGER_DELETE .="	DELETE FROM {$_TABELA_TRANSLATE} WHERE FW_UID_LANG=OLD.FW_UID_LANG; ".PHP_EOL;
 					$TRIGGER_DELETE .="	END;".PHP_EOL.PHP_EOL;
-					$_MYSQL->connection->query($TRIGGER_DELETE);
+					try {$_MYSQL->connection->prepare($TRIGGER_DELETE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
 
 					$SECURITY_DELETE ="	CREATE TRIGGER {$_TABLE}__SECURITY_DELETE BEFORE DELETE ON {$_TABELA_TRANSLATE}".PHP_EOL;
 					$SECURITY_DELETE .="	FOR EACH ROW".PHP_EOL;
@@ -292,7 +399,7 @@
 					$SECURITY_DELETE .="			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;".PHP_EOL;
 					$SECURITY_DELETE .="		END IF;".PHP_EOL;
 					$SECURITY_DELETE .="	END;".PHP_EOL;
-					$_MYSQL->connection->query($SECURITY_DELETE);
+					try {$_MYSQL->connection->prepare($SECURITY_DELETE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
 
 			}
 
