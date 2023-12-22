@@ -147,7 +147,7 @@
 							}
 						}				
 						if(is_null($COLUNA_PRIMARY)){
-							die(\system\lib\system::ajaxReturn("Não foi encontrato INDEX PRIMARY KEY da tabela ".$_TABLE,0));
+							throw new Exception("Não foi encontrato INDEX PRIMARY KEY da tabela ".$_TABLE);							
 						}
 
 				/*
@@ -215,7 +215,7 @@
 					$QUERY	= 'CREATE INDEX FW_UID_LANG ON '.$_TABLE.' (FW_UID_LANG);'.PHP_EOL;
 					$QUERY .= 'CREATE INDEX FW_UID_LANG ON '.$_TABELA_TRANSLATE.' (FW_UID_LANG);'.PHP_EOL;
 					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {
-						die(\system\lib\system::ajaxReturn($th,0));
+						throw new Exception($th);
 					}
 
 
@@ -233,7 +233,6 @@
 
 				
 					$QUERY = 'CREATE TABLE IF NOT EXISTS '.$_TABELA_TRANSLATE.' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, FW_LANG VARCHAR(5) DEFAULT "pt", ID_FW_PAI INT, FW_UID_LANG BIGINT(25),UNIQUE KEY UNIQUE_FW_LANG (FW_LANG, FW_UID_LANG));'.PHP_EOL;
-					// $QUERY .= 'ALTER TABLE `'.$_TABELA_TRANSLATE.'` ADD CONSTRAINT `LANG_KEY` FOREIGN KEY (`FW_UID_LANG`) REFERENCES `'.$_TABLE.'`(`FW_UID_LANG`) ON DELETE NO ACTION ON UPDATE NO ACTION;';
 
 					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {}
 					
@@ -296,9 +295,7 @@
 						$TRIGGER_UPDATE .= "			END IF;" . PHP_EOL. PHP_EOL;
 						$TRIGGER_UPDATE .='		END;'.PHP_EOL.PHP_EOL;
 						
-						
-						// echo($TRIGGER_UPDATE);exit;
-						try {$_MYSQL->connection->prepare($TRIGGER_UPDATE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+						try {$_MYSQL->connection->prepare($TRIGGER_UPDATE)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 						$SECURITY_UPDATE ="	CREATE TRIGGER {$_TABLE}__SECURITY_UPDATE BEFORE UPDATE ON {$_TABELA_TRANSLATE}";
 							$SECURITY_UPDATE .="	FOR EACH ROW";
@@ -313,7 +310,7 @@
 							$SECURITY_UPDATE .= "		END IF;" . PHP_EOL;
 							$SECURITY_UPDATE .="	END;".PHP_EOL;
 
-						try {$_MYSQL->connection->prepare($SECURITY_UPDATE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+						try {$_MYSQL->connection->prepare($SECURITY_UPDATE)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 
 				/*
@@ -330,7 +327,7 @@
 					$INSERT_PRIMARY .='		UPDATE '.$_TABELA_TRANSLATE.' SET ID_FW_PAI=NEW.'.$COLUNA_PRIMARY.' WHERE(FW_UID_LANG=NEW.FW_UID_LANG);'.PHP_EOL;
 					$INSERT_PRIMARY .='	END;'.PHP_EOL.PHP_EOL;
 
-					try {$_MYSQL->connection->prepare($INSERT_PRIMARY)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+					try {$_MYSQL->connection->prepare($INSERT_PRIMARY)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 
 					$TRIGGER_INSERT  ="	CREATE TRIGGER INSERT__{$_TABLE} BEFORE INSERT ON {$_TABLE}".PHP_EOL;
@@ -358,7 +355,7 @@
 					}
 
 					$TRIGGER_INSERT .="	END;".PHP_EOL.PHP_EOL;
-					try {$_MYSQL->connection->prepare($TRIGGER_INSERT)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+					try {$_MYSQL->connection->prepare($TRIGGER_INSERT)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 
 					$SECURITY_INSERT ="	CREATE TRIGGER {$_TABLE}__SECURITY_INSERT BEFORE INSERT ON {$_TABELA_TRANSLATE}";
@@ -373,7 +370,7 @@
 					$SECURITY_INSERT .="			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;".PHP_EOL;
 					$SECURITY_INSERT .="		END IF;".PHP_EOL;
 					$SECURITY_INSERT .="	END;".PHP_EOL;
-					try {$_MYSQL->connection->prepare($SECURITY_INSERT)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+					try {$_MYSQL->connection->prepare($SECURITY_INSERT)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 				/*
 				|--------------------------------------------------------------------
@@ -385,7 +382,7 @@
 					$TRIGGER_DELETE .='	SET @permitir_atualizacao=1;'.PHP_EOL;
 					$TRIGGER_DELETE .="	DELETE FROM {$_TABELA_TRANSLATE} WHERE FW_UID_LANG=OLD.FW_UID_LANG; ".PHP_EOL;
 					$TRIGGER_DELETE .="	END;".PHP_EOL.PHP_EOL;
-					try {$_MYSQL->connection->prepare($TRIGGER_DELETE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+					try {$_MYSQL->connection->prepare($TRIGGER_DELETE)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 					$SECURITY_DELETE ="	CREATE TRIGGER {$_TABLE}__SECURITY_DELETE BEFORE DELETE ON {$_TABELA_TRANSLATE}".PHP_EOL;
 					$SECURITY_DELETE .="	FOR EACH ROW".PHP_EOL;
@@ -399,7 +396,7 @@
 					$SECURITY_DELETE .="			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = mensagem_erro;".PHP_EOL;
 					$SECURITY_DELETE .="		END IF;".PHP_EOL;
 					$SECURITY_DELETE .="	END;".PHP_EOL;
-					try {$_MYSQL->connection->prepare($SECURITY_DELETE)->execute();} catch (\Throwable $th) {die(\system\lib\system::ajaxReturn($th,1,0));}
+					try {$_MYSQL->connection->prepare($SECURITY_DELETE)->execute();} catch (\Throwable $th) {throw new Exception($th);}
 
 			}
 
