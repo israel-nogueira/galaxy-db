@@ -245,6 +245,7 @@
 			$queryPrepare .= ' INTO ';
 			
 			if ($this->tableClass != null) {$queryPrepare .= $this->tableClass;} 
+
 			if (count($this->InsertVars) > 0) {
 				$keyvalue = array();
 				foreach ($this->InsertVars as $key => $value) {
@@ -265,11 +266,10 @@
 				$queryPrepare .= ' ( ' . implode(',', array_keys($this->InsertVars)) . ' ) ';
 				$queryPrepare .= ' VALUES ';
 				$queryPrepare .= ' (' . implode(',', $keyvalue) . ') ';
-			} else{
-				exit;
-
+			}else{
+				$queryPrepare = '-- NÃO EXISTE COLUNAS';
 			}
-			
+
 			if ($this->set_where_not_exist == true) {$not = " NOT EXISTS ";
 			} else { $not = "";}
 			if (!empty($this->where)) {
@@ -279,11 +279,9 @@
 				$queryPrepare .= $this->on_duplicate;
 			}
 
-
 			if(!is_array($this->query)){$this->query = [];}
 			$this->query[$ALIAS]	= $queryPrepare;
 			$this->InsertVars		= [];
-
 			$this->clear();
 		}
 
@@ -464,44 +462,39 @@
 					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
 					$this->connection->beginTransaction();
 					foreach ($_QUERY as $_ALIAS => $query) {
-
 						$this->stmt = $this->connection->query($query);
 						if (!$this->stmt) {
 							$this->connection->rollBack();
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
+						$this->startProcessResult($this->stmt,$query,$_ALIAS);					
+						$this->stmt->closeCursor();					
+					}
+					// $this->SP_OUTPUTS = [];
+					// foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
+					// 	$_RESULT = [];
+					// 	foreach ($SP_OUTS as $key2 => $value) {
+					// 		$query = 'SELECT '.$value;
+					// 		$this->stmt = $this->connection->query($query);	
+					// 		$_RESULT[$value] = $this->stmt->fetchColumn();	
+					// 	}
+					// 	$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
+					// }
+
+						$this->connection->commit();
 						
-						$this->startProcessResult($this->stmt,$query,$_ALIAS);
-						// if (is_callable($successCallback)) {
-						// 	$successCallback();
-						// }
 
-						$this->stmt->closeCursor();
-
-					}
-
-					$this->SP_OUTPUTS = [];
-					foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
-						$_RESULT = [];
-						foreach ($SP_OUTS as $key2 => $value) {
-							$query = 'SELECT '.$value;
-							$this->stmt = $this->connection->query($query);	
-							$_RESULT[$value] = $this->stmt->fetchColumn();	
-						}
-						$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
-					}
-					 $this->connection->commit();
+						
 
 					/*
 					|--------------------------------------------------------------------
 					|	RETORNA NO SUCESSO UM CALLBACK
 					|--------------------------------------------------------------------
 					*/
-					if (is_callable($successCallback)) {
-						$successCallback($this);
-					}
-					
+					// if (is_callable($successCallback)) {
+					// 	$successCallback($this);
+					// }
 					
 				} catch (PDOException $exception) {					
 					/*
@@ -516,6 +509,9 @@
 						throw new RuntimeException($exception);
 					}
 				}
+
+
+
             }
         }
     }

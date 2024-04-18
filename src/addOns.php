@@ -42,13 +42,17 @@
 				$busca_por_coluna = false;
 				foreach ($colunas as $value) {
 					if($value['search']['value']!=""){
-						$busca_por_coluna = true;
-						$this->like($value['data'],'%'.trim(preg_replace('/[\s]+/mu', '%',trim($value['search']['value']))).'%');
+						if(!is_null($value['data']) && $value['data']!="NULL"){
+							$busca_por_coluna = true;
+							$this->like($value['data'],'%'.trim(preg_replace('/[\s]+/mu', '%',trim($value['search']['value']))).'%');
+						}
 					}
 				}
 				if(strlen($search)>0){
 					foreach($colunas as $value) {
-						$this->like($value['data'],'%'.trim(preg_replace('/[\s]+/mu', '%',trim($search))).'%');
+						if(!is_null($value['data']) && $value['data']!="NULL"){
+							$this->like($value['data'],'%'.trim(preg_replace('/[\s]+/mu', '%',trim($search))).'%');
+						}
 					}
 				}
 				
@@ -277,19 +281,8 @@
 							$TRIGGER_UPDATE .='				INSERT INTO '.$_TABELA_TRANSLATE.' ( '.implode(',',$COLUNAS_FIELDS).', FW_UID_LANG, FW_LANG) VALUES ( NEW.'.IMPLODE(',NEW.',$COLUNAS_FIELDS).',NEW.FW_UID_LANG, NEW.FW_LANG);'.PHP_EOL;
 							$TRIGGER_UPDATE .='			END IF;'.PHP_EOL;
 							foreach ($COLUNAS_TRATADAS as $COLUNA) {
-								
 								if($COLUNA['Field']!=$COLUNA_PRIMARY){
-									if($COLUNA['Null']=='YES'){
-										$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'=NULL;'.PHP_EOL;
-									}else{
-										if(is_numeric($COLUNA['Default']) || $COLUNA['Default']=='null'){
-											$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'='.$COLUNA['Default'].';'.PHP_EOL;
-										}else{
-											$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'="'.$COLUNA['Default'].'";'.PHP_EOL;
-										}
-										
-									}
-									
+									$TRIGGER_UPDATE.='			SET NEW.'.$COLUNA['Field'].'=NULL;'.PHP_EOL;
 								}
 							}
 						$TRIGGER_UPDATE .= "			END IF;" . PHP_EOL. PHP_EOL;

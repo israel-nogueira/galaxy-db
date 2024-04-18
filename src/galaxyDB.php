@@ -96,7 +96,7 @@
 
 			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
 			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
-			$this->connection	= $this->connect();
+			$this->connection	= $this->connect($ENV);
 			$this->extended();
 			$this->initialized	= true;
 			return $this;
