@@ -77,13 +77,18 @@ class cli{
 	*/
 
 	static public function modeloModel($modelo='myClass') {
-
 		return '<?
 			namespace IsraelNogueira\Models;
 			use IsraelNogueira\galaxyDB\galaxyDB;
 
 			class '.$modelo.' extends galaxyDB{
-
+				protected $customConnectData	= [
+						"DB_HOST"=>"localhost",
+						"DB_USERNAME"=>"root",
+						"DB_TYPE"=>"mysql",
+						"DB_PASSWORD"=>"",
+						"DB_DATABASE"=>"",
+				];
 				protected $table				=  "'.$modelo.'";
 				protected $columnsBlocked		= [];
 				protected $columnsEnabled		= [];

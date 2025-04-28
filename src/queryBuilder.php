@@ -590,11 +590,11 @@
 		|	https://dev.mysql.com/blog-archive/improvements-to-the-mysql-ignore-implementation/
 		|
 		*/
-		public function ignore($dados){
-			return $this->set_ignore($dados);;
+		public function ignore(){
+			return $this->set_ignore();
 		}
 
-		public function set_ignore($dados){
+		public function set_ignore(){
 			$this->ignore = 'IGNORE';
 			return $this;
 		}

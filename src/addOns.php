@@ -16,11 +16,11 @@
          	public function dataTable(array $oAjaxData=[],$fail=null){
 
 				// PREPARAMOS OS FILTROS DO DATATABLE
-
 				$draw		= $oAjaxData['draw'] ?? 1;
 				$colunas	= $oAjaxData['columns']??[];
 				$start		= $oAjaxData['start']??0;
 				$length		= $oAjaxData['length']??10;
+
 				$search		= $oAjaxData['search']['value']??"";
 				$order		= $oAjaxData['order'][0]['column'];
 				$order		= $colunas[$order]['data'];
@@ -30,7 +30,7 @@
 
 				// RESGATAMOS O TOTAL DA BASE SEM FILTRO SEM NADA
 				$numrow_sem_filtros			= clone $this;
-				$numrow_sem_filtros->set_colum('COUNT(*) as TOTAL');
+				$numrow_sem_filtros->colum('COUNT(*) as TOTAL');
 				$numrow_sem_filtros->prepare_select('param');
 				$numrow_sem_filtros->transaction(function($e) {die($e);});
 				$numrow_sem_filtros->execQuery();
@@ -57,31 +57,32 @@
 				}
 				
 				//CASO NÃO TENHA WHERES AINDA, ADICIONAMOS 
-				if($this->where==null){$this->set_where(' TRUE ');}
+				if($this->where==null){$this->where(' TRUE ');}
 
 				//POSSIVEIS WHERE DE FORMULARIOS
-				// $this->set_where('AND 2=2');
-				// $this->set_where('AND 3=3');
+				// $this->where('AND 2=2');
+				// $this->where('AND 3=3');
 
 				//ORDENAMOS PELAS COLUNAS 
 				foreach($order as  $key=>$value) {
-					$this->set_order($key,$value);
+					if($key){$this->order($key,$value);}
 				}
 
 				// TOTAL DE PESQUISA COM AS COLUNAS E PESQUISAS  
 				if(strlen($search)>0 || $busca_por_coluna==true){
 					$noPage = clone $this;
 					$noPage->setcolum = [];
-					$noPage->set_colum('COUNT(*) as TOTAL');
+					$noPage->colum('COUNT(*) as TOTAL');
 					$noPage->select();
 					$fetch_array = $noPage->fetch_array()??[];
 					$_FILTRADO 	= ($fetch_array!=[])?intVal($noPage->fetch_array()['response'][0]['TOTAL']):0;
 				}else{
 					$_FILTRADO 	= intVal($recordsTotal);
 				}
-
 				// AGORA TOTAL COM A PAGINAÇÃO 
-				$this->set_limit($start,$length);
+				if($oAjaxData!=[]){
+					$this->set_limit($start,$length);
+				}
 
 
 
@@ -89,9 +90,7 @@
 				$select_result->prepare_select('param');
 
 				$select_result->transaction(function($e)use($fail){
-					if(is_callable($fail)){
-						$fail($e);
-					}
+					if(is_callable($fail)){ $fail($e); }
 				});
 				$select_result->execQuery();
 				$_RESULT = $select_result->fetch_array('param');
@@ -109,8 +108,17 @@
 			}
 
 
+		/*
+		|--------------------------------------------------------------------------
+		|
+		|--------------------------------------------------------------------------
+		|
+		|
+		|
+		|--------------------------------------------------------------------------
+		*/
 
-			public function multi_language($_TABLE,$IDIOMAS=['pt','en','es']){
+			public static function multi_language($_TABLE,$IDIOMAS=['pt','en','es']){
 					$COLUNA_PRIMARY		=	null;
 					$_MYSQL				=	new galaxyDB();
 					$_MYSQL->connect();
@@ -211,7 +219,7 @@
 					$_INSERE=	new galaxyDB();
 					$_INSERE->connect();
 
-					$QUERY 	= 'ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_LANG VARCHAR(5) DEFAULT "pt";'.PHP_EOL;
+					$QUERY 	= 'ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_LANG ENUM("'.implode('","',$IDIOMAS).'") DEFAULT "pt";'.PHP_EOL;
 					$QUERY .= 'ALTER TABLE `'.$_TABLE.'` ADD COLUMN FW_UID_LANG BIGINT(25) DEFAULT NULL;';
 					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {}
 
@@ -236,7 +244,13 @@
 				*/
 
 				
-					$QUERY = 'CREATE TABLE IF NOT EXISTS '.$_TABELA_TRANSLATE.' (ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, FW_LANG VARCHAR(5) DEFAULT "pt", ID_FW_PAI INT, FW_UID_LANG BIGINT(25),UNIQUE KEY UNIQUE_FW_LANG (FW_LANG, FW_UID_LANG));'.PHP_EOL;
+					$QUERY = 'CREATE TABLE IF NOT EXISTS ' . $_TABELA_TRANSLATE . ' (
+						ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+						FW_LANG ENUM("' . implode('","', $IDIOMAS) . '") DEFAULT "pt",
+						ID_FW_PAI INT,
+						FW_UID_LANG BIGINT(25),
+						UNIQUE KEY UNIQUE_FW_LANG (FW_LANG, FW_UID_LANG)
+					);' . PHP_EOL;
 
 					try {$_INSERE->connection->prepare($QUERY)->execute();} catch (\Throwable $th) {}
 					

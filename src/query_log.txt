@@ -1,0 +1,191 @@
+2025-01-30 21:28:49
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+2025-01-30 21:28:49
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:30:35
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:30:35
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:30:35
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:30:35
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:33:02
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:33:02
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo2(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:33:02
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:33:02
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo2(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:34:20
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:34:20
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:35:07
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:35:07
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo2(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:35:07
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:35:07
+Array
+(
+    [new_saldo] => INSERT  INTO FINANCE ( VALOR_DOLAR )  VALUES  (12) 
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\app\system\modulos\financeiro\financeiroClass.php(197): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+#1 D:\NOGUEIRA\GIT\fw-framework\teste.php(2): system\modulos\financeiro\financeiroClass::insereSaldo2(Array)
+#2 D:\NOGUEIRA\GIT\fw-framework\index.php(115): include_once('D:\\NOGUEIRA\\GIT...')
+
+
+2025-01-30 21:35:25
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:35:26
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:41:00
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:41:02
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:41:36
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+
+2025-01-30 21:41:36
+Array
+(
+    [param] => SELECT ID,UUID,VERSION,LABEL,RESET,CHALLENGE,TAXA_SAQUE,TAXA_SAQUE_BANCA,PASSWORD FROM SYSTEM__VERSION ORDER BY ID DESC  LIMIT 1
+)
+#0 D:\NOGUEIRA\GIT\fw-framework\index.php(76): IsraelNogueira\galaxyDB\galaxyDB->execQuery(Object(Closure))
+
+

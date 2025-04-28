@@ -17,9 +17,6 @@
  * -------------------------------------------------------------------------
  * 
  * 		Classe galaxyDB para base de dados: 
- * 		Ainda não funciona todas as bases, mas implementarei aos poucos
- * 	
- *  	Plano é suportar as seguintes conexões:
  * 		mysql | pgsql | sqlite | ibase | fbird | oracle | mssql | dblib | sqlsrv
  * 
  * -------------------------------------------------------------------------
@@ -35,10 +32,11 @@
 		use addOns;
 		use log;
 		private $initialized = false;
+		protected $customConnectData;
 		public static $dbaseType;
 
 
-		public function __construct(){
+		public function __construct($conn=null){
 			$this->_last_id				=[];
 			$this->_num_rows			=[];
 			$this->SP_OUTS				=[];
@@ -77,6 +75,7 @@
 			$this->rollbackFn			= false;
 			$this->isCrypt				= false;
 			$this->isEscape				= false;
+			$this->isCommand			= false;
 			$this->prepareDeCrypt		= [];
 			$this->prepareCrypt			= false;
 			$this->colunmToJson			= [];
@@ -93,11 +92,18 @@
 			$this->limit				= null;
 			$this->stmt					= null;
 			$this->logFile 				= realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'galaxyDB'.DIRECTORY_SEPARATOR.'galaxy.log';
+			$customConnectData = null;
+			if (basename(get_class($this)) != "galaxyDB") {
+				$this->extended();
 
-			$ENV = parse_ini_file(realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..').DIRECTORY_SEPARATOR.'.env');
-			foreach ($ENV as $key => $line){putenv($key.'='.$line);}
-			$this->connection	= $this->connect($ENV);
-			$this->extended();
+				if (property_exists($this, 'customConnectData') && is_array($this->customConnectData) && !empty($this->customConnectData)) {
+					$customConnectData =  $this->customConnectData;
+				}
+			}
+			if (is_array($conn) && ! empty($conn)) {
+				$customConnectData = $conn;
+			}
+			$this->connection = $this->connect($customConnectData);
 			$this->initialized	= true;
 			return $this;
 		}
@@ -122,11 +128,14 @@
 				// então copio e seto novamente depois o valor
 				$crypt		= $this->isCrypt;
 				$isEscape	= $this->isEscape;
+				$isCommand	= $this->isCommand;
+
 				$this->set_insert($name, $value); 
 
 				// setamos novamente com o valor antigo
 				$this->isCrypt	=$crypt;
 				$this->isEscape	=$isEscape;
+				$this->isCommand=$isCommand;
 				$this->set_update($name, $value);
 
 			}else{
@@ -196,23 +205,40 @@
 				$this->columnsEnab				= $this->gExtnd('columnsEnabled',[]);
 				$this->mysqlFnBlockClass		= $this->gExtnd('functionsBlocked',[]);
 				$this->mysqlFnEnabClass			= $this->gExtnd('functionsEnabled',[]);
+				$this->customConnectData		= $this->gExtnd('customConnectData',[]);
 			} else {
 				return false;
 			}
 		}
 
-		public function gExtnd($_param, $default = null)
-		{
-			$reflection = new ReflectionClass($this);		
-			while ($reflection !== false) {
-				if ($reflection->hasProperty($_param)) {
-					$property = $reflection->getProperty($_param);
-					$property->setAccessible(true);
-					return $property->getValue($this) ?? $default;
+		public function gExtnd($_param, $default = null) {
+			$reflection = new ReflectionClass($this);
+			
+			while ($reflection) {
+				$properties = $reflection->getDefaultProperties();
+				
+				if (array_key_exists($_param, $properties)) {
+					return $this->$_param ?? $default;
 				}
+				
 				$reflection = $reflection->getParentClass();
 			}
+			
 			return $default;
 		}
+
+
+		// public function gExtnd($_param, $default = null)		{
+		// 	$reflection = new ReflectionClass($this);		
+		// 	while ($reflection !== false) {
+		// 		if ($reflection->hasProperty($_param)) {
+		// 			$property = $reflection->getProperty($_param);
+		// 			$property->setAccessible(true);
+		// 			return $property->getValue($this) ?? $default;
+		// 		}
+		// 		$reflection = $reflection->getParentClass();
+		// 	}
+		// 	return $default;
+		// }
 
 	}

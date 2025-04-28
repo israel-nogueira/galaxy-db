@@ -458,51 +458,86 @@
 
                 $_QUERY = (!is_array($this->query))? [$this->query] : $this->query;
 				
+				// try {
+				// 	$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+				// 	$this->connection->beginTransaction();
+				// 	foreach ($_QUERY as $_ALIAS => $query) {
+				// 		$this->stmt = $this->connection->query($query);
+				// 		if (!$this->stmt) {
+				// 			$this->connection->rollBack();
+				// 			throw new Exception($this->connection->errorInfo()[2]);
+				// 			break;
+				// 		}
+				// 		$this->startProcessResult($this->stmt,$query,$_ALIAS);					
+				// 		$this->stmt->closeCursor();					
+				// 	}
+
+				// 	/*
+				// 	|--------------------------------------------------------------------
+				// 	|	
+				// 	|--------------------------------------------------------------------
+				// 	*/
+				// 	$this->SP_OUTPUTS = [];
+				// 	foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
+				// 		$_RESULT = [];
+				// 		foreach ($SP_OUTS as $key2 => $value) {
+				// 			$query = 'SELECT '.$value;
+				// 			$this->stmt = $this->connection->query($query);	
+				// 			$_RESULT[$value] = $this->stmt->fetchColumn();	
+				// 		}
+				// 		$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
+				// 	}
+
+				// 	$this->connection->commit();
+				// 	/*
+				// 	|--------------------------------------------------------------------
+				// 	|	RETORNA NO SUCESSO UM CALLBACK
+				// 	|--------------------------------------------------------------------
+				// 	*/
+				// 	if (is_callable($successCallback)) {
+				// 		$successCallback($this);
+				// 	}
+				// } catch (PDOException $exception) {					
+				// 	/*
+				// 	|--------------------------------------------------------------------
+				// 	|	RETORNA NO ERRO UM CALLBACK
+				// 	|--------------------------------------------------------------------
+				// 	*/
+				// 	$this->connection->rollback();
+				// 	if ($this->rollbackFn != false) {
+				// 		$this->rollbackExec($exception->getMessage());
+				// 	} else {
+				// 		throw new RuntimeException($exception);
+				// 	}
+				// }
 				try {
-					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
-					$this->connection->beginTransaction();
+					$this->connection->setAttribute(PDO::ATTR_AUTOCOMMIT, true); // Ativa autocommit
 					foreach ($_QUERY as $_ALIAS => $query) {
 						$this->stmt = $this->connection->query($query);
 						if (!$this->stmt) {
-							$this->connection->rollBack();
 							throw new Exception($this->connection->errorInfo()[2]);
 							break;
 						}
-						$this->startProcessResult($this->stmt,$query,$_ALIAS);					
-						$this->stmt->closeCursor();					
+						$this->startProcessResult($this->stmt, $query, $_ALIAS);
+						$this->stmt->closeCursor();
 					}
-					// $this->SP_OUTPUTS = [];
-					// foreach ($this->SP_OUTS as $SP_NAME =>$SP_OUTS) {
-					// 	$_RESULT = [];
-					// 	foreach ($SP_OUTS as $key2 => $value) {
-					// 		$query = 'SELECT '.$value;
-					// 		$this->stmt = $this->connection->query($query);	
-					// 		$_RESULT[$value] = $this->stmt->fetchColumn();	
-					// 	}
-					// 	$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
-					// }
 
-						$this->connection->commit();
-						
+					$this->SP_OUTPUTS = [];
+					foreach ($this->SP_OUTS as $SP_NAME => $SP_OUTS) {
+						$_RESULT = [];
+						foreach ($SP_OUTS as $key2 => $value) {
+							$query = 'SELECT ' . $value;
+							$this->stmt = $this->connection->query($query);
+							$_RESULT[$value] = $this->stmt->fetchColumn();
+						}
+						$this->SP_OUTPUTS[$SP_NAME] = $_RESULT;
+					}
 
-						
+					if (is_callable($successCallback)) {
+						$successCallback($this);
+					}
 
-					/*
-					|--------------------------------------------------------------------
-					|	RETORNA NO SUCESSO UM CALLBACK
-					|--------------------------------------------------------------------
-					*/
-					// if (is_callable($successCallback)) {
-					// 	$successCallback($this);
-					// }
-					
-				} catch (PDOException $exception) {					
-					/*
-					|--------------------------------------------------------------------
-					|	RETORNA NO ERRO UM CALLBACK
-					|--------------------------------------------------------------------
-					*/
-					$this->connection->rollback();
+				} catch (PDOException $exception) {
 					if ($this->rollbackFn != false) {
 						$this->rollbackExec($exception->getMessage());
 					} else {
