@@ -60,11 +60,13 @@
 			$this->replace_isso			= array();
 			$this->group				= array();
 			$this->replace_porisso		= array();
+			$this->setwhere				= null;
+			$this->setHaving			= null;
 			$this->where				= null;
+			$this->having				= null;
 			$this->set_where_not_exist	= null;
 			$this->settable				= [];
 			$this->tableClass			= null;
-			$this->setwhere				= null;
 			$this->SP_RETURN			= null;
 			$this->sp_response			= [];
 			$this->SP					= null;

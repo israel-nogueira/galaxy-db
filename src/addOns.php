@@ -57,7 +57,8 @@
 				}
 				
 				//CASO NÃO TENHA WHERES AINDA, ADICIONAMOS 
-				if($this->where==null){$this->where(' TRUE ');}
+				if(is_null($this->where) && is_null($this->having) ){$this->where(' TRUE ');}
+				if(is_null($this->where) && !is_null($this->having) ){$this->having(' TRUE ');}
 
 				//POSSIVEIS WHERE DE FORMULARIOS
 				// $this->where('AND 2=2');

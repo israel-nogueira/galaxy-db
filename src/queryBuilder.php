@@ -341,12 +341,24 @@
 			$this->set_where($WHERES);
 		}
 
+		public function having($HAVING){
+			$this->set_having($HAVING);
+		}
+
 		public function set_where($WHERES){
 			if (empty($this->setwhere) || $this->setwhere == null) {
 				$this->setwhere = array();
 			}
 			$this->setwhere[] = $WHERES;
 			$this->where = implode(' ',$this->setwhere);
+			return $this;
+		}
+		public function set_having($HAVING){
+			if (empty($this->setHaving) || $this->setHaving == null) {
+				$this->setHaving = array();
+			}
+			$this->setHaving[] = $HAVING;
+			$this->having = implode(' ',$this->setHaving);
 			return $this;
 		}
 
@@ -807,7 +819,18 @@
 				$this->_QUERY		= str_replace('())', ')', $this->_QUERY);
 			}
 
+			
 			$this->_QUERY .= (count($this->group)>0) 	?	' GROUP BY '.implode(',',$this->group).' ' :'' ;
+		
+			if (!is_null($this->having) || (count($this->Insert_like) > 0)) {
+				if (!is_null($this->having) && $array_like != "") {
+					$this->having = $this->having . " AND ";
+				}
+				$not		= ($this->set_where_not_exist == true)		?	" NOT EXISTS "	:	"";
+				$this->_QUERY		.= ' HAVING' . $not . '(' . $this->having . '(' . $array_like . '))';
+				$this->_QUERY		= str_replace('())', ')', $this->_QUERY);
+			}
+			
 			$this->_QUERY .= (!empty($this->order)) 	?	$this->order . ' ' : '';
 			$this->_QUERY .= (!is_null($this->limit)) ?	$this->limit : '';
 			

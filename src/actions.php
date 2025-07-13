@@ -80,12 +80,14 @@
 			$this->replace_isso			= array();
 			$this->replace_porisso		= array();
 			$this->where				= null;
+			$this->having				= null;
 			$this->_QUERY				= '';
 			$this->set_where_not_exist	= null;
 			$this->colum				= null;
 			$this->setorder				= [];
 			$this->order				= null;
 			$this->setwhere				= null;
+			$this->setHaving			= null;
 			$this->limit				= null;
 			$this->SP_OUTPUTS			= [];
 			$this->SP_NEW_PARAMS		= [];
@@ -272,9 +274,10 @@
 
 			if ($this->set_where_not_exist == true) {$not = " NOT EXISTS ";
 			} else { $not = "";}
-			if (!empty($this->where)) {
-				$queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')';
-			}
+
+			if (!empty($this->where)) { $queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')'; }
+ 			if (!empty($this->having)) { $queryPrepare .= ' HAVING' . $not . '(' . $this->having . ')'; }
+
 			if (!empty($this->on_duplicate)) {
 				$queryPrepare .= $this->on_duplicate;
 			}
@@ -321,9 +324,10 @@
 			};
 			if ($this->set_where_not_exist == true) {$not = " NOT EXISTS ";
 			} else { $not = "";}
-			if (!empty($this->where)) {
-				$queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')';
-			}
+			if (!empty($this->where)) { $queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')'; }
+			if (!empty($this->having)) { $queryPrepare .= ' HAVING' . $not . '(' . $this->having . ')'; }
+
+
 			if (!empty($this->on_duplicate)) {
 				$queryPrepare .= $this->on_duplicate;
 			}
@@ -354,10 +358,8 @@
 			if ($this->set_where_not_exist == true) {$not = " NOT EXISTS ";
 			} else { $not = "";}
 
-			if (!empty($this->where)) {
-				$queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')';
-			}
-
+			if (!empty($this->where)) { $queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')'; }
+			if (!empty($this->having)) { $queryPrepare .= ' HAVING' . $not . '(' . $this->having . ')'; }
 			
 			$queryPrepare = str_replace("command:",'',$queryPrepare);
 
@@ -378,9 +380,9 @@
 				$not = " NOT EXISTS ";
 			} else { $not = "";}
 
-			if (!empty($this->where)) {
-				$queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')';
-			}
+			if (!empty($this->where)) { $queryPrepare .= ' WHERE' . $not . '(' . $this->where . ')'; }
+			if (!empty($this->having)) { $queryPrepare .= ' HAVING' . $not . '(' . $this->having . ')'; }
+
 			if (is_null($this->query)) {
 				$this->query = $queryPrepare;
 			} else {
