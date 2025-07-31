@@ -665,30 +665,30 @@
 		|
 		*/
 
-		public function innerJoin($tabela=null, $colunas=null){
-		 return $this->join("INNER", $tabela, $colunas);
+		public function innerJoin($tabela=null, $on=null){
+		 return $this->join("INNER", $tabela, $on);
 		}
-		public function leftJoin($tabela=null, $colunas=null){
-			return $this->join("LEFT", $tabela, $colunas);
+		public function leftJoin($tabela=null, $on=null){
+			return $this->join("LEFT", $tabela, $on);
 			
 		}
-		public function rightJoin($tabela=null, $colunas=null){
-			return $this->join("RIGHT", $tabela, $colunas);
+		public function rightJoin($tabela=null, $on=null){
+			return $this->join("RIGHT", $tabela, $on);
 			
 		}
-		public function fullOuterJoin($tabela=null, $colunas=null){
-			return $this->join("FULL OUTER", $tabela, $colunas);
+		public function fullOuterJoin($tabela=null, $on=null){
+			return $this->join("FULL OUTER", $tabela, $on);
 			
 		}
-		public function crossJoin($tabela=null, $colunas=null){
-			return $this->join("CROSS", $tabela, $colunas);
+		public function crossJoin($tabela=null, $on=null){
+			return $this->join("CROSS", $tabela, $on);
 		}
 
-		public function join($join = "LEFT", $tabela=null, $colunas=null){
+		public function join($join = "LEFT", $tabela=null, $on=null){
 			if(is_null($this->rell)){
-				$this->rell = ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($colunas);
+				$this->rell = ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($on);
 			}else{
-				$this->rell .= ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($colunas);
+				$this->rell .= ' '.$join . ' JOIN ' . $tabela . ' ON ' . $this->verifyJoinColums($on);
 			}
 			return $this;
 		}

@@ -20,13 +20,10 @@
 				$colunas	= $oAjaxData['columns']??[];
 				$start		= $oAjaxData['start']??0;
 				$length		= $oAjaxData['length']??10;
-
 				$search		= $oAjaxData['search']['value']??"";
 				$order		= $oAjaxData['order'][0]['column'];
 				$order		= $colunas[$order]['data'];
 				$order		= [$order=>$oAjaxData['order'][0]['dir']]??"ID ASC";
-
-				
 
 				// RESGATAMOS O TOTAL DA BASE SEM FILTRO SEM NADA
 				$numrow_sem_filtros			= clone $this;
