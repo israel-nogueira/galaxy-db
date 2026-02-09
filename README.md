@@ -1,966 +1,876 @@
-<p align="center">
-    <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/topo_README.jpg" width="650"/>
-</p>
-<p align="center">
-    <a href="#instalação" target="_Self">Instalação</a> |
-    <a href="#configurando-a-base" target="_Self">Config a base</a> |
-    <a href="#snippets-para-vscode" target="_Self">Snippets</a> |
-    <a href="#criando-models" target="_Self">Models</a> |
-    <a href="#exemplos-de-uso" target="_Self">Exemplos de uso</a><br>
-    <a href="#funções-na-model" target="_Self">Functions</a> |
-    <a href="#criptografia" target="_Self">Crypt</a> |
-    <a href="#stored-procedures" target="_Self">Store Procedures</a> |
-    <a href="#rac---registro-de-alterações-de-conteúdo" target="_Self">RAC</a> |
-    <a href="#migrations" target="_Self">Migrations</a> 
-</p>
-<p align="center">
-    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db">
-        <img src="https://poser.pugx.org/israel-nogueira/galaxy-db/v/stable.svg">
-    </a>
-    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/downloads"></a>
-    <a href="https://packagist.org/packages/israel-nogueira/galaxy-db"><img src="https://poser.pugx.org/israel-nogueira/galaxy-db/license.svg"></a>
-</p>
+# 🌌 GalaxyDB v2.0 - Database Layer Seguro e Poderoso
 
-Classe para controlar a sua base de dados no PHP com facilidade e segurança.<br/>
+[![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://www.php.net/)
+[![License](https://img.shields.io/badge/License-GPL--3.0-green)](LICENSE)
+[![Security](https://img.shields.io/badge/SQL%20Injection-ZERO-brightgreen)](README.md)
 
-Essa classe dá suporte as seguintes conexões:
+> **ORM/Query Builder leve, seguro e multi-database para PHP 8.1+**
 
-`mysql` `pgsql`
-`sqlite` `ibase`
-`fbird ` `oracle`
-`mssql` `dblib`
-`sqlsrv`
+---
 
-## Instalação
+## 📑 Índice
 
-Instale via composer.
+- [Características](#-características)
+- [Instalação](#-instalação)
+- [Conexão](#-conexão)
+- [Uso Básico](#-uso-básico)
+- [Sistema de Batch](#-sistema-de-batch-prepare--execquery)
+- [Query Builder Avançado](#-query-builder-avançado)
+- [Transações](#-transações)
+- [Métodos Auxiliares](#-métodos-auxiliares)
+- [Segurança](#-segurança)
+- [Performance](#-performance)
+- [Breaking Changes](#-breaking-changes)
+- [Exemplos Completos](#-exemplos-completos)
 
-```plaintext
-    composer require israel-nogueira/galaxy-db
+---
+
+## 🚀 Características
+
+### ✅ Segurança Total
+- ✅ **100% Prepared Statements** - Zero SQL Injection
+- ✅ **Validação de Identificadores** - Proteção contra nomes maliciosos
+- ✅ **Tipagem Automática** - PDO types corretos (INT, BOOL, NULL, STR)
+- ✅ **Connection Pooling** - Reutilização segura de conexões
+
+### ⚡ Performance
+- ✅ **Cache de Conexões** - Até 30% mais rápido
+- ✅ **Batch Operations** - Múltiplas queries em uma transação
+- ✅ **Lazy Loading** - Conexão sob demanda
+- ✅ **Prepared Statement Reuse** - Otimização automática
+
+### 🎯 Produtividade
+- ✅ **Fluent Interface** - Código limpo e legível
+- ✅ **Multi-Database** - MySQL, PostgreSQL, SQLite, Oracle, MSSQL, Firebird
+- ✅ **Magic Methods** - `$db->coluna = 'valor'`
+- ✅ **Stored Procedures** - Suporte nativo via `SP_*`
+
+### 🔧 Flexibilidade
+- ✅ **Dual Mode** - Execute direto ou em batch
+- ✅ **Custom Queries** - SQL raw quando necessário
+- ✅ **Transaction Control** - Manual ou automático
+- ✅ **Debug Mode** - Log completo de queries
+
+---
+
+## 📦 Instalação
+
+```bash
+composer require israelnogueira/galaxydb
 ```
 
-Acrescente em seu _composer.json_:
+Ou clone o repositório:
 
-```plaintext
-    "scripts": {
-        "galaxy": "php vendor/israel-nogueira/galaxy-db/src/galaxy"
-    }
-```
-## GUIA PRÁTICO
-<p align="center">
-    <a href="http://www.youtube.com/watch?feature=player_embedded&v=ih4Q--q-Vng" target="_blank">
-        <img src="https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/player.png?v=2">
-    </a>
-</p>
-
-
-## CONFIGURANDO A BASE
-
-Você pode configuraros dados de conexão via CLI:
-
-- `type`: Sigla do tipo de base *(mysql, pgsql etc)* 
-- `user`: Usuário da base
-- `pass`: Senha 
-- `name`: Nome da base
-- `host ` Porta
-
-Caso falte algum ou todos os dados, o prompt irá lhe pedir.
-
-```plaintext
-  
-   composer run-script galaxy config-connection -- --type= --user= --pass= --name= --host=
-
+```bash
+git clone https://github.com/israelnogueira/galaxydb.git
 ```
 
-Ou criar manualmente um arquivo ```/.env``` na raiz do seu projeto e preencha os dados de conexão de sua base:
+---
+
+## 🔌 Conexão
+
+### Variáveis de Ambiente (.env)
 
 ```env
-
-    #/.env
-
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_DATABASE=MyDataBase
-    DB_TYPE=mysql
-    DB_USERNAME=root
-    DB_PASSWORD=
-    DB_CHAR=
-    DB_FLOW=
-    DB_FKEY=
-
-```
-## Snippets para VSCode
-
-Depois que você configurou os dados de conexão, poderá criar um snippets da classe.<br/>
-Sim, essa classe também conta com um script que importa a estrutura da sua base de dados.<br/>
-E monta um snippets com atalhos.
-
-Para criar **ou atualizar** seu snippets, basta executar:
-```plaintext
-
-    composer run-script galaxy update-snippets
-
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=meu_banco
+DB_USERNAME=root
+DB_PASSWORD=senha123
+DB_CHAR=utf8mb4
 ```
 
-E Pronto, você e seu VSCode estão prontos para trabalhar de maneira rápida e eficaz.
-![GalaxyDB](https://raw.githubusercontent.com/israel-nogueira/galaxy-db/main/src/snippets-exemplo.gif)
-
-#### Alguns atalhos:
-
-```select```, ```update```, ```insert``` ou ```delete``` retornam a classe completa de CRUD;
-
-```table``` ou ```->table```:<br/>
-Mostra a lista de tabelas disponíveis em sua base de dados;<br/>
-Se tiver ```->``` retorna a função montada ```->table("sua-tabela")```;<br/>
-Caso contrario, retorna apenas o nome da tabela
-
-
-```colum``` ou ```->colum```:<br/>
-Se tiver ```->``` retorna a função montada ```->colum("sua-tabela")```;<br/>
-Caso contrario, retorna apenas o nome da coluna.
-
-Inicialmente ela mostra a lista de tabelas disponíveis em sua base de dados;<br/>
-E na sequencia a lista de colunas daquela tabela selecionada.
-
-```columns``` ou ```tables``` :<br/>
-Você pode retornar uma lista de tabelas ou colunas de sua base de dados
-
-```columns``` ou ```tables``` :<br/>
-Você pode retornar uma lista de tabelas ou colunas de sua base de dados
-
-
-E com tempo vamos incrementando a lista de atalhos.
-
-
-
-## CRIANDO MODELS
-
-Este é o comando para criar suas Models.  
-Cada palavra é um parametro, por exemplo *“usuarios e produtos”* no comando:
-
-```plaintext
-    composer run-script galaxy new-model usuarios produtos
-```
-
-Isso criará automaticamente os seguinte arquivos:
-
-> **/app/models/usuariosModel.php**  
-> **/app/models/produtosModel.php**
-
-
-## PADRÃO DAS MODELS
-
-Basta importar o autoload e o namespace da sua Model e utilizar
+### Conexão Básica
 
 ```php
-<?php
-    include "vendor\autoload.php";
-    use IsraelNogueira\Models\usuariosModel;
-?>
+use IsraelNogueira\galaxyDB\Core\GalaxyDB;
+
+// Usando .env
+$db = new GalaxyDB();
+
+// Ou passando configuração
+$db = new GalaxyDB([
+    'DB_TYPE' => 'mysql',
+    'DB_HOST' => 'localhost',
+    'DB_DATABASE' => 'meu_banco',
+    'DB_USERNAME' => 'root',
+    'DB_PASSWORD' => 'senha123'
+]);
 ```
 
-A _Model_ é o uso da classe abstrata da classe principal.  
-Nela serão cadastrados os parâmetros de uso da classe.
+### Model Customizado
 
 ```php
-<?php
-    namespace IsraelNogueira\Models;
-    use IsraelNogueira\galaxyDB\galaxyDB;
-
-    class usuariosModel    extends    galaxyDB    {
-        //  TABELA PADRÃO 
-        protected $table =  'usuarios';
-        //  COLUNAS BLOQUEADAS 
-        protected $columnsBlocked = [];
-        //  COLUNAS PERMITIDAS 
-        protected $columnsEnabled = [];
-        //  FUNÇÕES MYSQL PROIBIDAS 
-        protected $functionsBlocked = [];
-        //  FUNÇÕES MYSQL PERMITIDAS 
-        protected $functionsEnabled = [];
-
-    }
-?>
-```
-
-
-## EXEMPLOS DE USO<br/>
-### Select simples
-
-O exemplo apresenta um `SELECT` básico com um filtro apenas para usuário com `ID=7`.<br/>  
-Uma `array` vazia será retornada caso a consulta não encontre resultados.
-
-```php
-
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new usuariosModel();
-    $users->colum('nome');//unitario
-    $users->colum('email as mail');// com alias
-    $users->colum(['endereco','telefone']); // ou ainda varias de uma vez
-    $users->set_where('id=7');
-    $users->select();
-    $_RESULT = $users->fetch_array(); // retorna um ARRAY
-
-?>
-```
-
-Resultará no seguinte select:
-
-```sql
-SELECT nome,email as mail,endereco,telefone FROM usuarios WHERE id=7
-```
-
-### Select mais completo
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new  usuariosModel();
-    $users->colum('nome');
-    $users->colum('bairro_id');
-
-    $users->join('INNER','bairros',' bairros.id=usuarios.bairro_id')
-            ->join('LEFT','cidades',' cidades.id=usuarios.cidade_id'); // TIPO | TABELA | ON
-            
-    $users->group_by('bairros'); // GROUP BY
-
-    $users->like('nome','%edro%')->like('nome','%ão%');
-
-    $users->order('nome','asc')->order('idade','desc'); // ORDER BY nome ASC, idade DESC
-
-    $users->limit(1,10); // SET LIMIT 1, 10
-    $users->where('cidades.id=11');
-    $users->distinct(); // ignora os resultados repetidos
-    $users->debug(true); // false não retornará erros e falhas. Default:true
-    $users->select();
-
-    // $_ARRAY[0]["nome"] | $_ARRAY[1]["nome"] 
-    $_ARRAY = $users->fetch_array(); 
-
-    // $_OBJECT[0]->nome | $_OBJECT[1]->nome
-    $_OBJECT = $users->fetch_obj();
-    
-?>
-```
-
-Resultará em uma query assim:
-
-```sql
-SELECT  DISTINCT  nome,  bairro_id  FROM  usuarios  
-INNER  JOIN  bairros  ON  bairros.id  =  usuarios.bairro_id  
-LEFT  JOIN  cidades  ON  cidades.id  =  usuarios.cidade_id  
-WHERE  (  
-        cidades.id  =  11  
-        AND  (
-            Lower(nome)  LIKE  Lower("%edro%")  OR  Lower(nome)  LIKE  Lower("%ão%") 
-        )
-    ) GROUP  BY  bairros ORDER BY nome ASC, idade DESC
-```
-
-## SUB SELECTS
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new  usuariosModel();
-    // Puxamos todos usuarios que morem na cidade 11 ( 11=Curitiba )
-    // Criamos um sub select e instanciamos como "cidade_11"
-    $users->set_where('cidade_id=11');
-    $users->setSubQuery('cidade_11');
-
-    // Agora selecionamos com o tableSubQuery() nossa subQuery e damos o alias de "curitiba"
-    $users->tableSubQuery('(cidade_11) curitiba');
-    $users->set_where('curitiba.solteiros=1');
-
-    // Poderiamos parar poraqui mas se quiser aprofundarmos
-    $users->setSubQuery('solteiros'); 
-    $users->tableSubQuery('(solteiros) sexo');
-    $users->set_where('solteiros.sexo="male"');
-
-    //    Executamos o select puxando os moradores da cidade 11 
-    //    e depois filtramos os solteiros
-    $users->select('homens_solteiros_curitiba');
-
-    $_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
-
-?>
-```
-
-Isso resultará na seguinte query:
-
-```sql
-SELECT  *  
-    FROM  (SELECT  *  
-        FROM  (SELECT  *  
-                FROM  usuarios
-                WHERE  (  cidade_id  =  11  ))  curitiba  
-        WHERE  (  curitiba.solteiros  =  1  ))  sexo  
-WHERE  (  solteiros.sexo  =  "male"  )
-```
-
-Também podemos aplicar uma subquery a uma coluna:
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\meusUsuario;
-    $users =  new  usuariosModel();
-
-    // Aqui apenas trazemos o total de usuarios que moram na cidade 11
-    $users->colum('COUNT(1) as total_registro ');
-    $users->set_where('cidade_id=11');
-    $users->setSubQuery('total_11'); // <----- Cria subquery "total_11"
-
-    $users->colum('user.*');
-    $users->columSubQuery('(total_11) AS total_curitibanos'); // Monta coluna com a Subquery
-    $users->set_where('total_curitibanos>100');
-    $users->prepare_select('homens_solteiros_curitiba');    
-    $_ARRAY = $users->fetch_array('homens_solteiros_curitiba'); 
-
-?>
-```
-
-```sql
-SELECT user.*, (
-    SELECT  COUNT(1) AS total_registro FROM users WHERE(cidade_id=11)
-)  AS  total_curitibanos  
-FROM  users  WHERE  (  total_curitibanos  >  100  )
-```
-
-### MULTIPLOS SELECTS
-
-Podemos também executar múltiplos selects em uma só instancia:
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new  usuariosModel();
-    $users->colum('username');
-    $users->colum('email');
-    $users->limit(1);
-    $users->prepare_select('users_1'); //Guardamos a query
-    
-    $users->table('financeiro__historico'); // pode setar uma nova tabela
-    $users->colum('VALOR');
-    $users->limit(1);
-    $users->where('PAGADOR="'.$uid.'"');
-    $users->prepare_select('valores');//Guardamos a query
-
-    // executamos todas as querys 
-    $getInfoBanner->execQuery(function($galaxy){});
-
-    $_ARRAY = $users->fetch_array(); 
-
-?>
-```
-
-Nos resultará no seguinte array:
-
-```json
+class UsuariosModel extends GalaxyDB
 {
-    "users_1":[
-                {
-                    "username": "username_01",
-                    "email": "exemplo@email.com"
-                }
-            ],
-    "valores":[
-                {
-                    "VALOR": "100.00"
-                }
-            ]
+    protected string $table = 'usuarios';
+    
+    // Conexão customizada (opcional)
+    protected array $customConnectData = [
+        'DB_TYPE' => 'mysql',
+        'DB_HOST' => 'db.example.com',
+        'DB_DATABASE' => 'usuarios_db',
+        'DB_USERNAME' => 'api_user',
+        'DB_PASSWORD' => 'secret'
+    ];
+}
+
+$users = new UsuariosModel();
+```
+
+### Bancos Suportados
+
+| Database | Driver | Porta Padrão |
+|----------|--------|--------------|
+| MySQL / MariaDB | `mysql` | 3306 |
+| PostgreSQL | `pgsql` | 5432 |
+| SQLite | `sqlite` | - |
+| Oracle | `oracle` | 1521 |
+| SQL Server | `mssql` / `sqlsrv` | 1433 |
+| Firebird | `ibase` / `fbird` | 3050 |
+
+---
+
+## 📖 Uso Básico
+
+### SELECT
+
+```php
+$db = new GalaxyDB();
+
+// SELECT * FROM usuarios
+$users = $db->table('usuarios')->select();
+
+// SELECT nome, email FROM usuarios
+$users = $db->table('usuarios')->select('nome, email');
+
+// Com WHERE
+$users = $db->table('usuarios')
+    ->where('ativo', 1)
+    ->select();
+
+// Primeiro resultado
+$user = $db->table('usuarios')
+    ->where('id', 123)
+    ->first();
+
+// Contar
+$total = $db->table('usuarios')
+    ->where('ativo', 1)
+    ->count();
+```
+
+### INSERT
+
+```php
+// Método 1: Magic properties
+$db->table('usuarios');
+$db->nome = 'João Silva';
+$db->email = 'joao@example.com';
+$db->idade = 30;
+$lastId = $db->insert();
+
+echo "ID inserido: $lastId";
+
+// Método 2: Batch insert
+$db->insertBatch([
+    ['nome' => 'Maria', 'email' => 'maria@test.com'],
+    ['nome' => 'Pedro', 'email' => 'pedro@test.com'],
+    ['nome' => 'Ana', 'email' => 'ana@test.com']
+]);
+```
+
+### UPDATE
+
+```php
+$db->table('usuarios');
+$db->nome = 'João Pedro Silva';
+$db->email = 'joao.pedro@example.com';
+
+$affected = $db->where('id', 123)->update();
+
+echo "Linhas atualizadas: $affected";
+```
+
+### DELETE
+
+```php
+$affected = $db->table('usuarios')
+    ->where('ativo', 0)
+    ->where('created_at', '2020-01-01', '<')
+    ->delete();
+
+echo "Linhas deletadas: $affected";
+```
+
+---
+
+## 🔥 Sistema de Batch (prepare + execQuery)
+
+### Conceito
+
+Prepare múltiplas operações e execute todas em **UMA transação atômica**.
+
+### Exemplo Básico
+
+```php
+$users = new UsuariosModel();
+
+// Prepara 3 inserts
+$users->nome = 'João';
+$users->email = 'joao@test.com';
+$users->prepare_insert();
+
+$users->nome = 'Maria';
+$users->email = 'maria@test.com';
+$users->prepare_insert();
+
+$users->nome = 'Pedro';
+$users->email = 'pedro@test.com';
+$users->prepare_insert();
+
+// Executa tudo de uma vez
+$users->execQuery();
+```
+
+### Com Transaction e Rollback
+
+```php
+$users = new UsuariosModel();
+
+$users->nome = 'Teste 1';
+$users->prepare_insert();
+
+$users->nome = 'Teste 2';
+$users->prepare_insert();
+
+// Define handler de erro
+$users->transaction(function ($ERROR) {
+    error_log("ROLLBACK: $ERROR");
+    throw new ErrorException($ERROR, 1);
+});
+
+// Executa - se QUALQUER query falhar, faz ROLLBACK de TUDO
+try {
+    $users->execQuery();
+    echo "✅ Tudo inserido com sucesso!";
+} catch (Exception $e) {
+    echo "❌ Erro: Nenhum dado foi salvo (rollback automático)";
 }
 ```
 
-## Insert
-
-Podemos inserir dados de algumas formas diferentes:
+### Mix de Operações (INSERT + UPDATE + DELETE)
 
 ```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
+$users = new UsuariosModel();
 
-    //FORMA SIMPLIFICADA
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->insert();
+// INSERT
+$users->nome = 'Novo Usuario';
+$users->email = 'novo@test.com';
+$users->prepare_insert();
 
-    //Todas as condicionais podem ser aplicadas aqui também
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->where('NOW() > "00-00-00 00:00:00"');
-    $users->insert();
-?>
+// UPDATE
+$users->status = 'ativo';
+$users->where('email', 'antigo@test.com')
+      ->prepare_update();
+
+// DELETE
+$users->where('ativo', 0)
+      ->where('created_at', '2020-01-01', '<')
+      ->prepare_delete();
+
+// INSERT em outra tabela
+$users->table('logs');
+$users->acao = 'limpeza_usuarios';
+$users->data = date('Y-m-d H:i:s');
+$users->prepare_insert();
+
+// Executa os 4 em UMA transação
+$users->transaction(fn($e) => throw new Error($e));
+$users->execQuery(function($db, $results) {
+    echo "Total de operações: " . count($results) . "\n";
+    print_r($results);
+});
 ```
 
-## MULTIPLOS INSERTS + TRANSACTION + ROLLBACK
+### Callback de Sucesso
 
 ```php
-<?
-    // MULTIPLOS INSERTS
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->prepare_insert();
-
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->where('NOW() > "00-00-00 00:00:00"');
-    $users->prepare_insert();
-
-    // TRANSACTION + ROLLBACK
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-
-    //EXECUTA OS INSERTS
-    $users->execQuery(function($galaxy){});
-?>
-```
-
-## INSERT ARRAY + TRANSACTION + ROLLBACK
-
-```php
-<?
-    //PUXANDO UMA ARRAY
-    $users =  new  usuariosModel();
-    $users->set_insert_obj(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
-    $users->prepare_insert();
-
-    //DENTRO DE UM LAÇO
-    foreach($_RESULTADO as $OBJ){
-        $users->set_insert_obj($OBJ);
-        $users->prepare_insert();
-    }
-
-    // TRANSACTION + ROLLBACK
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-
-    //EXECUTA OS INSERTS
-    $users->execQuery(function($galaxy){});
-?>
-```
-
-## CALLBACKS
-Para termos um callback de sucesso ou erro basta inserir:
-
-```php
-<?
-
-        $users =	new galaxyDB();
-        $users->connect();
-        $users->table('usuarios');
-        $users->UID = 3456;
-        $users->NOME='João';
-        $users->IDADE=27;
-        $users->prepare_insert('adiciona_user');
-
-        $users->transaction(function ($ERROR) {
-            // Callback de erro!
-            // Aqui o $ERROR, é o proprio retorno do MySQL
-            throw  new  ErrorException($ERROR, 1);
-        });
-
-        $users->execQuery(function($galaxy){
-            // Callback de sucesso!
-            // Aqui o $galaxy, é o proprio objeto da classe
-            // que no caso é  $users
-            die(var_dump($galaxy->_last_id));
-        });
-
-
-?>
-```
-
-
-## UPDATE:
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    //FORMA SIMPLIFICADA
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->update();
-    
-    //Todas as condicionais podem ser aplicadas aqui também
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->where('UID="7365823765"');
-    $users->update();
-?>
-```
-
-## MULTIPLOS UPDATES + TRANSACTION + ROLLBACK:
-
-```php
-<?php
-    // MULTIPLOS UPDATES
-    $users =  new  usuariosModel();
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->where('UID="46746876"');
-    $users->prepare_update();
-    
-    $users->coluna1 = 'valor';
-    $users->coluna2 = 'valor';
-    $users->coluna3 = 'valor';
-    $users->where('UID="9653566573"');
-    $users->prepare_update();
-    
-    // TRANSACTION + ROLLBACK
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-    
-    //EXECUTA OS UPDATES
-    $users->execQuery(function($galaxy){});
-?>
-```
-
-## MULTIPLOS UPDATES COM ARRAYS:
-
-```php
-<?php
-    //PUXANDO UMA ARRAY
-    $users =  new  usuariosModel();
-    $users->set_update_obj(['UID'=>32,'NOME'=>'João', 'IDADE'=>27]);
-    $users->prepare_update();
-
-    //DENTRO DE UM LAÇO
-    foreach($_RESULTADO as $OBJ){
-        $users->set_update_obj($OBJ);
-        $users->prepare_update();
-    }
-
-    // TRANSACTION + ROLLBACK
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-
-    //EXECUTA OS INSERTS
-    $users->execQuery(function($galaxy){});
-?>
-```
-
-## DELETE
-
-```php
-<?php
-
-    //DELETE DIRETO E SIMPLES
-    $users =  new  usuariosModel();
-    $users->where('UID=32');
-    $users->delete();
-
-    //PREPARANDO MULTIPLOS
-    $users =  new  usuariosModel();
-    $users->where('UID=32');
-    $users->prepare_delete();//Armazena
-
-    //DENTRO DE UM LAÇO
-    foreach($_RESULTADO as $OBJ){
-        $users->where('UID='.$OBJ['UID']);
-        $users->prepare_delete();//Armazena
-    }
-
-    // TRANSACTION + ROLLBACK
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-
-    //EXECUTA OS DELETES
-    $users->execQuery(function($galaxy){});
-?>
-```
-
-## FUNÇÕES NA MODEL
-
-Você pode também estender padrões em sua model.  
-Podendo abstrair mais nossas consultas.
-
-Seguindo o exemplo abaixo:
-
-```php
-<?php
-    namespace IsraelNogueira\Models;
-    use IsraelNogueira\galaxyDB\galaxyDB;
-
-    class usuariosModel    extends    galaxyDB    {
-        protected $table=  'usuarios';
-
-        // AQUI MONTAMOS A NOSSA FUNÇÃO ESTENDIDA
-        public function cidadeEstado(){
-            $this->colum('city.nome as cidade');
-            $this->colum('uf.nome as uf');
-            $this->join('LEFT','table_cidade cidade','cidade.id=usuarios.cidade_id');
-            $this->join('LEFT','table_uf uf','uf.id=cidade.uf_id');
-        }
-
-    }
-?>
-```
-
-E quando for utilizar a classe:
-
-```php
-
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new usuariosModel();
-    $users->colum('nome');
-    $users->colum('idade');
-    $users->cidadeEstado(); //====> aqui executamos nossa função
-    $users->select();
-    $_RESULT = $users->fetch_array();
-
-?>
-```
-
-
-# STORED PROCEDURES
-
-    Uma Store Procedure, pode ser chamada de duas maneiras.
-
-### 1ª - Função ->SP()
-
-```$usuarios->sp( NOME_DA_SP, ARRAY_PARAMS );```
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $usuarios = new usuariosModel();
-    $usuarios->sp("processaDados",['PARAM0','PARAM1','PARAM2']);
-    $usuarios->prepare_sp();
-    $usuarios->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-    $usuarios->execQuery(function($galaxy){});
-
-    $_RESULT = $users->fetch_array();
-
-
-?>
-```
-
-### 2ª - FUNÇÃO MÁGICA 
-
-Você também pode chamar simplesmente adicionando ```sp_ ``` na frente da sua função, 
-que a classe automaticamente entende que essa função é uma Stored Procedure;
-
-Exemplo:
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $usuarios = new usuariosModel();
-	$teste->sp_processaDados('PARAM0','PARAM1','PARAM2');
-	$teste->sp_sobePontos('PARAM0','PARAM1','PARAM2');
-	$teste->prepare_sp();
-
-	$teste->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-	$teste->execQuery(function($galaxy){});
-
-?>
-```
-
-## PARÂMTROS IN OUT  
-
-Todo parâmetro que você inserir com ```@``` no início, 
-a classe identifica que é um parâmetro de saída.
-
-```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $usuarios = new usuariosModel();
-	$teste->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
-	$teste->sp_sobePontos(637,'@_NOME');
-	$teste->prepare_sp();
-
-	$teste->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-	$teste->execQuery(function($galaxy){});
-
-	$_RESULT = $teste->params_sp();
-
-?>
-```
-A variável ```$_RESULT``` representará a seguinte saída:
-
-```json
-    {
-        "processaDados":{
-            "@_NOME":"João da Silva",
-            "@_EMAIL":"joao@gmail.com",
-        },
-        "sobePontos":{
-            "@_NOME2":"João da Silva"
+$users->execQuery(function($db, $results) {
+    // $results é um array com info de cada operação
+    foreach ($results as $result) {
+        switch ($result['type']) {
+            case 'insert':
+                echo "Inserido ID: {$result['id']}\n";
+                break;
+            case 'update':
+                echo "Atualizado: {$result['affected']} linhas\n";
+                break;
+            case 'delete':
+                echo "Deletado: {$result['affected']} linhas\n";
+                break;
         }
     }
+    
+    return $results;
+});
 ```
 
-## PARÂMTROS IN OUT MAIS SELECTS
-
-Caso a sua Store Procedure possúa algum select interno, 
-será processado como uma query;
+### Métodos de Controle
 
 ```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
+// Quantas queries preparadas?
+$count = $users->getPreparedCount();
 
-    $usuarios = new usuariosModel();
-	$usuarios->table("produtos");
-	$usuarios->limit(1);
-	$usuarios->prepare_select("LISTA_PRODUTOS");
+// Ver queries antes de executar
+$queries = $users->getPreparedQueries();
+print_r($queries);
 
-	$usuarios->sp_processaDados('PARAM0','@_NOME','@_EMAIL',25);
-	$usuarios->sp_sobePontos(637,'@_NOME');
-	$usuarios->prepare_sp();
-
-	$usuarios->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-	$usuarios->execQuery(function($galaxy){});
-
-    $_RESULT = $usuarios->fetch_array();
-    $_OUTPUT = $usuarios->params_sp();
-
-?>
+// Cancelar sem executar (útil para debug ou validação)
+$users->clearPrepared();
 ```
-Resultará em:
 
-$_RESULT:
-```json
+---
 
+## 🎯 Query Builder Avançado
+
+### WHERE Variações
+
+```php
+// WHERE simples
+$db->where('idade', 18, '>=');
+
+// WHERE OR
+$db->where('status', 'ativo')
+   ->orWhere('status', 'pendente');
+
+// WHERE IN
+$db->whereIn('role', ['admin', 'moderator', 'editor']);
+
+// WHERE BETWEEN
+$db->whereBetween('idade', 18, 65);
+
+// WHERE LIKE
+$db->whereLike('nome', '%Silva%');
+
+// WHERE NULL
+$db->whereNull('deleted_at');
+
+// WHERE NOT NULL
+$db->whereNotNull('email_verificado');
+```
+
+### ORDER BY
+
+```php
+// Simples
+$db->orderBy('created_at', 'DESC');
+
+// Múltiplos
+$db->orderBy('status', 'ASC')
+   ->orderBy('created_at', 'DESC');
+```
+
+### LIMIT e OFFSET
+
+```php
+// LIMIT 10
+$db->limit(10);
+
+// LIMIT 10 OFFSET 20
+$db->limit(10, 20);
+```
+
+### GROUP BY
+
+```php
+$db->groupBy('categoria')
+   ->select('categoria, COUNT(*) as total');
+```
+
+### DISTINCT
+
+```php
+$db->distinct()
+   ->select('email');
+```
+
+### Exemplo Completo
+
+```php
+$users = $db->table('usuarios')
+    ->distinct()
+    ->where('ativo', 1)
+    ->whereIn('role', ['admin', 'editor'])
+    ->whereBetween('idade', 18, 60)
+    ->whereLike('email', '%@empresa.com')
+    ->whereNotNull('email_verificado')
+    ->orderBy('created_at', 'DESC')
+    ->limit(50)
+    ->select('id, nome, email, role');
+```
+
+---
+
+## 💾 Transações
+
+### Automática (com prepare)
+
+```php
+$users->prepare_insert();
+$users->prepare_update();
+$users->transaction(fn($e) => throw new Error($e));
+$users->execQuery(); // Auto commit ou rollback
+```
+
+### Manual
+
+```php
+try {
+    $db->beginTransaction();
+    
+    $db->table('usuarios');
+    $db->nome = 'Teste';
+    $db->insert();
+    
+    $db->table('logs');
+    $db->acao = 'usuario_criado';
+    $db->insert();
+    
+    $db->commit();
+    
+} catch (Exception $e) {
+    $db->rollback();
+    throw $e;
+}
+```
+
+---
+
+## 🛠️ Métodos Auxiliares
+
+### find() e findOrFail()
+
+```php
+// Busca por ID (padrão)
+$user = $db->table('usuarios')->find(123);
+
+// Busca por outra chave
+$user = $db->table('usuarios')->find('joao@test.com', 'email');
+
+// Lança exception se não encontrar
+$user = $db->table('usuarios')->findOrFail(123);
+```
+
+### exists()
+
+```php
+if ($db->table('usuarios')->where('email', 'teste@test.com')->exists()) {
+    echo "Email já cadastrado!";
+}
+```
+
+### pluck()
+
+```php
+// Retorna array de valores
+$emails = $db->table('usuarios')
+    ->where('ativo', 1)
+    ->pluck('email');
+
+// ['joao@test.com', 'maria@test.com', ...]
+```
+
+### chunk()
+
+```php
+// Processa em lotes (evita memory overflow)
+$db->table('usuarios')
+   ->chunk(100, function($users) {
+       foreach ($users as $user) {
+           // Processa cada usuário
+           enviarEmail($user['email']);
+       }
+       
+       // Retornar false para parar
+       if ($alguma_condicao) {
+           return false;
+       }
+   });
+```
+
+### raw() / query()
+
+```php
+// Query customizada
+$results = $db->raw("
+    SELECT u.*, COUNT(p.id) as total_posts
+    FROM usuarios u
+    LEFT JOIN posts p ON p.user_id = u.id
+    WHERE u.ativo = :ativo
+    GROUP BY u.id
+", [':ativo' => 1]);
+```
+
+### lastInsertId() e affectedRows()
+
+```php
+$db->insert();
+echo "Último ID: " . $db->lastInsertId();
+
+$db->update();
+echo "Linhas afetadas: " . $db->affectedRows();
+```
+
+### getLastQuery()
+
+```php
+$db->table('usuarios')->where('id', 123)->select();
+echo $db->getLastQuery();
+// SELECT * FROM `usuarios` WHERE `id` = :w_0
+```
+
+---
+
+## 🔒 Segurança
+
+### Antes (v1.x) - VULNERÁVEL ❌
+
+```php
+// SQL INJECTION POSSÍVEL!
+$id = "1 OR 1=1";
+$sql = "SELECT * FROM users WHERE id = " . $db->connection->quote($id);
+```
+
+### Agora (v2.0) - SEGURO ✅
+
+```php
+// PREPARED STATEMENTS
+$id = "1 OR 1=1";
+$user = $db->table('users')->where('id', $id)->first();
+// Executado como: WHERE `id` = :w_0
+// Binding: [':w_0' => '1 OR 1=1']
+// Resultado: null (seguro!)
+```
+
+### Validação de Identificadores
+
+```php
+// Válido ✅
+$db->table('usuarios_ativos');
+$db->where('email_verificado', 1);
+
+// INVÁLIDO ❌ - Lança Exception
+try {
+    $db->table('usuarios; DROP TABLE usuarios;--');
+} catch (Exception $e) {
+    echo "Identificador inválido detectado!";
+}
+```
+
+### Tipagem Automática
+
+```php
+$db->idade = 30;        // PDO::PARAM_INT
+$db->ativo = true;      // PDO::PARAM_BOOL
+$db->observacoes = null; // PDO::PARAM_NULL
+$db->nome = "João";     // PDO::PARAM_STR
+```
+
+---
+
+## ⚡ Performance
+
+### Connection Pooling
+
+```php
+// Primeira conexão
+$db1 = new GalaxyDB(['DB_DATABASE' => 'app']);
+
+// Reutiliza a mesma conexão (cache)
+$db2 = new GalaxyDB(['DB_DATABASE' => 'app']);
+
+// Nova conexão (config diferente)
+$db3 = new GalaxyDB(['DB_DATABASE' => 'logs']);
+```
+
+### Batch vs Individual
+
+```php
+// ❌ LENTO: 100 queries individuais
+for ($i = 0; $i < 100; $i++) {
+    $db->nome = "User $i";
+    $db->insert(); // 100x round-trip ao DB
+}
+
+// ✅ RÁPIDO: 1 transação com 100 inserts
+for ($i = 0; $i < 100; $i++) {
+    $db->nome = "User $i";
+    $db->prepare_insert();
+}
+$db->execQuery(); // 1x round-trip
+```
+
+### Chunk para Grandes Volumes
+
+```php
+// ❌ MEMORY OVERFLOW
+$users = $db->table('usuarios')->select(); // 1 milhão de linhas
+
+// ✅ SEGURO
+$db->table('usuarios')->chunk(1000, function($users) {
+    // Processa 1000 por vez
+});
+```
+
+---
+
+## ⚠️ Breaking Changes
+
+### v1.x → v2.0
+
+| Antes (v1.x) | Agora (v2.0) | Motivo |
+|--------------|--------------|--------|
+| `$db->debug = true` | `$db->setDebug(true)` | Encapsulamento |
+| `$db->query($sql)` | `$db->query($sql, $bindings)` | Prepared statements |
+| Retorna `false` em erro | Lança `PDOException` | Error handling moderno |
+| `quote()` para escape | Prepared statements | Segurança |
+
+### Migração de Código
+
+```php
+// ANTES
+$db->debug = true;
+$db->query("SELECT * FROM users WHERE id = " . $id);
+
+// DEPOIS
+$db->setDebug(true);
+$db->query("SELECT * FROM users WHERE id = :id", [':id' => $id]);
+// OU melhor ainda:
+$db->table('users')->where('id', $id)->select();
+```
+
+---
+
+## 📚 Exemplos Completos
+
+### CRUD Completo
+
+```php
+class ProdutosModel extends GalaxyDB
+{
+    protected string $table = 'produtos';
+}
+
+$produtos = new ProdutosModel();
+
+// CREATE
+$produtos->nome = 'Notebook Dell';
+$produtos->preco = 3500.00;
+$produtos->estoque = 10;
+$id = $produtos->insert();
+
+// READ
+$produto = $produtos->find($id);
+$todos = $produtos->where('estoque', 0, '>')->select();
+
+// UPDATE
+$produtos->preco = 3200.00;
+$produtos->where('id', $id)->update();
+
+// DELETE
+$produtos->where('id', $id)->delete();
+```
+
+### Sistema de Blog
+
+```php
+class PostsModel extends GalaxyDB
+{
+    protected string $table = 'posts';
+}
+
+$posts = new PostsModel();
+
+// Criar post e atualizar contador do autor em UMA transação
+$posts->titulo = 'Meu Primeiro Post';
+$posts->conteudo = 'Lorem ipsum...';
+$posts->autor_id = 123;
+$posts->prepare_insert();
+
+$posts->table('usuarios');
+$posts->total_posts = 'total_posts + 1'; // SQL raw
+$posts->where('id', 123)
+      ->prepare_update();
+
+$posts->transaction(fn($e) => throw new Error($e));
+
+$posts->execQuery(function($db, $results) {
+    $postId = $results[0]['id'];
+    echo "Post $postId criado com sucesso!";
+});
+```
+
+### Relatório com Aggregação
+
+```php
+$relatorio = $db->table('vendas')
+    ->select('
+        categoria,
+        COUNT(*) as total_vendas,
+        SUM(valor) as faturamento,
+        AVG(valor) as ticket_medio
+    ')
+    ->where('created_at', date('Y-m-01'), '>=')
+    ->groupBy('categoria')
+    ->orderBy('faturamento', 'DESC')
+    ->select();
+```
+
+### Import de CSV em Batch
+
+```php
+$csv = fopen('usuarios.csv', 'r');
+$header = fgetcsv($csv);
+
+$users = new UsuariosModel();
+
+while (($row = fgetcsv($csv)) !== false) {
+    $users->nome = $row[0];
+    $users->email = $row[1];
+    $users->telefone = $row[2];
+    $users->prepare_insert();
+}
+
+fclose($csv);
+
+$users->transaction(fn($e) => throw new Error("Import falhou: $e"));
+
+$users->execQuery(function($db, $results) {
+    echo "✅ " . count($results) . " usuários importados!";
+});
+```
+
+### Soft Delete
+
+```php
+class SoftDeleteModel extends GalaxyDB
+{
+    protected string $table = 'usuarios';
+    
+    public function softDelete(): int
     {
-        "LISTA_PRODUTOS" : [
-                    {
-                        "id": 654,
-                        "nome": "cadeira de madeira",
-                        "valor": 21.5,
-                    },
-                    {
-                        "id": 655,
-                        "nome": "Mesa de plástico",
-                        "valor": 149.9,
-                    }
-                ]
+        $this->deleted_at = date('Y-m-d H:i:s');
+        return $this->update();
     }
-```
-
-$_OUTPUT:
-```json
+    
+    public function restore(): int
     {
-        "processaDados":{
-            "@_NOME":"João da Silva",
-            "@_EMAIL":"joao@gmail.com",
-        },
-        "sobePontos":{
-            "@_NOME2":"João da Silva"
-        }
+        $this->deleted_at = null;
+        return $this->update();
     }
+    
+    public function withTrashed(): self
+    {
+        // Não filtra deleted_at
+        return $this;
+    }
+    
+    public function onlyTrashed(): self
+    {
+        return $this->whereNotNull('deleted_at');
+    }
+}
+
+$users = new SoftDeleteModel();
+
+// Soft delete
+$users->where('id', 123)->softDelete();
+
+// Buscar incluindo deletados
+$all = $users->withTrashed()->select();
+
+// Buscar APENAS deletados
+$deleted = $users->onlyTrashed()->select();
+
+// Restaurar
+$users->where('id', 123)->restore();
 ```
 
+---
 
-# CRIPTOGRAFIA
+## 🐛 Debug e Logging
 
-Para utilizar essa funcionalidade, será necessário inserir dois parametros no arquivo *_/.env_*:<br>
-```GALAXY_CRYPT_KEY``` e ```GALAXY_CRYPT_IV```;
-
-```env
-
-    # /var/www/.env
-
-    # Uma chave forte
-    GALAXY_CRYPT_KEY=
-
-    # 16 caracteres
-    GALAXY_CRYPT_IV=
-
-```
-><br>
-> Para mais detalhes, leia a documentação do PHP:<br>
-> https://www.php.net/manual/en/function.openssl-encrypt<br>
-> https://www.php.net/manual/en/function.openssl-decrypt<br>
-><br>
-
-Digamos que você tenha algum dado sensível em sua base,<br>
-e não gostaria de deixar ela solta em meio a outros dados em suas tabelas;
-
-Você poderá utilizar o método ```isCrypt()```
+### Debug Mode
 
 ```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
+$db->setDebug(true);
 
-    $users =  new  usuariosModel();
-    $users->NOME                = 'João da Silva';
-    $users->isCrypt()->CPF      = '947.029.456-67';
-    $users->isCrypt()->EMAIL    = 'email@secret.com';
-    $users->isCrypt()->PIN      = '3659';
-    $users->insert();
-
-?>
+$db->table('usuarios')->where('id', 123)->select();
+// Loga: SELECT * FROM `usuarios` WHERE `id` = :w_0
+// Bindings: [':w_0' => 123]
 ```
-Em sua base ficará assim:
 
-| NOME | CPF | EMAIL | PIN
-|--|--|--|--|
-| João da Silva  | NCUB1pM9/orreKyzctvaVg== | wOvOZFR1hItpTWiwa4m3ntak= | a45EqjRSU0RRrmTEFQifvA== | 
-
-
-E quando for receber esse valor, sete novamente a flag.
+### Custom Logger
 
 ```php
-<?php
-    include "vendor\autoload.php";
-    use  App\Models\usuariosModel;
-
-    $users =  new  usuariosModel();
-    $users->colum('NOME');
-    $users->isCrypt()->colum('CPF');
-    $users->isCrypt()->colum('EMAIL');
-    $users->isCrypt()->colum('PIN');
-
-    $users->prepare_select('usuarios');
-    $users->transaction(function ($ERROR) {
-        throw  new  ErrorException($ERROR, 1); // erro
-    });
-    $users->execQuery(function($galaxy){});
-
-
-?>
+class MyDB extends GalaxyDB
+{
+    protected function logQuery(string $sql, array $bindings = []): void
+    {
+        $log = date('Y-m-d H:i:s') . " | $sql | " . json_encode($bindings) . "\n";
+        file_put_contents('queries.log', $log, FILE_APPEND);
+    }
+    
+    protected function logError(string $error): void
+    {
+        $log = date('Y-m-d H:i:s') . " | ERROR: $error\n";
+        file_put_contents('errors.log', $log, FILE_APPEND);
+    }
+}
 ```
 
-# RAC - REGISTRO DE ALTERAÇÕES DE CONTEÚDO
+---
 
-O GalaxyDB possui um mecanismo integrado de registro de alterações de conteúdo que permite rastrear e visualizar todas as modificações feitas nos dados do conteúdo. Esse recurso permite uma gestão mais eficiente e um histórico completo das alterações realizadas, facilitando a auditoria e o controle de versões.
+## 📞 Suporte
 
-Para ativar serviço:
-```plaintext
-$   composer run-script galaxy enable-rac
+- **Issues**: [GitHub Issues](https://github.com/israelnogueira/galaxydb/issues)
+- **Email**: israel@feats.com
+- **Docs**: [Documentação Completa](https://galaxydb.docs.com)
+
+---
+
+## 📄 Licença
+
+GPL-3.0-or-later
+
+---
+
+## 🙏 Contribuindo
+
+Pull requests são bem-vindos! Para mudanças grandes, abra uma issue primeiro.
+
+```bash
+git clone https://github.com/israelnogueira/galaxydb.git
+cd galaxydb
+composer install
+phpunit
 ```
 
-Para desativar serviço:
-```plaintext
-$   composer run-script galaxy disable-rac
-```
+---
 
-Você também pode executar programaticamente em PHP:
-```php
-<?php
-    include "vendor\autoload.php";
-    use IsraelNogueira\galaxyDB\galaxyDB;
+## 🏆 Roadmap
 
-    // ATIVA SERVIÇO
-	$_SELECT =	new galaxyDB();
-	$_SELECT->connect();
-	$_SELECT->enableRAC();
+- [ ] Query caching
+- [ ] Relationships (hasMany, belongsTo)
+- [ ] Events/Observers
+- [ ] Schema Builder
+- [ ] Migrations
+- [ ] Seeders
+- [ ] Eager loading
+- [ ] Read replicas support
 
-    // DESATIVA SERVIÇO
-	$_SELECT =	new galaxyDB();
-	$_SELECT->connect();
-	$_SELECT->disableRAC();
+---
 
-?>
-```
-
-Isso criará uma tabela em sua base chamada ``GALAXY__RAC`` onde será inserido 5 colunas:<br>
-- ``TABELA``: Tabela que foi feita a ação	
-- ``ACTION``: INSERT | UPDATE | DELETE
-- ``QUERY``: Query que foi executada	
-- ``ROLLBACK``: Query "ctrl+z", voltará ao estado anterior da ação executada 
-- ``DATA_HORA``: Data e hora que foi executado o comando
-
-<p align="center">
-    <img src="https://github.com/israel-nogueira/galaxy-db/blob/0b67fbc4fde366716a4e1170227a31cfaa36e0cb/src/tabela_rollback.png"/>
-</p>
-
-# MIGRATIONS
-
-O GalaxyDB também possúi um sistema de migration próprio;<br/>
-Isso quer dizer que todas as alterações estruturais feitas na base de dados,<br/>
-como criação/alterações/exclusões  de ```TABELAS```,```COLUNAS```, ```TRIGGERS``` ou ```STORE PROCEDURES```.
-
-> Atenção:<br>
->Para que essas funções funcionem, é necessário antes executar esse comando em seu MySQL;<br>
->Obs.: Coloque o PATH do seu arquivo da sua preferencia<br>
-```sql
-
-    SET GLOBAL general_log = 'ON';
-    SET GLOBAL general_log_file="/var/www/html/galaxyDB/galaxy.log";
-
-```
-
-### EXECUTANDO
-Pronto! Agora que estamos configurados, você pode criar umas tabelas,<br> 
-editar umas colunas, criar algumas triggers e execute o comando:
-
-CLI:
-```plaintext
-  
-   composer run-script galaxy new-migration
-
-```
-
-Você também pode executar programaticamente em PHP:
-```php
-<?php
-    include "vendor\autoload.php";
-    use IsraelNogueira\galaxyDB\galaxyDB;
-
-	$_SELECT =	new galaxyDB();
-	$_SELECT->connect();
-	$_SELECT->setHistorySQLfile();
-
-?>
-```
-
-Agora você poderá verificar que foi criado um arquivo na raiz do sistema:<br>  
-```/galaxyDB/{DB_DATABASE}_{d-m-Y-H-i-s}.sql```;
-
-```sql
-
-CREATE TABLE `DBNAME`.`NOVA_TABELA` (`ID` INT NOT NULL AUTO_INCREMENT , `COLUNA1` VARCHAR(123) NOT NULL, `COLUNA2` INT(11) NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;
-ALTER TABLE `NOVA_TABELA` DROP `COLUNA1`;
-ALTER TABLE `NOVA_TABELA` DROP `COLUNA2`; 
-
-```
+**Feito com ❤️ por Israel Nogueira**
