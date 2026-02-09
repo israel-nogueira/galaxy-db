@@ -11,6 +11,7 @@ use IsraelNogueira\galaxyDB\Security\Security;
 use IsraelNogueira\galaxyDB\Query\QueryBuilder;
 use IsraelNogueira\galaxyDB\Query\Actions;
 use IsraelNogueira\galaxyDB\Query\QueryBatch;
+use IsraelNogueira\galaxyDB\Query\DataTableTrait;
 use IsraelNogueira\galaxyDB\Audit\Log;
 use IsraelNogueira\galaxyDB\StoredProcedures\SPExecutor;
 use RuntimeException;
@@ -26,6 +27,7 @@ class GalaxyDB implements DatabaseInterface
     use Actions;
     use QueryBatch;
     use Log;
+    use DataTableTrait;
 
     private bool $initialized = false;
     protected ?array $customConnectData = null;

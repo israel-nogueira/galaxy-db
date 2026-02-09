@@ -362,6 +362,19 @@ trait Actions
         // Implementação básica - sobrescreva conforme necessário
     }
 
+    public function fetch_array(string $name = '0'): array
+    {
+        if (isset($this->executedResults[$name])) {
+            return $this->executedResults[$name];
+        }
+        return $this->select();
+    }
+
+    public function fetch_row(): ?array
+    {
+        return $this->first();
+    }
+
     protected function logError(string $error): void
     {
         // Implementação básica - sobrescreva conforme necessário

@@ -163,6 +163,14 @@ trait QueryBuilder
         return $this;
     }
 
+    /**
+     * Alias para orderBy (compatibilidade)
+     */
+    public function order(string $column, string $direction = 'ASC'): self
+    {
+        return $this->orderBy($column, $direction);
+    }
+
     public function limit(int $limit, ?int $offset = null): self
     {
         if ($limit < 0) {

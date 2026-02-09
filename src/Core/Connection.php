@@ -35,7 +35,11 @@ trait Connection
         $name = $db['DB_DATABASE'] ?? getEnv('DB_DATABASE');
         $host = $db['DB_HOST']     ?? getEnv('DB_HOST');
         $port = $db['DB_PORT']     ?? getEnv('DB_PORT');
-        $char = $db['DB_CHAR']     ?? getEnv('DB_CHAR');
+        
+        // Garante que char seja string ou null
+        $char = $db['DB_CHAR'] ?? getEnv('DB_CHAR');
+        $char = ($char === false || $char === '' || $char === null) ? null : (string) $char;
+        
         $flow = $db['DB_FLOW']     ?? getEnv('DB_FLOW');
         $fkey = $db['DB_FKEY']     ?? getEnv('DB_FKEY');
 

@@ -13,8 +13,9 @@ trait QueryBatch
     protected array $preparedQueries = [];
     protected array $transactionCallbacks = [];
     protected bool $inBatchMode = false;
+    protected array $executedResults = [];
 
-    public function prepare_insert(): self
+    public function prepare_insert(?string $name = null): self
     {
         if (empty($this->InsertVars)) {
             throw new Exception("Nenhum dado para inserir");
@@ -35,21 +36,19 @@ trait QueryBatch
 
         $sql = "INSERT INTO `{$this->tableClass}` ({$columnsStr}) VALUES ({$valuesStr})";
         
-        // Adiciona WHERE se existir (INSERT ... WHERE não é padrão, mas para compatibilidade)
         $whereClause = $this->buildWhere();
         if ($whereClause) {
-            // Converte para INSERT ... SELECT com WHERE
             $sql = "INSERT INTO `{$this->tableClass}` ({$columnsStr}) SELECT {$valuesStr} FROM DUAL {$whereClause}";
             $bindings = array_merge($bindings, $this->whereBindings);
         }
 
-        $this->preparedQueries[] = [
+        $key = $name ?? count($this->preparedQueries);
+        $this->preparedQueries[$key] = [
             'sql' => $sql,
             'bindings' => $bindings,
             'type' => 'insert'
         ];
 
-        // Limpa apenas os dados de insert, mantém prepared queries
         $this->InsertVars = [];
         $this->where = null;
         $this->whereBindings = [];
@@ -57,7 +56,7 @@ trait QueryBatch
         return $this;
     }
 
-    public function prepare_update(): self
+    public function prepare_update(?string $name = null): self
     {
         if (empty($this->Insert_Update)) {
             throw new Exception("Nenhum dado para atualizar");
@@ -77,7 +76,8 @@ trait QueryBatch
         $sql = "UPDATE `{$this->tableClass}` SET " . implode(', ', $sets);
         $sql .= $this->buildWhere();
 
-        $this->preparedQueries[] = [
+        $key = $name ?? count($this->preparedQueries);
+        $this->preparedQueries[$key] = [
             'sql' => $sql,
             'bindings' => array_merge($bindings, $this->whereBindings),
             'type' => 'update'
@@ -90,12 +90,13 @@ trait QueryBatch
         return $this;
     }
 
-    public function prepare_delete(): self
+    public function prepare_delete(?string $name = null): self
     {
         $sql = "DELETE FROM `{$this->tableClass}`";
         $sql .= $this->buildWhere();
 
-        $this->preparedQueries[] = [
+        $key = $name ?? count($this->preparedQueries);
+        $this->preparedQueries[$key] = [
             'sql' => $sql,
             'bindings' => $this->whereBindings,
             'type' => 'delete'
@@ -107,7 +108,7 @@ trait QueryBatch
         return $this;
     }
 
-    public function prepare_select(?string $columns = null): self
+    public function prepare_select(?string $name = null, ?string $columns = null): self
     {
         $columns = $columns ?? '*';
         
@@ -128,7 +129,8 @@ trait QueryBatch
         $sql .= $this->buildOrderBy();
         $sql .= $this->buildLimit();
 
-        $this->preparedQueries[] = [
+        $key = $name ?? count($this->preparedQueries);
+        $this->preparedQueries[$key] = [
             'sql' => $sql,
             'bindings' => $this->whereBindings,
             'type' => 'select'
@@ -145,10 +147,36 @@ trait QueryBatch
         return $this;
     }
 
-    public function execQuery(?callable $callback = null): mixed
+    public function execQuery(string|callable|null $nameOrCallback = null, ?callable $callback = null): mixed
     {
         if (empty($this->preparedQueries)) {
             throw new Exception("Nenhuma query preparada para executar");
+        }
+
+        // Detecta os parâmetros
+        $name = null;
+        $finalCallback = null;
+
+        if (is_callable($nameOrCallback)) {
+            // execQuery(callback)
+            $finalCallback = $nameOrCallback;
+        } elseif (is_string($nameOrCallback)) {
+            // execQuery("nome", callback) ou execQuery("nome")
+            $name = $nameOrCallback;
+            $finalCallback = $callback;
+        }
+        // Se ambos null: execQuery() - executa todas sem callback
+
+        // Se especificou nome, executa apenas essa
+        $queriesToExecute = [];
+        if ($name !== null) {
+            if (!isset($this->preparedQueries[$name])) {
+                throw new Exception("Query '{$name}' não encontrada");
+            }
+            $queriesToExecute = [$name => $this->preparedQueries[$name]];
+        } else {
+            // Executa todas em fila
+            $queriesToExecute = $this->preparedQueries;
         }
 
         $results = [];
@@ -159,7 +187,7 @@ trait QueryBatch
                 $this->connection->beginTransaction();
             }
 
-            foreach ($this->preparedQueries as $index => $prepared) {
+            foreach ($queriesToExecute as $queryName => $prepared) {
                 $stmt = $this->connection->prepare($prepared['sql']);
                 
                 foreach ($prepared['bindings'] as $placeholder => $value) {
@@ -177,19 +205,20 @@ trait QueryBatch
                     case 'insert':
                         $lastId = (int) $this->connection->lastInsertId();
                         $this->_last_id[] = $lastId;
-                        $results[] = ['type' => 'insert', 'id' => $lastId];
+                        $results[$queryName] = ['type' => 'insert', 'id' => $lastId];
                         break;
                     
                     case 'update':
                     case 'delete':
                         $affected = $stmt->rowCount();
                         $this->_num_rows[] = $affected;
-                        $results[] = ['type' => $prepared['type'], 'affected' => $affected];
+                        $results[$queryName] = ['type' => $prepared['type'], 'affected' => $affected];
                         break;
                     
                     case 'select':
                         $data = $stmt->fetchAll();
-                        $results[] = ['type' => 'select', 'data' => $data];
+                        $results[$queryName] = ['type' => 'select', 'data' => $data];
+                        $this->executedResults[$queryName] = $data;
                         break;
                 }
             }
@@ -198,13 +227,18 @@ trait QueryBatch
                 $this->connection->commit();
             }
 
-            // Limpa queries preparadas
-            $this->preparedQueries = [];
+            // Se executou query específica, não limpa todas
+            if ($name !== null) {
+                unset($this->preparedQueries[$name]);
+            } else {
+                $this->preparedQueries = [];
+            }
+            
             $this->transactionCallbacks = [];
 
             // Callback de sucesso
-            if ($callback) {
-                return $callback($this, $results);
+            if ($finalCallback) {
+                return $finalCallback($this, $results);
             }
 
             return $results;
@@ -216,7 +250,6 @@ trait QueryBatch
 
             $this->logError($e->getMessage());
 
-            // Executa callbacks de erro
             foreach ($this->transactionCallbacks as $errorCallback) {
                 $errorCallback($e->getMessage());
             }
@@ -233,9 +266,13 @@ trait QueryBatch
         return count($this->preparedQueries);
     }
 
-    public function clearPrepared(): self
+    public function clearPrepared(?string $name = null): self
     {
-        $this->preparedQueries = [];
+        if ($name !== null) {
+            unset($this->preparedQueries[$name]);
+        } else {
+            $this->preparedQueries = [];
+        }
         $this->transactionCallbacks = [];
         return $this;
     }
