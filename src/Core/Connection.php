@@ -261,10 +261,31 @@ trait Connection
 
     protected function validateIdentifier(string $identifier): string
     {
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $identifier)) {
-            throw new Exception("Identificador inválido: {$identifier}");
+        // Permite aliases: "USUARIOS US" ou "USUARIOS AS US"
+        if (preg_match('/^([a-zA-Z0-9_]+)\s+(AS\s+)?([a-zA-Z0-9_]+)$/i', $identifier)) {
+            return $identifier;
         }
-        return $identifier;
+        
+        // Permite coluna com tabela: "US.ID" ou apenas "ID"
+        if (preg_match('/^([a-zA-Z0-9_]+\.)?[a-zA-Z0-9_*]+$/', $identifier)) {
+            return $identifier;
+        }
+        
+        throw new Exception("Identificador inválido: {$identifier}");
+    }
+
+    protected function formatTableName(string $table): string
+    {
+        // Se tem alias: "USUARIOS US" ou "USUARIOS AS US"
+        if (preg_match('/^([a-zA-Z0-9_]+)\s+(AS\s+)?([a-zA-Z0-9_]+)$/i', $table, $matches)) {
+            $tableName = $matches[1];
+            $alias = $matches[3];
+            // SEMPRE usar AS explícito
+            return "`{$tableName}` AS {$alias}";
+        }
+        
+        // Tabela simples
+        return "`{$table}`";
     }
 
     public function getConnection(): PDO

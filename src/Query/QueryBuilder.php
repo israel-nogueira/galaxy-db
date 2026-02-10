@@ -18,6 +18,8 @@ trait QueryBuilder
     protected array $Insert_Update = [];
     protected array $on_duplicate = [];
     protected array $ignore = [];
+    protected array $selectColumns = [];
+    protected array $joins = [];
 
     public function table(string $table): self
     {
@@ -25,8 +27,47 @@ trait QueryBuilder
         return $this;
     }
 
-    public function where(string $column, mixed $value, string $operator = '='): self
+    public function colum(string|array $column): self
     {
+        // Se for array, adiciona múltiplas colunas
+        if (is_array($column)) {
+            foreach ($column as $col) {
+                $this->selectColumns[] = $col;
+            }
+        } else {
+            // String: adiciona uma coluna
+            $this->selectColumns[] = $column;
+        }
+        return $this;
+    }
+
+    public function join(string $type, string $table, string $condition): self
+    {
+        // Aceita: LEFT, RIGHT, INNER, CROSS
+        $type = strtoupper(trim($type));
+        $validTypes = ['LEFT', 'RIGHT', 'INNER', 'CROSS', 'LEFT OUTER', 'RIGHT OUTER'];
+        
+        if (!in_array($type, $validTypes)) {
+            $type = 'INNER';
+        }
+        
+        $this->joins[] = "{$type} JOIN {$table} ON {$condition}";
+        return $this;
+    }
+
+    public function where(string $column, mixed $value = null, string $operator = '='): self
+    {
+        // Se só passou 1 parâmetro: where("US.ID = 5") - SQL direto
+        if ($value === null && func_num_args() === 1) {
+            if ($this->where === null) {
+                $this->where = $column;
+            } else {
+                $this->where .= " AND ({$column})";
+            }
+            return $this;
+        }
+        
+        // Modo normal: where("coluna", "valor", "=")
         $column = $this->validateIdentifier($column);
         $placeholder = ':w_' . count($this->whereBindings);
         
@@ -152,14 +193,20 @@ trait QueryBuilder
 
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
-        $column = $this->validateIdentifier($column);
         $direction = strtoupper($direction);
         
         if (!in_array($direction, ['ASC', 'DESC'])) {
             throw new \InvalidArgumentException("Direção inválida: {$direction}");
         }
 
-        $this->setorder[] = "`{$column}` {$direction}";
+        // Se tem ponto (alias.coluna), não adiciona backticks
+        if (strpos($column, '.') !== false) {
+            $this->setorder[] = "{$column} {$direction}";
+        } else {
+            $column = $this->validateIdentifier($column);
+            $this->setorder[] = "`{$column}` {$direction}";
+        }
+        
         return $this;
     }
 
@@ -186,8 +233,13 @@ trait QueryBuilder
 
     public function groupBy(string $column): self
     {
-        $column = $this->validateIdentifier($column);
-        $this->group[] = "`{$column}`";
+        // Se tem ponto (alias.coluna), não adiciona backticks
+        if (strpos($column, '.') !== false) {
+            $this->group[] = $column;
+        } else {
+            $column = $this->validateIdentifier($column);
+            $this->group[] = "`{$column}`";
+        }
         return $this;
     }
 
@@ -225,6 +277,15 @@ trait QueryBuilder
         return ' GROUP BY ' . implode(', ', $this->group);
     }
 
+    protected function buildJoins(): string
+    {
+        if (empty($this->joins)) {
+            return '';
+        }
+
+        return ' ' . implode(' ', $this->joins);
+    }
+
     protected function resetBuilder(): self
     {
         $this->where = null;
@@ -239,6 +300,8 @@ trait QueryBuilder
         $this->Insert_Update = [];
         $this->on_duplicate = [];
         $this->ignore = [];
+        $this->selectColumns = [];
+        $this->joins = [];
 
         return $this;
     }

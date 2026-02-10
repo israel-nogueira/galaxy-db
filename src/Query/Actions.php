@@ -12,20 +12,35 @@ trait Actions
 {
     public function select(?string $columns = null): array
     {
-        $columns = $columns ?? '*';
+        // Prioriza colunas do colum()
+        if (!empty($this->selectColumns)) {
+            $columns = implode(', ', $this->selectColumns);
+        } else {
+            $columns = $columns ?? '*';
+        }
         
         if ($columns !== '*') {
             $columnsParts = array_map('trim', explode(',', $columns));
             $validatedColumns = [];
             foreach ($columnsParts as $col) {
-                $validatedColumns[] = '`' . $this->validateIdentifier($col) . '`';
+                // Se tem AS (alias), não adiciona backticks
+                if (preg_match('/\s+AS\s+/i', $col)) {
+                    $validatedColumns[] = $col;
+                } elseif ($col === '*' || strpos($col, '.*') !== false) {
+                    // Permite * e TABELA.*
+                    $validatedColumns[] = $col;
+                } else {
+                    // Coluna simples ou com ponto (TABELA.COLUNA)
+                    $validatedColumns[] = $col;
+                }
             }
             $columns = implode(', ', $validatedColumns);
         }
 
         $distinct = $this->DISTINCT ? 'DISTINCT ' : '';
         
-        $sql = "SELECT {$distinct}{$columns} FROM `{$this->tableClass}`";
+        $sql = "SELECT {$distinct}{$columns} FROM {$this->formatTableName($this->tableClass)}";
+        $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
         $sql .= $this->buildGroupBy();
         $sql .= $this->buildOrderBy();
@@ -66,7 +81,8 @@ trait Actions
 
     public function count(): int
     {
-        $sql = "SELECT COUNT(*) as total FROM `{$this->tableClass}`";
+        $sql = "SELECT COUNT(*) as total FROM {$this->formatTableName($this->tableClass)}";
+        $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
 
         $this->query = $sql;
@@ -110,7 +126,7 @@ trait Actions
         }
         $valuesStr = implode(', ', $placeholders);
 
-        $sql = "INSERT INTO `{$this->tableClass}` ({$columnsStr}) VALUES ({$valuesStr})";
+        $sql = "INSERT INTO {$this->formatTableName($this->tableClass)} ({$columnsStr}) VALUES ({$valuesStr})";
 
         $this->query = $sql;
 
@@ -164,7 +180,7 @@ trait Actions
             $rowIndex++;
         }
 
-        $sql = "INSERT INTO `{$this->tableClass}` ({$columnsStr}) VALUES " . implode(', ', $valueSets);
+        $sql = "INSERT INTO {$this->formatTableName($this->tableClass)} ({$columnsStr}) VALUES " . implode(', ', $valueSets);
 
         try {
             $stmt = $this->connection->prepare($sql);
@@ -203,7 +219,7 @@ trait Actions
             $index++;
         }
 
-        $sql = "UPDATE `{$this->tableClass}` SET " . implode(', ', $sets);
+        $sql = "UPDATE {$this->formatTableName($this->tableClass)} SET " . implode(', ', $sets);
         $sql .= $this->buildWhere();
 
         $this->query = $sql;
@@ -239,7 +255,7 @@ trait Actions
 
     public function delete(): int
     {
-        $sql = "DELETE FROM `{$this->tableClass}`";
+        $sql = "DELETE FROM {$this->formatTableName($this->tableClass)}";
         $sql .= $this->buildWhere();
 
         $this->query = $sql;
@@ -330,6 +346,24 @@ trait Actions
     public function getLastQuery(): string
     {
         return $this->query;
+    }
+
+    public function toSql(): string
+    {
+        // Monta SQL sem executar
+        $columns = !empty($this->selectColumns) 
+            ? implode(', ', $this->selectColumns) 
+            : '*';
+        
+        $distinct = $this->DISTINCT ? 'DISTINCT ' : '';
+        $sql = "SELECT {$distinct}{$columns} FROM {$this->formatTableName($this->tableClass)}";
+        $sql .= $this->buildJoins();
+        $sql .= $this->buildWhere();
+        $sql .= $this->buildGroupBy();
+        $sql .= $this->buildOrderBy();
+        $sql .= $this->buildLimit();
+        
+        return $sql;
     }
 
     public function beginTransaction(): bool

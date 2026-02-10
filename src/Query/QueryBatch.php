@@ -110,20 +110,35 @@ trait QueryBatch
 
     public function prepare_select(?string $name = null, ?string $columns = null): self
     {
-        $columns = $columns ?? '*';
+        // Prioriza colunas do colum()
+        if (!empty($this->selectColumns)) {
+            $columns = implode(', ', $this->selectColumns);
+        } else {
+            $columns = $columns ?? '*';
+        }
         
         if ($columns !== '*') {
             $columnsParts = array_map('trim', explode(',', $columns));
             $validatedColumns = [];
             foreach ($columnsParts as $col) {
-                $validatedColumns[] = '`' . $this->validateIdentifier($col) . '`';
+                // Se tem AS (alias), não adiciona backticks
+                if (preg_match('/\s+AS\s+/i', $col)) {
+                    $validatedColumns[] = $col;
+                } elseif ($col === '*' || strpos($col, '.*') !== false) {
+                    // Permite * e TABELA.*
+                    $validatedColumns[] = $col;
+                } else {
+                    // Coluna simples ou com ponto (TABELA.COLUNA)
+                    $validatedColumns[] = $col;
+                }
             }
             $columns = implode(', ', $validatedColumns);
         }
 
         $distinct = $this->DISTINCT ? 'DISTINCT ' : '';
         
-        $sql = "SELECT {$distinct}{$columns} FROM `{$this->tableClass}`";
+        $sql = "SELECT {$distinct}{$columns} FROM {$this->formatTableName($this->tableClass)}";
+        $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
         $sql .= $this->buildGroupBy();
         $sql .= $this->buildOrderBy();

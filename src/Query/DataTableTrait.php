@@ -55,8 +55,16 @@ trait DataTableTrait
      */
     public function dataTable(): array
     {
+        // Se não preparou ou não detectou requisição válida
         if (!$this->isDataTableMode || $this->dataTableHandler === null) {
-            return $this->select();
+            // Retorna no formato DataTables mesmo assim
+            $data = $this->select();
+            return [
+                'draw' => 1,
+                'recordsTotal' => count($data),
+                'recordsFiltered' => count($data),
+                'data' => $data
+            ];
         }
 
         return $this->dataTableHandler->process();
