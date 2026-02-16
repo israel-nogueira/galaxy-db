@@ -21,6 +21,21 @@ trait QueryBuilder
     protected array $selectColumns = [];
     protected array $joins = [];
 
+    public function getSelectColumns(): array
+    {
+        return $this->selectColumns;
+    }
+
+    public function getHaving(): ?string
+    {
+        return $this->having;
+    }
+
+    public function appendHaving(string $clause): void
+    {
+        $this->having = ($this->having ? $this->having . ' AND ' : '') . $clause;
+    }
+
     public function table(string $table): self
     {
         $this->tableClass = $this->validateIdentifier($table);
@@ -29,13 +44,11 @@ trait QueryBuilder
 
     public function colum(string|array $column): self
     {
-        // Se for array, adiciona múltiplas colunas
         if (is_array($column)) {
             foreach ($column as $col) {
                 $this->selectColumns[] = $col;
             }
         } else {
-            // String: adiciona uma coluna
             $this->selectColumns[] = $column;
         }
         return $this;
@@ -43,21 +56,19 @@ trait QueryBuilder
 
     public function join(string $type, string $table, string $condition): self
     {
-        // Aceita: LEFT, RIGHT, INNER, CROSS
         $type = strtoupper(trim($type));
         $validTypes = ['LEFT', 'RIGHT', 'INNER', 'CROSS', 'LEFT OUTER', 'RIGHT OUTER'];
-        
+
         if (!in_array($type, $validTypes)) {
             $type = 'INNER';
         }
-        
+
         $this->joins[] = "{$type} JOIN {$table} ON {$condition}";
         return $this;
     }
 
     public function where(string $column, mixed $value = null, string $operator = '='): self
     {
-        // Se só passou 1 parâmetro: where("US.ID = 5") - SQL direto
         if ($value === null && func_num_args() === 1) {
             if ($this->where === null) {
                 $this->where = $column;
@@ -66,11 +77,10 @@ trait QueryBuilder
             }
             return $this;
         }
-        
-        // Modo normal: where("coluna", "valor", "=")
+
         $column = $this->validateIdentifier($column);
         $placeholder = ':w_' . count($this->whereBindings);
-        
+
         $condition = "`{$column}` {$operator} {$placeholder}";
         $this->whereBindings[$placeholder] = $value;
 
@@ -91,7 +101,7 @@ trait QueryBuilder
 
         $column = $this->validateIdentifier($column);
         $placeholders = [];
-        
+
         foreach ($values as $i => $value) {
             $placeholder = ':win_' . count($this->whereBindings);
             $placeholders[] = $placeholder;
@@ -114,7 +124,7 @@ trait QueryBuilder
         $column = $this->validateIdentifier($column);
         $placeholderMin = ':wbt_min_' . count($this->whereBindings);
         $placeholderMax = ':wbt_max_' . count($this->whereBindings);
-        
+
         $this->whereBindings[$placeholderMin] = $min;
         $this->whereBindings[$placeholderMax] = $max;
 
@@ -133,7 +143,7 @@ trait QueryBuilder
     {
         $column = $this->validateIdentifier($column);
         $placeholder = ':wl_' . count($this->whereBindings);
-        
+
         $this->whereBindings[$placeholder] = $pattern;
         $condition = "`{$column}` LIKE {$placeholder}";
 
@@ -178,7 +188,7 @@ trait QueryBuilder
     {
         $column = $this->validateIdentifier($column);
         $placeholder = ':ow_' . count($this->whereBindings);
-        
+
         $condition = "`{$column}` {$operator} {$placeholder}";
         $this->whereBindings[$placeholder] = $value;
 
@@ -194,25 +204,21 @@ trait QueryBuilder
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
         $direction = strtoupper($direction);
-        
+
         if (!in_array($direction, ['ASC', 'DESC'])) {
             throw new \InvalidArgumentException("Direção inválida: {$direction}");
         }
 
-        // Se tem ponto (alias.coluna), não adiciona backticks
         if (strpos($column, '.') !== false) {
             $this->setorder[] = "{$column} {$direction}";
         } else {
             $column = $this->validateIdentifier($column);
             $this->setorder[] = "`{$column}` {$direction}";
         }
-        
+
         return $this;
     }
 
-    /**
-     * Alias para orderBy (compatibilidade)
-     */
     public function order(string $column, string $direction = 'ASC'): self
     {
         return $this->orderBy($column, $direction);
@@ -224,16 +230,15 @@ trait QueryBuilder
             throw new \InvalidArgumentException("Limit não pode ser negativo");
         }
 
-        $this->limit = $offset !== null 
-            ? "{$offset}, {$limit}" 
+        $this->limit = $offset !== null
+            ? "{$offset}, {$limit}"
             : (string) $limit;
-            
+
         return $this;
     }
 
     public function groupBy(string $column): self
     {
-        // Se tem ponto (alias.coluna), não adiciona backticks
         if (strpos($column, '.') !== false) {
             $this->group[] = $column;
         } else {
@@ -275,6 +280,11 @@ trait QueryBuilder
         }
 
         return ' GROUP BY ' . implode(', ', $this->group);
+    }
+
+    protected function buildHaving(): string
+    {
+        return $this->having !== null ? " HAVING {$this->having}" : '';
     }
 
     protected function buildJoins(): string

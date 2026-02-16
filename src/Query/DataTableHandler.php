@@ -13,50 +13,50 @@ class DataTableHandler
     private array $searchableColumns = [];
     private array $orderableColumns = [];
     private bool $returnAllData = false;
-    
+
     public function __construct(GalaxyDB $query, array $request)
     {
         $this->query = $query;
         $this->request = $this->sanitizeRequest($request);
     }
 
-    /**
-     * Processa requisição DataTables e retorna resposta formatada
-     */
     public function process(): array
     {
-        // Total sem filtros
-        $recordsTotal = $this->getTotalRecords();
+        // SQL da query original (com WHERE/HAVING do usuário intactos)
+        $innerSql = $this->query->toSql();
 
-        // Aplica filtros globais e por coluna
-        $this->applySearch();
-        
-        // Total com filtros
-        $recordsFiltered = $this->getFilteredCount();
+        // Total sem filtros do DataTable
+        $recordsTotal = $this->getTotalRecords($innerSql);
 
-        // Se precisa retornar todos os dados
+        // Monta SQL externo com filtros, order e paginação aplicados sobre a subquery
+        $search        = $this->request['search']['value'] ?? '';
+        $whereSearch   = $this->buildSearchWhere($search);
+        $columnSearch  = $this->buildColumnSearchWhere();
+        $orderBy       = $this->buildOrderBy();
+        $pagination    = $this->buildPagination();
+
+        // Combina condições de busca
+        $whereParts = array_filter([$whereSearch, $columnSearch]);
+        $whereClause = !empty($whereParts) ? ' WHERE ' . implode(' AND ', $whereParts) : '';
+
+        $filteredSql = "SELECT COUNT(*) as total FROM ({$innerSql}) AS _dt{$whereClause}";
+        $recordsFiltered = $this->rawCount($filteredSql);
+
+        $dataSql = "SELECT * FROM ({$innerSql}) AS _dt{$whereClause}{$orderBy}{$pagination}";
+        $data = $this->rawSelect($dataSql);
+
         $allData = null;
         if ($this->returnAllData) {
-            $allDataQuery = clone $this->query;
-            $this->applySearchToQuery($allDataQuery);
-            $this->applyOrderingToQuery($allDataQuery);
-            $allData = $allDataQuery->select();
+            $allDataSql = "SELECT * FROM ({$innerSql}) AS _dt{$whereClause}{$orderBy}";
+            $allData = $this->rawSelect($allDataSql);
         }
 
-        // Aplica ordenação
-        $this->applyOrdering();
-
-        // Aplica paginação
-        $this->applyPagination();
-
-        // Executa query paginada
-        $data = $this->query->select();
-
         $response = [
-            'draw' => $this->request['draw'],
-            'recordsTotal' => $recordsTotal,
+            'draw'            => $this->request['draw'],
+            'recordsTotal'    => $recordsTotal,
             'recordsFiltered' => $recordsFiltered,
-            'data' => $data
+            'data'            => $data,
+            'filter'          => $this->getAppliedFilters()
         ];
 
         if ($allData !== null) {
@@ -66,165 +66,261 @@ class DataTableHandler
         return $response;
     }
 
-    /**
-     * Define colunas pesquisáveis
-     */
     public function setSearchableColumns(array $columns): self
     {
-        $this->searchableColumns = $columns;
+        // Filtra apenas colunas válidas (sem TABELA.*, subqueries, funções complexas)
+        $safe = $this->buildSafeColumnsList();
+        $this->searchableColumns = array_values(array_filter(
+            $columns,
+            fn($col) => !empty($col) && in_array(strtoupper($col), $safe)
+        ));
         return $this;
     }
 
-    /**
-     * Define colunas ordenáveis
-     */
     public function setOrderableColumns(array $columns): self
     {
-        $this->orderableColumns = $columns;
+        $safe = $this->buildSafeColumnsList();
+        $this->orderableColumns = array_values(array_filter(
+            $columns,
+            fn($col) => !empty($col) && in_array(strtoupper($col), $safe)
+        ));
         return $this;
     }
 
-    /**
-     * Habilita retorno de todos os dados (além dos paginados)
-     */
     public function withAllData(bool $enabled = true): self
     {
         $this->returnAllData = $enabled;
         return $this;
     }
 
-    /**
-     * Obtém total de registros sem filtros
-     */
-    private function getTotalRecords(): int
-    {
-        $countQuery = clone $this->query;
-        return $countQuery->count();
-    }
+    // -------------------------------------------------------------------------
+    // INTERNOS
+    // -------------------------------------------------------------------------
 
     /**
-     * Obtém total de registros com filtros aplicados
+     * Lista de colunas pesquisáveis/ordenáveis seguras.
+     * Aceita: TABELA.COLUNA (extrai COLUNA) e aliases simples sem funções complexas.
+     * Rejeita: TABELA.*, subqueries, DATE_FORMAT, CONCAT, IF, etc.
      */
-    private function getFilteredCount(): int
+    private function buildSafeColumnsList(): array
     {
-        $countQuery = clone $this->query;
-        
-        // Reaplicar filtros no clone
-        $this->applySearchToQuery($countQuery);
-        
-        return $countQuery->count();
-    }
+        $safe = [];
 
-    /**
-     * Aplica busca global e por coluna
-     */
-    private function applySearch(): void
-    {
-        $this->applySearchToQuery($this->query);
-    }
+        foreach ($this->query->getSelectColumns() as $col) {
+            $trimmed = trim($col);
 
-    /**
-     * Aplica busca em uma query específica
-     */
-    private function applySearchToQuery(GalaxyDB $query): void
-    {
-        $globalSearch = $this->request['search']['value'] ?? '';
-        $columns = $this->request['columns'] ?? [];
+            // TABELA.* → ignora
+            if (preg_match('/^[A-Za-z0-9_]+\.\*$/', $trimmed)) {
+                continue;
+            }
 
-        // Busca global
-        if (!empty($globalSearch) && !empty($this->searchableColumns)) {
-            $firstColumn = true;
-            
-            foreach ($this->searchableColumns as $column) {
-                $pattern = '%' . $this->normalizeSearch($globalSearch) . '%';
-                
-                if ($firstColumn) {
-                    $query->whereLike($column, $pattern);
-                    $firstColumn = false;
-                } else {
-                    $query->orWhere($column, $pattern, 'LIKE');
+            // Expressão com alias
+            if (preg_match('/\s+AS\s+(\w+)\s*$/i', $trimmed, $matches)) {
+                // Subquery → ignora
+                if (stripos($trimmed, '(SELECT ') !== false) {
+                    continue;
                 }
+                // Funções não-pesquisáveis → ignora
+                if (preg_match('/^\s*(DATE_FORMAT|CONCAT|IF|IFNULL|COALESCE|NULLIF|CAST|CONVERT|DATE|TIME|YEAR|MONTH|DAY|NOW|CURDATE)\s*\(/i', $trimmed)) {
+                    continue;
+                }
+                $safe[] = strtoupper($matches[1]);
+                continue;
+            }
+
+            // TABELA.COLUNA → extrai COLUNA
+            if (preg_match('/^[A-Za-z0-9_]+\.([A-Za-z0-9_]+)$/', $trimmed, $matches)) {
+                $safe[] = strtoupper($matches[1]);
+                continue;
+            }
+
+            // Coluna simples
+            if (preg_match('/^[A-Za-z0-9_]+$/', $trimmed)) {
+                $safe[] = strtoupper($trimmed);
             }
         }
 
-        // Busca por coluna individual
-        foreach ($columns as $column) {
-            $columnSearch = $column['search']['value'] ?? '';
+        return $safe;
+    }
+
+    /**
+     * Total de registros sem filtros DataTable (usa a inner query)
+     */
+    private function getTotalRecords(string $innerSql): int
+    {
+        $sql = "SELECT COUNT(*) as total FROM ({$innerSql}) AS _dt";
+        return $this->rawCount($sql);
+    }
+
+    /**
+     * Monta condição WHERE para busca global
+     */
+    private function buildSearchWhere(string $search): string
+    {
+        if (empty($search) || empty($this->searchableColumns)) {
+            return '';
+        }
+
+        $pattern = $this->quote('%' . $this->normalizeSearch($search) . '%');
+        $conditions = array_map(
+            fn($col) => "`_dt`.`{$col}` LIKE {$pattern}",
+            $this->searchableColumns
+        );
+
+        return '(' . implode(' OR ', $conditions) . ')';
+    }
+
+    /**
+     * Monta condição WHERE para busca por coluna individual
+     */
+    private function buildColumnSearchWhere(): string
+    {
+        $conditions = [];
+        foreach ($this->request['columns'] ?? [] as $column) {
+            $search     = $column['search']['value'] ?? '';
             $columnName = $column['data'] ?? null;
 
-            if (!empty($columnSearch) && $columnName && in_array($columnName, $this->searchableColumns)) {
-                $pattern = '%' . $this->normalizeSearch($columnSearch) . '%';
-                $query->whereLike($columnName, $pattern);
+            if (!empty($search) && $columnName && in_array($columnName, $this->searchableColumns)) {
+                $pattern      = $this->quote('%' . $this->normalizeSearch($search) . '%');
+                $conditions[] = "`_dt`.`{$columnName}` LIKE {$pattern}";
             }
         }
+
+        return implode(' AND ', $conditions);
     }
 
     /**
-     * Aplica ordenação
+     * Monta ORDER BY para a query externa
      */
-    private function applyOrdering(): void
+    private function buildOrderBy(): string
     {
-        $orders = $this->request['order'] ?? [];
+        $orders  = $this->request['order'] ?? [];
         $columns = $this->request['columns'] ?? [];
+        $parts   = [];
 
         foreach ($orders as $order) {
-            $columnIndex = $order['column'] ?? null;
+            $idx       = $order['column'] ?? null;
             $direction = strtoupper($order['dir'] ?? 'ASC');
 
-            if ($columnIndex !== null && isset($columns[$columnIndex])) {
-                $columnName = $columns[$columnIndex]['data'] ?? null;
+            if (!in_array($direction, ['ASC', 'DESC'])) {
+                $direction = 'ASC';
+            }
 
-                if ($columnName && in_array($columnName, $this->orderableColumns)) {
-                    $this->query->orderBy($columnName, $direction);
+            if ($idx !== null && isset($columns[$idx])) {
+                $col = $columns[$idx]['data'] ?? null;
+                if ($col && in_array($col, $this->orderableColumns)) {
+                    $parts[] = "`_dt`.`{$col}` {$direction}";
                 }
             }
         }
+
+        return !empty($parts) ? ' ORDER BY ' . implode(', ', $parts) : '';
     }
 
     /**
-     * Aplica paginação
+     * Monta LIMIT para paginação
      */
-    private function applyPagination(): void
+    private function buildPagination(): string
     {
-        $start = $this->request['start'] ?? 0;
+        $start  = $this->request['start'] ?? 0;
         $length = $this->request['length'] ?? 10;
 
-        if ($length > 0) {
-            $this->query->limit($length, $start);
+        return $length > 0 ? " LIMIT {$start}, {$length}" : '';
+    }
+
+    /**
+     * Executa SELECT e retorna array de resultados
+     */
+    private function rawSelect(string $sql): array
+    {
+        try {
+            $stmt = $this->query->getConnection()->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (\PDOException $e) {
+            throw $e;
         }
     }
 
     /**
-     * Normaliza string de busca (remove múltiplos espaços)
+     * Executa COUNT e retorna inteiro
      */
+    private function rawCount(string $sql): int
+    {
+        try {
+            $stmt = $this->query->getConnection()->prepare($sql);
+            $stmt->execute();
+            $row = $stmt->fetch();
+            return (int) ($row['total'] ?? 0);
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Escapa valor para uso direto no SQL
+     */
+    private function quote(string $value): string
+    {
+        return $this->query->getConnection()->quote($value);
+    }
+
     private function normalizeSearch(string $search): string
     {
         return preg_replace('/\s+/', ' ', trim($search));
     }
 
-    /**
-     * Sanitiza requisição DataTables
-     */
     private function sanitizeRequest(array $request): array
     {
         return [
-            'draw' => (int) ($request['draw'] ?? 1),
-            'start' => max(0, (int) ($request['start'] ?? 0)),
+            'draw'   => (int) ($request['draw'] ?? 1),
+            'start'  => max(0, (int) ($request['start'] ?? 0)),
             'length' => max(-1, (int) ($request['length'] ?? 10)),
             'search' => [
                 'value' => (string) ($request['search']['value'] ?? ''),
                 'regex' => (bool) ($request['search']['regex'] ?? false)
             ],
-            'order' => $request['order'] ?? [],
+            'order'   => $request['order'] ?? [],
             'columns' => $request['columns'] ?? []
         ];
     }
 
-    /**
-     * Factory method estático
-     */
     public static function create(GalaxyDB $query, array $request): self
     {
         return new self($query, $request);
+    }
+
+    private function getAppliedFilters(): array
+    {
+        $filters = ['search' => null, 'order' => [], 'columns' => []];
+
+        $globalSearch = $this->request['search']['value'] ?? '';
+        if (!empty($globalSearch)) {
+            $filters['search'] = $globalSearch;
+        }
+
+        $orders  = $this->request['order'] ?? [];
+        $columns = $this->request['columns'] ?? [];
+
+        foreach ($orders as $order) {
+            $idx       = $order['column'] ?? null;
+            $direction = $order['dir'] ?? 'ASC';
+            if ($idx !== null && isset($columns[$idx])) {
+                $col = $columns[$idx]['data'] ?? null;
+                if ($col && in_array($col, $this->orderableColumns)) {
+                    $filters['order'][] = ['column' => $col, 'direction' => strtoupper($direction)];
+                }
+            }
+        }
+
+        foreach ($columns as $column) {
+            $search = $column['search']['value'] ?? '';
+            $col    = $column['data'] ?? null;
+            if (!empty($search) && $col && in_array($col, $this->searchableColumns)) {
+                $filters['columns'][$col] = $search;
+            }
+        }
+
+        return $filters;
     }
 }

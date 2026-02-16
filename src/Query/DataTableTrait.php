@@ -12,21 +12,19 @@ trait DataTableTrait
     private bool $isDataTableMode = false;
 
     /**
-     * Prepara para processamento DataTables (não executa ainda)
-     * Detecta automaticamente a requisição e configura os filtros
-     * 
+     * Prepara para processamento DataTables (não executa ainda).
+     * A query original (com WHERE/HAVING do usuário) é transformada em subquery
+     * internamente — filtros, order e paginação do DataTable são aplicados na camada externa.
+     *
      * @param array|null $searchableColumns Colunas pesquisáveis (null = auto-detect)
-     * @param array|null $orderableColumns Colunas ordenáveis (null = usa searchable)
-     * @return self Para encadeamento
+     * @param array|null $orderableColumns  Colunas ordenáveis  (null = usa searchable)
      */
     public function prepare_dataTable(
         ?array $searchableColumns = null,
         ?array $orderableColumns = null
     ): self {
-        // Detecta requisição DataTables
         $request = $this->detectDataTableRequest();
-        
-        // Verifica se é requisição DataTables válida
+
         if (!$this->isValidDataTableRequest($request)) {
             $this->isDataTableMode = false;
             return $this;
@@ -34,12 +32,10 @@ trait DataTableTrait
 
         $this->isDataTableMode = true;
 
-        // Auto-detecta colunas se não fornecidas
         if ($searchableColumns === null) {
             $searchableColumns = $this->extractColumnsFromRequest($request);
         }
 
-        // Cria o handler
         $this->dataTableHandler = DataTableHandler::create($this, $request)
             ->setSearchableColumns($searchableColumns)
             ->setOrderableColumns($orderableColumns ?? $searchableColumns);
@@ -48,99 +44,126 @@ trait DataTableTrait
     }
 
     /**
-     * Executa o DataTable (após prepare_dataTable)
-     * Se não foi preparado, retorna select normal
-     * 
-     * @return array Dados formatados
+     * Executa o DataTable (após prepare_dataTable).
+     * Se não foi preparado, retorna select normal no formato DataTables.
      */
     public function dataTable(): array
     {
-        // Se não preparou ou não detectou requisição válida
         if (!$this->isDataTableMode || $this->dataTableHandler === null) {
-            // Retorna no formato DataTables mesmo assim
             $data = $this->select();
             return [
-                'draw' => 1,
-                'recordsTotal' => count($data),
+                'draw'            => 1,
+                'recordsTotal'    => count($data),
                 'recordsFiltered' => count($data),
-                'data' => $data
+                'data'            => $data
             ];
         }
 
         return $this->dataTableHandler->process();
     }
 
-    /**
-     * Verifica se está em modo DataTable
-     */
     public function isDataTableMode(): bool
     {
         return $this->isDataTableMode;
     }
 
-    /**
-     * Detecta requisição DataTables de $_POST ou $_GET
-     */
+    // -------------------------------------------------------------------------
+    // INTERNOS
+    // -------------------------------------------------------------------------
+
     private function detectDataTableRequest(): array
     {
-        // Prioridade: PUBLIC_DATA > PRIVATE_DATA > $_POST > $_GET
         $source = null;
-        
-        // Verifica PUBLIC_DATA
-        if (defined('PUBLIC_DATA') && 
-            is_array(PUBLIC_DATA) && 
+
+        if (defined('PUBLIC_DATA') &&
+            is_array(PUBLIC_DATA) &&
             array_key_exists('oAjaxData', PUBLIC_DATA) &&
             is_array(PUBLIC_DATA['oAjaxData'])) {
             $source = PUBLIC_DATA['oAjaxData'];
-        }
-        // Verifica PRIVATE_DATA
-        elseif (defined('PRIVATE_DATA') && 
-                is_array(PRIVATE_DATA) && 
-                array_key_exists('oAjaxData', PRIVATE_DATA) &&
-                is_array(PRIVATE_DATA['oAjaxData'])) {
+        } elseif (defined('PRIVATE_DATA') &&
+                  is_array(PRIVATE_DATA) &&
+                  array_key_exists('oAjaxData', PRIVATE_DATA) &&
+                  is_array(PRIVATE_DATA['oAjaxData'])) {
             $source = PRIVATE_DATA['oAjaxData'];
-        }
-        // Fallback para $_POST ou $_GET
-        else {
+        } else {
             $source = !empty($_POST['draw']) ? $_POST : (!empty($_GET['draw']) ? $_GET : []);
         }
-        
+
         return [
-            'draw' => $source['draw'] ?? null,
-            'start' => $source['start'] ?? 0,
+            'draw'   => $source['draw'] ?? null,
+            'start'  => $source['start'] ?? 0,
             'length' => $source['length'] ?? 10,
             'search' => [
                 'value' => $source['search']['value'] ?? '',
                 'regex' => $source['search']['regex'] ?? false
             ],
-            'order' => $source['order'] ?? [],
+            'order'   => $source['order'] ?? [],
             'columns' => $source['columns'] ?? []
         ];
     }
 
-    /**
-     * Verifica se é uma requisição DataTables válida
-     */
     private function isValidDataTableRequest(array $request): bool
     {
         return !empty($request['draw']) && isset($request['columns']);
     }
 
     /**
-     * Extrai nomes de colunas da requisição DataTables
+     * Extrai colunas pesquisáveis do request do DataTables.
+     * Como usamos subquery, todos os aliases são acessíveis — exceto TABELA.*
      */
     private function extractColumnsFromRequest(array $request): array
     {
+        $safe    = $this->buildSafeColumnsListFromSelect();
         $columns = [];
-        
+
         foreach ($request['columns'] ?? [] as $column) {
-            if (!empty($column['data']) && 
-                $column['data'] !== 'null' && 
-                ($column['searchable'] ?? true)) {
-                $columns[] = $column['data'];
+            $data = $column['data'] ?? null;
+            if (!empty($data) &&
+                $data !== 'null' &&
+                ($column['searchable'] ?? true) &&
+                in_array(strtoupper($data), $safe)
+            ) {
+                $columns[] = $data;
             }
         }
-        
+
         return $columns;
+    }
+
+    /**
+     * Monta lista de colunas seguras a partir dos selectColumns.
+     * Com subquery, aceita todos os aliases — só rejeita TABELA.* (ambíguo no inner SQL).
+     */
+    private function buildSafeColumnsListFromSelect(): array
+    {
+        $safe = [];
+
+        foreach ($this->getSelectColumns() as $col) {
+            $trimmed = trim($col);
+
+            // TABELA.* → ignora
+            if (preg_match('/^[A-Za-z0-9_]+\.\*$/', $trimmed)) {
+                continue;
+            }
+
+            // Alias → pega o nome do alias (qualquer tipo — subquery resolve)
+            if (preg_match('/\s+AS\s+(\w+)\s*$/i', $trimmed, $matches)) {
+                $safe[] = strtoupper($matches[1]);
+                continue;
+            }
+
+            // TABELA.COLUNA → extrai COLUNA
+            if (preg_match('/^[A-Za-z0-9_]+\.([A-Za-z0-9_]+)$/', $trimmed, $matches)) {
+                $safe[] = strtoupper($matches[1]);
+                continue;
+            }
+
+            // Coluna simples
+            if (preg_match('/^[A-Za-z0-9_]+$/', $trimmed)) {
+                $safe[] = strtoupper($trimmed);
+            }
+        }
+
+        return $safe;
     }
 }

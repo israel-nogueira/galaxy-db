@@ -276,6 +276,11 @@ trait Connection
 
     protected function formatTableName(string $table): string
     {
+        // Se começa com parêntese, é subquery - retorna sem validar
+        if (str_starts_with(trim($table), '(')) {
+            return $table;
+        }
+        
         // Se tem alias: "USUARIOS US" ou "USUARIOS AS US"
         if (preg_match('/^([a-zA-Z0-9_]+)\s+(AS\s+)?([a-zA-Z0-9_]+)$/i', $table, $matches)) {
             $tableName = $matches[1];

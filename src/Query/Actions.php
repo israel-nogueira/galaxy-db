@@ -43,6 +43,7 @@ trait Actions
         $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
         $sql .= $this->buildGroupBy();
+        $sql .= $this->buildHaving();
         $sql .= $this->buildOrderBy();
         $sql .= $this->buildLimit();
 
@@ -84,6 +85,8 @@ trait Actions
         $sql = "SELECT COUNT(*) as total FROM {$this->formatTableName($this->tableClass)}";
         $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
+        $sql .= $this->buildGroupBy();
+        $sql .= $this->buildHaving();
 
         $this->query = $sql;
 
@@ -360,6 +363,7 @@ trait Actions
         $sql .= $this->buildJoins();
         $sql .= $this->buildWhere();
         $sql .= $this->buildGroupBy();
+        $sql .= $this->buildHaving();
         $sql .= $this->buildOrderBy();
         $sql .= $this->buildLimit();
         
