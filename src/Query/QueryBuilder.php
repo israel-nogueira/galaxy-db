@@ -20,6 +20,7 @@ trait QueryBuilder
     protected array $ignore = [];
     protected array $selectColumns = [];
     protected array $joins = [];
+    protected array $jsonColumns = [];
 
     public function getSelectColumns(): array
     {
@@ -36,22 +37,75 @@ trait QueryBuilder
         $this->having = ($this->having ? $this->having . ' AND ' : '') . $clause;
     }
 
+	public function having(string $clause): self
+	{
+		if ($this->having === null) {
+			$this->having = $clause;
+		} else {
+			if (preg_match('/^\s*(AND|OR)\s+/i', $clause)) {
+				$this->having .= ' ' . $clause;
+			} else {
+				$this->having .= ' AND ' . $clause;
+			}
+		}
+		return $this;
+	}
+
     public function table(string $table): self
     {
         $this->tableClass = $this->validateIdentifier($table);
         return $this;
     }
 
-    public function colum(string|array $column): self
+    public function colum(string|array $column, bool $parseJson = false): self
     {
         if (is_array($column)) {
             foreach ($column as $col) {
                 $this->selectColumns[] = $col;
+                if ($parseJson) {
+                    $this->jsonColumns[] = $this->extractAlias($col);
+                }
             }
         } else {
             $this->selectColumns[] = $column;
+            if ($parseJson) {
+                $this->jsonColumns[] = $this->extractAlias($column);
+            }
         }
         return $this;
+    }
+
+    public function getJsonColumns(): array
+    {
+        return $this->jsonColumns;
+    }
+
+    private function extractAlias(string $column): string
+    {
+        if (preg_match('/\s+AS\s+(\w+)\s*$/i', $column, $matches)) {
+            return $matches[1];
+        }
+        // sem alias: pega última parte (TABELA.COLUNA -> COLUNA)
+        $parts = explode('.', $column);
+        return trim(end($parts));
+    }
+
+    public function applyJsonDecode(array $rows): array
+    {
+        if (empty($this->jsonColumns)) {
+            return $rows;
+        }
+        foreach ($rows as &$row) {
+            foreach ($this->jsonColumns as $col) {
+                if (isset($row[$col]) && is_string($row[$col]) && $row[$col] !== '') {
+                    $decoded = json_decode($row[$col], true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $row[$col] = $decoded;
+                    }
+                }
+            }
+        }
+        return $rows;
     }
 
     public function join(string $type, string $table, string $condition): self
@@ -312,6 +366,7 @@ trait QueryBuilder
         $this->ignore = [];
         $this->selectColumns = [];
         $this->joins = [];
+        $this->jsonColumns = [];
 
         return $this;
     }

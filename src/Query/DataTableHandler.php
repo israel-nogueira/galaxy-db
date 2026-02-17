@@ -44,6 +44,7 @@ class DataTableHandler
 
         $dataSql = "SELECT * FROM ({$innerSql}) AS _dt{$whereClause}{$orderBy}{$pagination}";
         $data = $this->rawSelect($dataSql);
+        $data = $this->query->applyJsonDecode($data);
 
         $allData = null;
         if ($this->returnAllData) {
