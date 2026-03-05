@@ -58,6 +58,7 @@ trait Actions
 
             $stmt->execute();
             $result = $stmt->fetchAll();
+            $result = $this->applyJsonDecode($result);
 
             if ($this->debug) {
                 $this->logQuery($sql, $this->whereBindings);
@@ -417,5 +418,43 @@ trait Actions
     {
         // Implementação básica - sobrescreva conforme necessário
         error_log("GalaxyDB Error: {$error}");
+    }
+
+    /*
+    |--------------------------------------------------------------------
+    |   RETROCOMPATIBILIDADE
+    |--------------------------------------------------------------------
+    |
+    |   Aliases para manter compatibilidade com código legado
+    |   que usa a API antiga da lib (set_insert, set_update, etc.)
+    |
+    */
+
+    public function set_insert(string $colum, mixed $var): static
+    {
+        $this->setInsertValue($colum, $var ?? '');
+        return $this;
+    }
+
+    public function set_update(string $colum, mixed $var): static
+    {
+        $this->setUpdateValue($colum, $var ?? '');
+        return $this;
+    }
+
+    public function set_insert_obj(array $object): static
+    {
+        foreach ($object as $key => $var) {
+            $this->setInsertValue($key, $var ?? '');
+        }
+        return $this;
+    }
+
+    public function set_update_obj(array $object): static
+    {
+        foreach ($object as $key => $var) {
+            $this->setUpdateValue($key, $var ?? '');
+        }
+        return $this;
     }
 }

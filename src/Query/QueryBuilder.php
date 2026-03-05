@@ -20,6 +20,7 @@ trait QueryBuilder
     protected array $ignore = [];
     protected array $selectColumns = [];
     protected array $joins = [];
+    protected array $jsonDecodeColumns = [];
 
     public function getSelectColumns(): array
     {
@@ -31,9 +32,15 @@ trait QueryBuilder
         return $this->having;
     }
 
-    public function appendHaving(string $clause): void
+    public function having(string $clause): self
     {
         $this->having = ($this->having ? $this->having . ' AND ' : '') . $clause;
+        return $this;
+    }
+
+    public function appendHaving(string $clause): void
+    {
+        $this->having($clause);
     }
 
     public function table(string $table): self
@@ -42,7 +49,7 @@ trait QueryBuilder
         return $this;
     }
 
-    public function colum(string|array $column): self
+    public function colum(string|array $column, bool $decode = false): self
     {
         if (is_array($column)) {
             foreach ($column as $col) {
@@ -50,6 +57,11 @@ trait QueryBuilder
             }
         } else {
             $this->selectColumns[] = $column;
+            if ($decode) {
+                // Extrai nome real da coluna (ignora alias AS xxx e prefixo TABELA.)
+                preg_match('/(?:[\w]+\.)?([\w]+)(?:\s+AS\s+[\w]+)?$/i', $column, $m);
+                $this->jsonDecodeColumns[] = $m[1] ?? $column;
+            }
         }
         return $this;
     }
@@ -312,8 +324,27 @@ trait QueryBuilder
         $this->ignore = [];
         $this->selectColumns = [];
         $this->joins = [];
+        $this->jsonDecodeColumns = [];
 
         return $this;
+    }
+
+    protected function applyJsonDecode(array $rows): array
+    {
+        if (empty($this->jsonDecodeColumns)) {
+            return $rows;
+        }
+        foreach ($rows as &$row) {
+            foreach ($this->jsonDecodeColumns as $col) {
+                if (isset($row[$col]) && is_string($row[$col])) {
+                    $decoded = json_decode($row[$col], true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $row[$col] = $decoded;
+                    }
+                }
+            }
+        }
+        return $rows;
     }
 
     protected function setInsertValue(string $column, mixed $value): void
