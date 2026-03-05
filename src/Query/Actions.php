@@ -58,7 +58,6 @@ trait Actions
 
             $stmt->execute();
             $result = $stmt->fetchAll();
-            $result = $this->applyJsonDecode($result);
 
             if ($this->debug) {
                 $this->logQuery($sql, $this->whereBindings);

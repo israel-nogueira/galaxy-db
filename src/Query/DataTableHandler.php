@@ -69,21 +69,18 @@ class DataTableHandler
 
     public function setSearchableColumns(array $columns): self
     {
-        // Filtra apenas colunas válidas (sem TABELA.*, subqueries, funções complexas)
-        $safe = $this->buildSafeColumnsList();
         $this->searchableColumns = array_values(array_filter(
             $columns,
-            fn($col) => !empty($col) && in_array(strtoupper($col), $safe)
+            fn($col) => !empty($col)
         ));
         return $this;
     }
 
     public function setOrderableColumns(array $columns): self
     {
-        $safe = $this->buildSafeColumnsList();
         $this->orderableColumns = array_values(array_filter(
             $columns,
-            fn($col) => !empty($col) && in_array(strtoupper($col), $safe)
+            fn($col) => !empty($col)
         ));
         return $this;
     }
@@ -176,12 +173,14 @@ class DataTableHandler
      */
     private function buildColumnSearchWhere(): string
     {
-        $conditions = [];
+        $conditions    = [];
+        $searchableUpper = array_map('strtoupper', $this->searchableColumns);
+
         foreach ($this->request['columns'] ?? [] as $column) {
             $search     = $column['search']['value'] ?? '';
             $columnName = $column['data'] ?? null;
 
-            if (!empty($search) && $columnName && in_array($columnName, $this->searchableColumns)) {
+            if (!empty($search) && $columnName && in_array(strtoupper($columnName), $searchableUpper)) {
                 $pattern      = $this->quote('%' . $this->normalizeSearch($search) . '%');
                 $conditions[] = "`_dt`.`{$columnName}` LIKE {$pattern}";
             }
@@ -195,9 +194,10 @@ class DataTableHandler
      */
     private function buildOrderBy(): string
     {
-        $orders  = $this->request['order'] ?? [];
-        $columns = $this->request['columns'] ?? [];
-        $parts   = [];
+        $orders         = $this->request['order'] ?? [];
+        $columns        = $this->request['columns'] ?? [];
+        $parts          = [];
+        $orderableUpper = array_map('strtoupper', $this->orderableColumns);
 
         foreach ($orders as $order) {
             $idx       = $order['column'] ?? null;
@@ -209,7 +209,7 @@ class DataTableHandler
 
             if ($idx !== null && isset($columns[$idx])) {
                 $col = $columns[$idx]['data'] ?? null;
-                if ($col && in_array($col, $this->orderableColumns)) {
+                if ($col && in_array(strtoupper($col), $orderableUpper)) {
                     $parts[] = "`_dt`.`{$col}` {$direction}";
                 }
             }
@@ -295,20 +295,22 @@ class DataTableHandler
     {
         $filters = ['search' => null, 'order' => [], 'columns' => []];
 
-        $globalSearch = $this->request['search']['value'] ?? '';
+        $globalSearch    = $this->request['search']['value'] ?? '';
         if (!empty($globalSearch)) {
             $filters['search'] = $globalSearch;
         }
 
-        $orders  = $this->request['order'] ?? [];
-        $columns = $this->request['columns'] ?? [];
+        $orders          = $this->request['order'] ?? [];
+        $columns         = $this->request['columns'] ?? [];
+        $orderableUpper  = array_map('strtoupper', $this->orderableColumns);
+        $searchableUpper = array_map('strtoupper', $this->searchableColumns);
 
         foreach ($orders as $order) {
             $idx       = $order['column'] ?? null;
             $direction = $order['dir'] ?? 'ASC';
             if ($idx !== null && isset($columns[$idx])) {
                 $col = $columns[$idx]['data'] ?? null;
-                if ($col && in_array($col, $this->orderableColumns)) {
+                if ($col && in_array(strtoupper($col), $orderableUpper)) {
                     $filters['order'][] = ['column' => $col, 'direction' => strtoupper($direction)];
                 }
             }
@@ -317,7 +319,7 @@ class DataTableHandler
         foreach ($columns as $column) {
             $search = $column['search']['value'] ?? '';
             $col    = $column['data'] ?? null;
-            if (!empty($search) && $col && in_array($col, $this->searchableColumns)) {
+            if (!empty($search) && $col && in_array(strtoupper($col), $searchableUpper)) {
                 $filters['columns'][$col] = $search;
             }
         }

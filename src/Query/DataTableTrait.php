@@ -79,11 +79,14 @@ trait DataTableTrait
             is_array(PUBLIC_DATA) &&
             array_key_exists('oAjaxData', PUBLIC_DATA) &&
             is_array(PUBLIC_DATA['oAjaxData'])) {
+
             $source = PUBLIC_DATA['oAjaxData'];
+
         } elseif (defined('PRIVATE_DATA') &&
-                  is_array(PRIVATE_DATA) &&
-                  array_key_exists('oAjaxData', PRIVATE_DATA) &&
-                  is_array(PRIVATE_DATA['oAjaxData'])) {
+			is_array(PRIVATE_DATA) &&
+			array_key_exists('oAjaxData', PRIVATE_DATA) &&
+			is_array(PRIVATE_DATA['oAjaxData'])) {
+				
             $source = PRIVATE_DATA['oAjaxData'];
         } else {
             $source = !empty($_POST['draw']) ? $_POST : (!empty($_GET['draw']) ? $_GET : []);
