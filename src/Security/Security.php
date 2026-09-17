@@ -74,6 +74,11 @@ trait Security
     protected bool $prepareCrypt = false;
 
     /**
+     * Nível de segurança (strict, normal, lenient)
+     */
+    protected string $securityLevel = 'normal';
+
+    /**
      * Habilita criptografia para próxima operação
      * 
      * @return self
@@ -117,6 +122,21 @@ trait Security
     }
 
     /**
+     * Define nível de segurança
+     * 
+     * @param string $level strict, normal, lenient
+     * @return self
+     */
+    public function setSecurityLevel(string $level): self
+    {
+        $validLevels = ['strict', 'normal', 'lenient'];
+        if (in_array($level, $validLevels)) {
+            $this->securityLevel = $level;
+        }
+        return $this;
+    }
+
+    /**
      * Obtém instância do encriptador
      * 
      * @return Encryption
@@ -139,6 +159,25 @@ trait Security
     {
         if ($this->columnGuard === null) {
             $this->columnGuard = new ColumnGuard();
+            
+            // Configura com restrições da model
+            if (!empty($this->columnsEnab) || !empty($this->columnsBlock)) {
+                $this->columnGuard
+                    ->setAllowedColumns($this->columnsEnab ?? [])
+                    ->setBlockedColumns($this->columnsBlock ?? []);
+            }
+            
+            // Configura funções
+            if (!empty($this->mysqlFnEnabClass) || !empty($this->mysqlFnBlockClass)) {
+                $this->columnGuard
+                    ->setAllowedFunctions($this->mysqlFnEnabClass ?? [])
+                    ->setBlockedFunctions($this->mysqlFnBlockClass ?? []);
+            }
+            
+            // Habilita bloqueio de colunas sensíveis se nível strict
+            if ($this->securityLevel === 'strict') {
+                $this->columnGuard->enableSensitiveBlock(true);
+            }
         }
         
         return $this->columnGuard;
@@ -148,41 +187,58 @@ trait Security
      * Criptografa dados
      * 
      * @param mixed $data Dados a serem criptografados
+     * @param bool $strict Se deve lançar exceção em falha
      * @return string Dados criptografados
+     * @throws \RuntimeException Se $strict true e falhar
      */
-    protected function crypta(mixed $data): string
+    protected function crypta(mixed $data, bool $strict = true): string
     {
         $this->isCrypt = false;
-        return $this->getEncryptor()->encrypt($data);
+        
+        try {
+            return $this->getEncryptor()->encrypt($data);
+        } catch (\RuntimeException $e) {
+            if ($strict) {
+                throw $e;
+            }
+            return (string) $data;
+        }
     }
 
     /**
      * Descriptografa dados
      * 
      * @param string $data Dados criptografados
+     * @param bool $strict Se deve lançar exceção em falha
      * @return string Dados descriptografados
+     * @throws \RuntimeException Se $strict true e falhar
      */
-    protected function decrypta(string $data): string
+    protected function decrypta(string $data, bool $strict = true): string
     {
         $this->isCrypt = false;
-        return $this->getEncryptor()->decrypt($data);
+        
+        try {
+            return $this->getEncryptor()->decrypt($data);
+        } catch (\RuntimeException $e) {
+            if ($strict) {
+                throw $e;
+            }
+            return $data;
+        }
     }
 
     /**
      * Verifica e valida colunas em expressões JOIN
      * 
      * @param string $expression Expressão SQL
+     * @param bool $strict Se deve lançar exceção
      * @return string Expressão validada
+     * @throws Exception Se $strict true e inválida
      */
-    public function verifyJoinColums(string $expression): string
+    public function verifyJoinColums(string $expression, bool $strict = true): string
     {
         $guard = $this->getColumnGuard();
-        
-        // Configura guardian com as restrições da model
-        $guard->setAllowedColumns($this->columnsEnab ?? [])
-              ->setBlockedColumns($this->columnsBlock ?? []);
-
-        return $guard->validateJoinExpression($expression);
+        return $guard->validateJoinExpression($expression, $strict);
     }
 
     /**
@@ -198,18 +254,17 @@ trait Security
         }
 
         $guard = $this->getColumnGuard();
-        $guard->setAllowedColumns($this->columnsEnab ?? [])
-              ->setBlockedColumns($this->columnsBlock ?? []);
-
         return $guard->isColumnAllowed($column) ? $column : false;
     }
 
     /**
      * Verifica e retorna colunas permitidas
      * 
+     * @param bool $strict Se deve lançar exceção para colunas inválidas
      * @return string Lista de colunas separadas por vírgula
+     * @throws Exception Se $strict true e houver colunas inválidas
      */
-    public function verifyColunms(): string
+    public function verifyColunms(bool $strict = true): string
     {
         if (is_null($this->tableClass ?? null)) {
             throw new \RuntimeException("É necessário pelo menos uma tabela ou query cadastrada");
@@ -223,17 +278,30 @@ trait Security
         }
 
         $guard = $this->getColumnGuard();
-        $guard->setAllowedColumns($this->columnsEnab ?? [])
-              ->setBlockedColumns($this->columnsBlock ?? []);
-
         $validColumns = [];
+        $invalidColumns = [];
+
         foreach ($columns as $column) {
-            if ($guard->isColumnAllowed($column)) {
-                $verified = $this->functionVerifyString($column);
+            $trimmed = trim($column);
+            
+            // Verifica se a coluna é permitida
+            if ($guard->isColumnAllowed($trimmed)) {
+                // Verifica funções na coluna
+                $verified = $this->functionVerifyString($trimmed, false);
                 if ($verified !== false) {
                     $validColumns[] = $verified;
+                } else {
+                    $invalidColumns[] = $trimmed;
                 }
+            } else {
+                $invalidColumns[] = $trimmed;
             }
+        }
+
+        if ($strict && !empty($invalidColumns)) {
+            throw new \Exception(
+                "Colunas inválidas ou bloqueadas: " . implode(', ', $invalidColumns)
+            );
         }
 
         return str_replace('¸', ',', implode(',', $validColumns));
@@ -243,19 +311,22 @@ trait Security
      * Verifica se uma função MySQL em array é permitida
      * 
      * @param string $str String contendo função
+     * @param bool $strict Se deve lançar exceção
      * @return array|false Array com função e parâmetros ou false
+     * @throws Exception Se $strict true e função inválida
      */
-    public function functionVerifyArray(string $str): array|false
+    public function functionVerifyArray(string $str, bool $strict = true): array|false
     {
         if (preg_match('/(\w+)\s*\((.*)\)/', $str, $matches)) {
             $function = $matches[1] ?? '';
             $params = $matches[2] ?? '';
 
             $guard = $this->getColumnGuard();
-            $guard->setAllowedFunctions($this->mysqlFnEnabClass ?? [])
-                  ->setBlockedFunctions($this->mysqlFnBlockClass ?? []);
 
             if (!$guard->isFunctionAllowed($function)) {
+                if ($strict) {
+                    throw new \Exception("Função MySQL bloqueada: {$function}");
+                }
                 return ['function' => '', 'params' => "(NULL)"];
             }
 
@@ -269,17 +340,19 @@ trait Security
      * Verifica se funções em uma string são permitidas
      * 
      * @param string $stringColumn String contendo possíveis funções
+     * @param bool $strict Se deve lançar exceção
      * @return string|false String se válida, false caso contrário
+     * @throws Exception Se $strict true e função inválida
      */
-    public function functionVerifyString(string $stringColumn): string|false
+    public function functionVerifyString(string $stringColumn, bool $strict = true): string|false
     {
         $guard = $this->getColumnGuard();
-        $guard->setAllowedFunctions($this->mysqlFnEnabClass ?? [])
-              ->setBlockedFunctions($this->mysqlFnBlockClass ?? []);
 
-        return $guard->validateFunctionExpression($stringColumn) 
-            ? $stringColumn 
-            : false;
+        if ($guard->validateFunctionExpression($stringColumn, $strict)) {
+            return $stringColumn;
+        }
+
+        return false;
     }
 
     /**
@@ -291,5 +364,139 @@ trait Security
     public function preventMySQLInject(string $string): string
     {
         return Validator::sanitize($string);
+    }
+
+    /**
+     * Valida SQL completo antes de executar
+     * 
+     * @param string $sql SQL a ser validado
+     * @param bool $strict Se deve lançar exceção
+     * @return bool True se seguro
+     * @throws Exception Se $strict true e detectar perigo
+     */
+    public function validateSQL(string $sql, bool $strict = true): bool
+    {
+        $guard = $this->getColumnGuard();
+        return $guard->validateSQL($sql, $strict);
+    }
+
+    /**
+     * Verifica se uma coluna é sensível
+     * 
+     * @param string $column Nome da coluna
+     * @return bool True se é sensível
+     */
+    public function isSensitiveColumn(string $column): bool
+    {
+        $guard = $this->getColumnGuard();
+        return $guard->isSensitiveColumn($column);
+    }
+
+    /**
+     * Valida e sanitiza array de dados para insert/update
+     * 
+     * @param array $data Dados a serem validados
+     * @param bool $strict Se deve lançar exceção
+     * @return array Dados validados
+     * @throws Exception Se $strict true e detectar perigo
+     */
+    public function validateData(array $data, bool $strict = true): array
+    {
+        $result = [];
+        
+        foreach ($data as $key => $value) {
+            // Valida chave (nome da coluna)
+            if (!Validator::isValidColumnName($key)) {
+                if ($strict) {
+                    throw new \Exception("Nome de coluna inválido: {$key}");
+                }
+                continue;
+            }
+
+            // Valida coluna
+            if (!$this->verifyIndividualColum($key)) {
+                if ($strict) {
+                    throw new \Exception("Coluna bloqueada: {$key}");
+                }
+                continue;
+            }
+
+            // Se for string, sanitiza
+            if (is_string($value)) {
+                // Verifica se contém caracteres perigosos
+                if ($this->securityLevel === 'strict' && !Validator::isSafe($value)) {
+                    if ($strict) {
+                        throw new \Exception("Valor contém caracteres perigosos para a coluna: {$key}");
+                    }
+                    $value = Validator::sanitize($value);
+                }
+            }
+
+            $result[$key] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Verifica se há restrições de segurança configuradas
+     * 
+     * @return bool True se há restrições
+     */
+    public function hasSecurityRestrictions(): bool
+    {
+        return !empty($this->columnsEnab) || 
+               !empty($this->columnsBlock) ||
+               !empty($this->mysqlFnEnabClass) ||
+               !empty($this->mysqlFnBlockClass) ||
+               $this->securityLevel === 'strict';
+    }
+
+    /**
+     * Obtém colunas bloqueadas atuais
+     * 
+     * @return array
+     */
+    public function getBlockedColumns(): array
+    {
+        return $this->getColumnGuard()->getBlockedColumns();
+    }
+
+    /**
+     * Obtém colunas permitidas atuais
+     * 
+     * @return array
+     */
+    public function getAllowedColumns(): array
+    {
+        return $this->getColumnGuard()->getAllowedColumns();
+    }
+
+    /**
+     * Adiciona colunas à lista de bloqueadas
+     * 
+     * @param array $columns Colunas a bloquear
+     * @return self
+     */
+    public function blockColumns(array $columns): self
+    {
+        $guard = $this->getColumnGuard();
+        $current = $guard->getBlockedColumns();
+        $guard->setBlockedColumns(array_merge($current, $columns));
+        return $this;
+    }
+
+    /**
+     * Adiciona colunas à lista de permitidas
+     * 
+     * @param array $columns Colunas a permitir
+     * @return self
+     */
+    public function allowColumns(array $columns): self
+    {
+        $guard = $this->getColumnGuard();
+        $current = $guard->getAllowedColumns();
+        $guard->setAllowedColumns(array_merge($current, $columns));
+        return $this;
     }
 }

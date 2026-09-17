@@ -21,6 +21,8 @@ trait QueryBuilder
     protected array $selectColumns = [];
     protected array $joins = [];
     protected array $jsonDecodeColumns = [];
+    protected ?string $lockMode = null;
+    protected array $unions = [];
 
     public function getSelectColumns(): array
     {
@@ -34,6 +36,11 @@ trait QueryBuilder
 
     public function having(string $clause): self
     {
+        // Valida HAVING básico
+        if (stripos($clause, ';') !== false) {
+            throw new \InvalidArgumentException("Cláusula HAVING inválida");
+        }
+        
         $this->having = ($this->having ? $this->having . ' AND ' : '') . $clause;
         return $this;
     }
@@ -75,6 +82,11 @@ trait QueryBuilder
             $type = 'INNER';
         }
 
+        // Valida tabela e condição básica
+        if (stripos($table, ';') !== false || stripos($condition, ';') !== false) {
+            throw new \InvalidArgumentException("JOIN contém caracteres inválidos");
+        }
+
         $this->joins[] = "{$type} JOIN {$table} ON {$condition}";
         return $this;
     }
@@ -82,6 +94,11 @@ trait QueryBuilder
     public function where(string $column, mixed $value = null, string $operator = '='): self
     {
         if ($value === null && func_num_args() === 1) {
+            // Raw expression — passa direto sem backticks
+            if (stripos($column, ';') !== false) {
+                throw new \InvalidArgumentException("Expressão WHERE inválida");
+            }
+            
             if ($this->where === null) {
                 $this->where = $column;
             } else {
@@ -90,10 +107,16 @@ trait QueryBuilder
             return $this;
         }
 
-        $column = $this->validateIdentifier($column);
-        $placeholder = ':w_' . count($this->whereBindings);
+        // Valida operador
+        $validOperators = ['=', '!=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'RLIKE', 'REGEXP'];
+        if (!in_array(strtoupper($operator), $validOperators)) {
+            throw new \InvalidArgumentException("Operador inválido: {$operator}");
+        }
 
-        $condition = "`{$column}` {$operator} {$placeholder}";
+        $column      = $this->validateIdentifier($column);
+        $placeholder = ':w_' . count($this->whereBindings);
+        $condition   = $this->wrapColumn($column) . " {$operator} {$placeholder}";
+
         $this->whereBindings[$placeholder] = $value;
 
         if ($this->where === null) {
@@ -108,19 +131,50 @@ trait QueryBuilder
     public function whereIn(string $column, array $values): self
     {
         if (empty($values)) {
+            // WHERE IN com array vazio retorna falso
+            $this->where('1', 0, '=');
             return $this;
         }
 
-        $column = $this->validateIdentifier($column);
+        $column       = $this->validateIdentifier($column);
         $placeholders = [];
 
-        foreach ($values as $i => $value) {
-            $placeholder = ':win_' . count($this->whereBindings);
+        foreach ($values as $value) {
+            $placeholder    = ':win_' . count($this->whereBindings);
             $placeholders[] = $placeholder;
             $this->whereBindings[$placeholder] = $value;
         }
 
-        $condition = "`{$column}` IN (" . implode(', ', $placeholders) . ")";
+        $condition = $this->wrapColumn($column) . ' IN (' . implode(', ', $placeholders) . ')';
+
+        if ($this->where === null) {
+            $this->where = $condition;
+        } else {
+            $this->where .= " AND {$condition}";
+        }
+
+        return $this;
+    }
+
+    /**
+     * WHERE NOT IN
+     */
+    public function whereNotIn(string $column, array $values): self
+    {
+        if (empty($values)) {
+            return $this;
+        }
+
+        $column       = $this->validateIdentifier($column);
+        $placeholders = [];
+
+        foreach ($values as $value) {
+            $placeholder    = ':wnin_' . count($this->whereBindings);
+            $placeholders[] = $placeholder;
+            $this->whereBindings[$placeholder] = $value;
+        }
+
+        $condition = $this->wrapColumn($column) . ' NOT IN (' . implode(', ', $placeholders) . ')';
 
         if ($this->where === null) {
             $this->where = $condition;
@@ -133,14 +187,37 @@ trait QueryBuilder
 
     public function whereBetween(string $column, mixed $min, mixed $max): self
     {
-        $column = $this->validateIdentifier($column);
+        $column         = $this->validateIdentifier($column);
         $placeholderMin = ':wbt_min_' . count($this->whereBindings);
-        $placeholderMax = ':wbt_max_' . count($this->whereBindings);
+        $placeholderMax = ':wbt_max_' . (count($this->whereBindings) + 1);
 
         $this->whereBindings[$placeholderMin] = $min;
         $this->whereBindings[$placeholderMax] = $max;
 
-        $condition = "`{$column}` BETWEEN {$placeholderMin} AND {$placeholderMax}";
+        $condition = $this->wrapColumn($column) . " BETWEEN {$placeholderMin} AND {$placeholderMax}";
+
+        if ($this->where === null) {
+            $this->where = $condition;
+        } else {
+            $this->where .= " AND {$condition}";
+        }
+
+        return $this;
+    }
+
+    /**
+     * WHERE NOT BETWEEN
+     */
+    public function whereNotBetween(string $column, mixed $min, mixed $max): self
+    {
+        $column         = $this->validateIdentifier($column);
+        $placeholderMin = ':wnbt_min_' . count($this->whereBindings);
+        $placeholderMax = ':wnbt_max_' . (count($this->whereBindings) + 1);
+
+        $this->whereBindings[$placeholderMin] = $min;
+        $this->whereBindings[$placeholderMax] = $max;
+
+        $condition = $this->wrapColumn($column) . " NOT BETWEEN {$placeholderMin} AND {$placeholderMax}";
 
         if ($this->where === null) {
             $this->where = $condition;
@@ -153,11 +230,11 @@ trait QueryBuilder
 
     public function whereLike(string $column, string $pattern): self
     {
-        $column = $this->validateIdentifier($column);
+        $column      = $this->validateIdentifier($column);
         $placeholder = ':wl_' . count($this->whereBindings);
 
         $this->whereBindings[$placeholder] = $pattern;
-        $condition = "`{$column}` LIKE {$placeholder}";
+        $condition = $this->wrapColumn($column) . " LIKE {$placeholder}";
 
         if ($this->where === null) {
             $this->where = $condition;
@@ -170,8 +247,8 @@ trait QueryBuilder
 
     public function whereNull(string $column): self
     {
-        $column = $this->validateIdentifier($column);
-        $condition = "`{$column}` IS NULL";
+        $column    = $this->validateIdentifier($column);
+        $condition = $this->wrapColumn($column) . ' IS NULL';
 
         if ($this->where === null) {
             $this->where = $condition;
@@ -184,8 +261,8 @@ trait QueryBuilder
 
     public function whereNotNull(string $column): self
     {
-        $column = $this->validateIdentifier($column);
-        $condition = "`{$column}` IS NOT NULL";
+        $column    = $this->validateIdentifier($column);
+        $condition = $this->wrapColumn($column) . ' IS NOT NULL';
 
         if ($this->where === null) {
             $this->where = $condition;
@@ -198,10 +275,15 @@ trait QueryBuilder
 
     public function orWhere(string $column, mixed $value, string $operator = '='): self
     {
-        $column = $this->validateIdentifier($column);
-        $placeholder = ':ow_' . count($this->whereBindings);
+        $validOperators = ['=', '!=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE'];
+        if (!in_array(strtoupper($operator), $validOperators)) {
+            throw new \InvalidArgumentException("Operador inválido: {$operator}");
+        }
 
-        $condition = "`{$column}` {$operator} {$placeholder}";
+        $column      = $this->validateIdentifier($column);
+        $placeholder = ':ow_' . count($this->whereBindings);
+        $condition   = $this->wrapColumn($column) . " {$operator} {$placeholder}";
+
         $this->whereBindings[$placeholder] = $value;
 
         if ($this->where === null) {
@@ -213,6 +295,54 @@ trait QueryBuilder
         return $this;
     }
 
+    /**
+     * Agrupa condições WHERE com parênteses
+     */
+    public function whereGroup(callable $callback, string $boolean = 'AND'): self
+    {
+        // Guarda estado atual
+        $savedWhere = $this->where;
+        $savedBindings = $this->whereBindings;
+        
+        // Reseta para construir o grupo
+        $this->where = null;
+        $this->whereBindings = [];
+        
+        $callback($this);
+        
+        $groupSql = $this->where;
+        $groupBindings = $this->whereBindings;
+        
+        // Restaura estado
+        $this->where = $savedWhere;
+        $this->whereBindings = $savedBindings;
+        
+        // Merge bindings do grupo
+        foreach ($groupBindings as $key => $value) {
+            $this->whereBindings[$key] = $value;
+        }
+        
+        if (!empty($groupSql)) {
+            $condition = "({$groupSql})";
+            
+            if ($this->where === null) {
+                $this->where = $condition;
+            } else {
+                $this->where .= " {$boolean} {$condition}";
+            }
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Obtém cláusula WHERE atual (sem "WHERE ")
+     */
+    public function getWhereClause(): ?string
+    {
+        return $this->where;
+    }
+
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
         $direction = strtoupper($direction);
@@ -221,13 +351,33 @@ trait QueryBuilder
             throw new \InvalidArgumentException("Direção inválida: {$direction}");
         }
 
+        // Permite expressões como RAND(), NOW(), etc.
+        if (preg_match('/^[A-Z_]+\s*\(.*\)$/i', trim($column))) {
+            $this->setorder[] = "{$column} {$direction}";
+            return $this;
+        }
+
         if (strpos($column, '.') !== false) {
+            // alias.coluna — não coloca backtick englobando o ponto
             $this->setorder[] = "{$column} {$direction}";
         } else {
             $column = $this->validateIdentifier($column);
             $this->setorder[] = "`{$column}` {$direction}";
         }
 
+        return $this;
+    }
+
+    /**
+     * Order By com expressão raw
+     */
+    public function orderByRaw(string $expression): self
+    {
+        if (stripos($expression, ';') !== false) {
+            throw new \InvalidArgumentException("Expressão ORDER BY inválida");
+        }
+        
+        $this->setorder[] = $expression;
         return $this;
     }
 
@@ -251,6 +401,10 @@ trait QueryBuilder
 
     public function groupBy(string $column): self
     {
+        if (stripos($column, ';') !== false) {
+            throw new \InvalidArgumentException("GROUP BY inválido");
+        }
+        
         if (strpos($column, '.') !== false) {
             $this->group[] = $column;
         } else {
@@ -260,9 +414,43 @@ trait QueryBuilder
         return $this;
     }
 
+    /**
+     * GROUP BY com múltiplas colunas
+     */
+    public function groupByMultiple(array $columns): self
+    {
+        foreach ($columns as $column) {
+            $this->groupBy($column);
+        }
+        return $this;
+    }
+
     public function distinct(): self
     {
         $this->DISTINCT = 'DISTINCT';
+        return $this;
+    }
+
+    public function getWhereBindings(): array
+    {
+        return $this->whereBindings;
+    }
+
+    /**
+     * Lock for update (SELECT ... FOR UPDATE)
+     */
+    public function lockForUpdate(): self
+    {
+        $this->lockMode = 'FOR UPDATE';
+        return $this;
+    }
+
+    /**
+     * Lock in share mode (SELECT ... LOCK IN SHARE MODE)
+     */
+    public function sharedLock(): self
+    {
+        $this->lockMode = 'LOCK IN SHARE MODE';
         return $this;
     }
 
@@ -308,6 +496,25 @@ trait QueryBuilder
         return ' ' . implode(' ', $this->joins);
     }
 
+    /**
+     * Build das unions
+     */
+    protected function buildUnions(): string
+    {
+        if (empty($this->unions)) {
+            return '';
+        }
+        return ' ' . implode(' ', $this->unions);
+    }
+
+    /**
+     * Build do lock mode
+     */
+    protected function buildLock(): string
+    {
+        return $this->lockMode ? ' ' . $this->lockMode : '';
+    }
+
     protected function resetBuilder(): self
     {
         $this->where = null;
@@ -325,6 +532,8 @@ trait QueryBuilder
         $this->selectColumns = [];
         $this->joins = [];
         $this->jsonDecodeColumns = [];
+        $this->lockMode = null;
+        $this->unions = [];
 
         return $this;
     }
@@ -357,5 +566,19 @@ trait QueryBuilder
     {
         $column = $this->validateIdentifier($column);
         $this->Insert_Update[$column] = $value;
+    }
+
+    /**
+     * Envolve um identificador de coluna com backticks corretamente,
+     * respeitando o formato alias.coluna (ex: s.EXCLUIDO → s.`EXCLUIDO`).
+     */
+    protected function wrapColumn(string $column): string
+    {
+        if (str_contains($column, '.')) {
+            [$alias, $col] = explode('.', $column, 2);
+            return "{$alias}.`{$col}`";
+        }
+
+        return "`{$column}`";
     }
 }

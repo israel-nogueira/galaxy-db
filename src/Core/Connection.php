@@ -12,6 +12,37 @@ trait Connection
 {
     protected ?PDO $connection = null;
     private static array $connectionPool = [];
+    private static array $connectionTimestamps = [];
+    private static int $maxPoolSize = 10;
+    private static int $connectionTTL = 3600; // 1 hora
+    public static ?string $dbaseType = null;
+
+    /**
+     * Limpa conexões antigas ou excedentes do pool
+     */
+    private static function cleanupPool(): void
+    {
+        $now = time();
+        
+        // Remove conexões expiradas
+        foreach (self::$connectionTimestamps as $key => $timestamp) {
+            if (($now - $timestamp) > self::$connectionTTL) {
+                unset(self::$connectionPool[$key]);
+                unset(self::$connectionTimestamps[$key]);
+            }
+        }
+        
+        // Limita tamanho do pool
+        if (count(self::$connectionPool) > self::$maxPoolSize) {
+            $keys = array_keys(self::$connectionPool);
+            $toRemove = count(self::$connectionPool) - self::$maxPoolSize;
+            
+            for ($i = 0; $i < $toRemove; $i++) {
+                unset(self::$connectionPool[$keys[$i]]);
+                unset(self::$connectionTimestamps[$keys[$i]]);
+            }
+        }
+    }
 
     public static function errorConnection(PDOException $error): never
     {
@@ -21,14 +52,39 @@ trait Connection
         );
     }
 
+    /**
+     * Sanitiza identificador para prevenir injection
+     */
+    private static function sanitizeIdentifier(string $identifier): string
+    {
+        // Remove caracteres perigosos, mantém apenas letras, números, underscore, ponto e hífen
+        return preg_replace('/[^a-zA-Z0-9_\.\-]/', '', $identifier);
+    }
+
     public static function connect(array $db = []): PDO
     {
+        // Limpa pool antes de criar nova conexão
+        self::cleanupPool();
+        
         $connectionKey = md5(serialize($db));
         
+        // Reutiliza conexão existente
         if (isset(self::$connectionPool[$connectionKey])) {
-            return self::$connectionPool[$connectionKey];
+            // Atualiza timestamp
+            self::$connectionTimestamps[$connectionKey] = time();
+            
+            // Verifica se conexão ainda está ativa
+            try {
+                self::$connectionPool[$connectionKey]->query('SELECT 1');
+                return self::$connectionPool[$connectionKey];
+            } catch (PDOException $e) {
+                // Conexão morta, remove do pool
+                unset(self::$connectionPool[$connectionKey]);
+                unset(self::$connectionTimestamps[$connectionKey]);
+            }
         }
 
+        // Sanitiza valores de configuração
         $user = $db['DB_USERNAME'] ?? getEnv('DB_USERNAME');
         $type = $db['DB_TYPE']     ?? getEnv('DB_TYPE');
         $pass = $db['DB_PASSWORD'] ?? getEnv('DB_PASSWORD');
@@ -36,12 +92,24 @@ trait Connection
         $host = $db['DB_HOST']     ?? getEnv('DB_HOST');
         $port = $db['DB_PORT']     ?? getEnv('DB_PORT');
         
-        // Garante que char seja string ou null
+        // Sanitiza porta
+        if ($port !== null) {
+            $port = preg_replace('/[^0-9]/', '', (string) $port);
+            $port = $port ?: null;
+        }
+        
         $char = $db['DB_CHAR'] ?? getEnv('DB_CHAR');
         $char = ($char === false || $char === '' || $char === null) ? null : (string) $char;
+        $char = $char ? self::sanitizeIdentifier($char) : null;
         
-        $flow = $db['DB_FLOW']     ?? getEnv('DB_FLOW');
-        $fkey = $db['DB_FKEY']     ?? getEnv('DB_FKEY');
+        $flow = $db['DB_FLOW'] ?? getEnv('DB_FLOW');
+        $fkey = $db['DB_FKEY'] ?? getEnv('DB_FKEY');
+
+        // Valida tipo de banco
+        $supportedTypes = ['pgsql', 'mysql', 'mysqli', 'sqlite', 'ibase', 'fbird', 'oracle', 'mssql', 'dblib', 'sqlsrv'];
+        if (!in_array($type, $supportedTypes)) {
+            throw new Exception("Driver não suportado: {$type}");
+        }
 
         $conn = match ($type) {
             'pgsql'  => self::connectPostgreSQL($host, $port, $name, $user, $pass, $char),
@@ -63,7 +131,9 @@ trait Connection
             $conn->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
         }
 
+        // Armazena no pool
         self::$connectionPool[$connectionKey] = $conn;
+        self::$connectionTimestamps[$connectionKey] = time();
         self::$dbaseType = $type;
 
         return $conn;
@@ -78,6 +148,9 @@ trait Connection
         ?string $char
     ): PDO {
         $port = $port ?: '5432';
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
         
         try {
             $conn = new PDO(
@@ -85,7 +158,8 @@ trait Connection
             );
 
             if (!empty($char)) {
-                $conn->exec("SET CLIENT_ENCODING TO '{$char}';");
+                $safeChar = self::sanitizeIdentifier($char);
+                $conn->exec("SET CLIENT_ENCODING TO '{$safeChar}';");
             }
 
             return $conn;
@@ -103,15 +177,20 @@ trait Connection
         ?string $char
     ): PDO {
         $port = $port ?: '3306';
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
         
         try {
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ];
             
-            if ($char !== 'ISO') {
-                $options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8mb4";
+            if ($char !== 'ISO' && $char !== null) {
+                $safeChar = self::sanitizeIdentifier($char);
+                $options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES {$safeChar}";
             }
 
             return new PDO(
@@ -127,6 +206,10 @@ trait Connection
 
     private static function connectSQLite(string $name, ?string $fkey): PDO
     {
+        // Sanitiza caminho do SQLite
+        $name = str_replace(['..', '\\'], ['', '/'], $name);
+        $name = preg_replace('/[^a-zA-Z0-9_\/\.\-]/', '', $name);
+        
         try {
             $conn = new PDO("sqlite:{$name}");
 
@@ -148,8 +231,12 @@ trait Connection
         string $pass,
         ?string $char
     ): PDO {
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
+        
         $dbString = empty($port) ? "{$host}:{$name}" : "{$host}/{$port}:{$name}";
-        $charset = $char ? ";charset={$char}" : '';
+        $charset = $char ? ";charset=" . self::sanitizeIdentifier($char) : '';
 
         try {
             return new PDO("firebird:dbname={$dbString}{$charset}", $user, $pass);
@@ -168,8 +255,12 @@ trait Connection
         array $db
     ): PDO {
         $port = $port ?: '1521';
-        $charset = $char ? ";charset={$char}" : '';
-        $tns = $db['tns'] ?? null;
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
+        
+        $charset = $char ? ";charset=" . self::sanitizeIdentifier($char) : '';
+        $tns = isset($db['tns']) ? self::sanitizeIdentifier($db['tns']) : null;
 
         try {
             $dsn = $tns 
@@ -179,13 +270,16 @@ trait Connection
             $conn = new PDO($dsn, $user, $pass);
 
             if (isset($db['date'])) {
-                $conn->query("ALTER SESSION SET NLS_DATE_FORMAT = '{$db['date']}'");
+                $safeDate = self::sanitizeIdentifier($db['date']);
+                $conn->query("ALTER SESSION SET NLS_DATE_FORMAT = '{$safeDate}'");
             }
             if (isset($db['time'])) {
-                $conn->query("ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '{$db['time']}'");
+                $safeTime = self::sanitizeIdentifier($db['time']);
+                $conn->query("ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '{$safeTime}'");
             }
             if (isset($db['nsep'])) {
-                $conn->query("ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '{$db['nsep']}'");
+                $safeNsep = self::sanitizeIdentifier($db['nsep']);
+                $conn->query("ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '{$safeNsep}'");
             }
 
             return $conn;
@@ -202,13 +296,17 @@ trait Connection
         string $pass,
         ?string $char
     ): PDO {
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
+        
         try {
             if (PHP_OS === 'WIN') {
                 $dsn = $port 
                     ? "sqlsrv:Server={$host},{$port};Database={$name}"
                     : "sqlsrv:Server={$host};Database={$name}";
             } else {
-                $charset = $char ? ";charset={$char}" : '';
+                $charset = $char ? ";charset=" . self::sanitizeIdentifier($char) : '';
                 $dsn = $port
                     ? "dblib:host={$host}:{$port};dbname={$name}{$charset}"
                     : "dblib:host={$host};dbname={$name}{$charset}";
@@ -228,7 +326,11 @@ trait Connection
         string $pass,
         ?string $char
     ): PDO {
-        $charset = $char ? ";charset={$char}" : '';
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
+        
+        $charset = $char ? ";charset=" . self::sanitizeIdentifier($char) : '';
 
         try {
             $dsn = $port
@@ -248,6 +350,10 @@ trait Connection
         string $user,
         string $pass
     ): PDO {
+        $host = self::sanitizeIdentifier($host);
+        $name = self::sanitizeIdentifier($name);
+        $user = self::sanitizeIdentifier($user);
+        
         try {
             $dsn = $port
                 ? "sqlsrv:Server={$host},{$port};Database={$name}"
@@ -259,6 +365,9 @@ trait Connection
         }
     }
 
+    /**
+     * Valida identificador de tabela/coluna
+     */
     protected function validateIdentifier(string $identifier): string
     {
         // Permite aliases: "USUARIOS US" ou "USUARIOS AS US"
@@ -274,6 +383,9 @@ trait Connection
         throw new Exception("Identificador inválido: {$identifier}");
     }
 
+    /**
+     * Formata nome de tabela com segurança
+     */
     protected function formatTableName(string $table): string
     {
         // Se começa com parêntese, é subquery - retorna sem validar
@@ -296,5 +408,58 @@ trait Connection
     public function getConnection(): PDO
     {
         return $this->connection;
+    }
+
+    /**
+     * Define tamanho máximo do pool de conexões
+     */
+    public static function setMaxPoolSize(int $size): void
+    {
+        self::$maxPoolSize = max(1, $size);
+    }
+
+    /**
+     * Define TTL das conexões em segundos
+     */
+    public static function setConnectionTTL(int $seconds): void
+    {
+        self::$connectionTTL = max(60, $seconds);
+    }
+
+    /**
+     * Fecha todas as conexões do pool
+     */
+    public static function closeAllConnections(): void
+    {
+        foreach (self::$connectionPool as $conn) {
+            $conn = null;
+        }
+        self::$connectionPool = [];
+        self::$connectionTimestamps = [];
+    }
+
+    /**
+     * Obtém estatísticas do pool de conexões
+     * 
+     * @return array
+     */
+    public static function getPoolStats(): array
+    {
+        return [
+            'active_connections' => count(self::$connectionPool),
+            'max_pool_size' => self::$maxPoolSize,
+            'connection_ttl' => self::$connectionTTL,
+            'connections' => array_keys(self::$connectionPool)
+        ];
+    }
+
+    /**
+     * Obtém o tipo do banco de dados
+     * 
+     * @return string|null
+     */
+    public static function getDatabaseType(): ?string
+    {
+        return self::$dbaseType;
     }
 }
