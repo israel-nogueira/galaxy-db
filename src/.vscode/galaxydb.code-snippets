@@ -1,0 +1,326 @@
+{
+	// =========================================================
+	// GalaxyDB Snippets - Hierárquicos
+	// =========================================================
+	// Uso: digite "galaxy." para ver todos agrupados
+	//
+	// galaxy.select
+	// galaxy.select.join
+	// galaxy.select.first
+	// galaxy.select.modern
+	// galaxy.insert
+	// galaxy.insert.batch
+	// galaxy.insert.duplicate
+	// galaxy.update
+	// galaxy.update.or-insert
+	// galaxy.delete
+	// galaxy.where.in
+	// galaxy.where.between
+	// galaxy.where.like
+	// galaxy.where.null
+	// galaxy.where.not-null
+	// galaxy.where.or
+	// galaxy.order
+	// galaxy.limit
+	// galaxy.group
+	// galaxy.raw
+	// galaxy.transaction
+	// galaxy.debug
+	// =========================================================
+
+
+	// ---------------------------------------------------------
+	// SELECT
+	// ---------------------------------------------------------
+	"galaxy.select": {
+		"prefix": "galaxy.select",
+		"description": "GalaxyDB → SELECT completo",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->colum(\"${3:*}\");",
+			"\\$${1:db}->where('${4:coluna}', ${5:valor});",
+			"\\$${1:db}->prepare_select('${6:param}');",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"\\$_RESULT = \\$${1:db}->fetch_array('${6:param}');",
+			"$0"
+		]
+	},
+
+	"galaxy.select.join": {
+		"prefix": "galaxy.select.join",
+		"description": "GalaxyDB → SELECT com JOIN",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA} AS ${3:T1}\");",
+			"\\$${1:db}->colum(\"${3:T1}.*\");",
+			"\\$${1:db}->join('${4|INNER,LEFT,RIGHT|}', '${5:TABELA2} AS ${6:T2}', '${6:T2}.${7:ID} = ${3:T1}.${8:FK}');",
+			"\\$${1:db}->where('${9:coluna}', ${10:valor});",
+			"\\$${1:db}->prepare_select('${11:param}');",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"\\$_RESULT = \\$${1:db}->fetch_array('${11:param}');",
+			"$0"
+		]
+	},
+
+	"galaxy.select.first": {
+		"prefix": "galaxy.select.first",
+		"description": "GalaxyDB → SELECT primeiro registro",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->where('${3:coluna}', ${4:valor});",
+			"\\$_RESULT = \\$${1:db}->first();",
+			"$0"
+		]
+	},
+
+	"galaxy.select.modern": {
+		"prefix": "galaxy.select.modern",
+		"description": "GalaxyDB → SELECT moderno sem prepare",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->where('${3:coluna}', ${4:valor});",
+			"\\$_RESULT = \\$${1:db}->select();",
+			"$0"
+		]
+	},
+
+	// ---------------------------------------------------------
+	// INSERT
+	// ---------------------------------------------------------
+	"galaxy.insert": {
+		"prefix": "galaxy.insert",
+		"description": "GalaxyDB → INSERT completo",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->${3:COLUNA} = ${4:valor};",
+			"\\$${1:db}->prepare_insert('${5:param}');",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"\\$_ID = \\$${1:db}->_last_id['${5:param}'];",
+			"$0"
+		]
+	},
+
+	"galaxy.insert.batch": {
+		"prefix": "galaxy.insert.batch",
+		"description": "GalaxyDB → INSERT em lote",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->insertBatch([",
+			"\t['${3:coluna}' => ${4:valor1}],",
+			"\t['${3:coluna}' => ${5:valor2}],",
+			"]);",
+			"$0"
+		]
+	},
+
+	"galaxy.insert.duplicate": {
+		"prefix": "galaxy.insert.duplicate",
+		"description": "GalaxyDB → INSERT ON DUPLICATE KEY UPDATE",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->${3:COLUNA} = ${4:valor};",
+			"\\$${1:db}->on_duplicate();",
+			"\\$${1:db}->prepare_insert('${5:param}');",
+			"\\$${1:db}->clear();",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"$0"
+		]
+	},
+
+	// ---------------------------------------------------------
+	// UPDATE
+	// ---------------------------------------------------------
+	"galaxy.update": {
+		"prefix": "galaxy.update",
+		"description": "GalaxyDB → UPDATE completo",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->${3:COLUNA} = ${4:valor};",
+			"\\$${1:db}->where('${5:coluna}', ${6:valor});",
+			"\\$${1:db}->prepare_update('${7:param}');",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"\\$_AFFECTED = \\$${1:db}->_num_rows['${7:param}'];",
+			"$0"
+		]
+	},
+
+	"galaxy.update.or-insert": {
+		"prefix": "galaxy.update.or-insert",
+		"description": "GalaxyDB → UPDATE ou INSERT (upsert)",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->${3:COLUNA} = ${4:valor};",
+			"\\$${1:db}->where('${5:coluna}', ${6:valor});",
+			"\\$${1:db}->on_duplicate();",
+			"\\$${1:db}->prepare_insert('${7:param}');",
+			"\\$${1:db}->clear();",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"$0"
+		]
+	},
+
+	// ---------------------------------------------------------
+	// DELETE
+	// ---------------------------------------------------------
+	"galaxy.delete": {
+		"prefix": "galaxy.delete",
+		"description": "GalaxyDB → DELETE completo",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$${1:db}->table(\"${2:TABELA}\");",
+			"\\$${1:db}->where('${5:coluna}', ${6:valor});",
+			"\\$${1:db}->prepare_delete('${7:param}');",
+			"\\$${1:db}->transaction(function(\\$error) { die(\\$error); });",
+			"\\$${1:db}->execQuery(function(\\$success) {});",
+			"\\$_AFFECTED = \\$${1:db}->_num_rows['${7:param}'];",
+			"$0"
+		]
+	},
+
+	// ---------------------------------------------------------
+	// WHERE helpers
+	// ---------------------------------------------------------
+	"galaxy.where.in": {
+		"prefix": "galaxy.where.in",
+		"description": "GalaxyDB → WHERE IN",
+		"body": [
+			"\\$${1:db}->whereIn('${2:coluna}', [${3:valor1, valor2}]);",
+			"$0"
+		]
+	},
+
+	"galaxy.where.between": {
+		"prefix": "galaxy.where.between",
+		"description": "GalaxyDB → WHERE BETWEEN",
+		"body": [
+			"\\$${1:db}->whereBetween('${2:coluna}', ${3:min}, ${4:max});",
+			"$0"
+		]
+	},
+
+	"galaxy.where.like": {
+		"prefix": "galaxy.where.like",
+		"description": "GalaxyDB → WHERE LIKE",
+		"body": [
+			"\\$${1:db}->whereLike('${2:coluna}', '%${3:valor}%');",
+			"$0"
+		]
+	},
+
+	"galaxy.where.null": {
+		"prefix": "galaxy.where.null",
+		"description": "GalaxyDB → WHERE IS NULL",
+		"body": [
+			"\\$${1:db}->whereNull('${2:coluna}');",
+			"$0"
+		]
+	},
+
+	"galaxy.where.not-null": {
+		"prefix": "galaxy.where.not-null",
+		"description": "GalaxyDB → WHERE IS NOT NULL",
+		"body": [
+			"\\$${1:db}->whereNotNull('${2:coluna}');",
+			"$0"
+		]
+	},
+
+	"galaxy.where.or": {
+		"prefix": "galaxy.where.or",
+		"description": "GalaxyDB → OR WHERE",
+		"body": [
+			"\\$${1:db}->orWhere('${2:coluna}', ${3:valor});",
+			"$0"
+		]
+	},
+
+	// ---------------------------------------------------------
+	// UTILITÁRIOS
+	// ---------------------------------------------------------
+	"galaxy.order": {
+		"prefix": "galaxy.order",
+		"description": "GalaxyDB → ORDER BY",
+		"body": [
+			"\\$${1:db}->orderBy('${2:coluna}', '${3|ASC,DESC|}');",
+			"$0"
+		]
+	},
+
+	"galaxy.limit": {
+		"prefix": "galaxy.limit",
+		"description": "GalaxyDB → LIMIT com offset",
+		"body": [
+			"\\$${1:db}->limit(${2:10}, ${3:0});",
+			"$0"
+		]
+	},
+
+	"galaxy.group": {
+		"prefix": "galaxy.group",
+		"description": "GalaxyDB → GROUP BY",
+		"body": [
+			"\\$${1:db}->groupBy('${2:coluna}');",
+			"$0"
+		]
+	},
+
+	"galaxy.raw": {
+		"prefix": "galaxy.raw",
+		"description": "GalaxyDB → Query SQL raw",
+		"body": [
+			"\\$${1:db} = new galaxyDB();",
+			"\\$${1:db}->connect();",
+			"\\$_RESULT = \\$${1:db}->query(\"${2:SELECT * FROM tabela WHERE id = :id}\", [':id' => ${3:1}]);",
+			"$0"
+		]
+	},
+
+	"galaxy.transaction": {
+		"prefix": "galaxy.transaction",
+		"description": "GalaxyDB → Transaction manual begin/commit/rollback",
+		"body": [
+			"\\$${1:db}->beginTransaction();",
+			"try {",
+			"\t${2:// queries aqui}",
+			"\t\\$${1:db}->commit();",
+			"} catch (\\Exception \\$e) {",
+			"\t\\$${1:db}->rollback();",
+			"\tthrow \\$e;",
+			"}",
+			"$0"
+		]
+	},
+
+	"galaxy.debug": {
+		"prefix": "galaxy.debug",
+		"description": "GalaxyDB → Ativar debug",
+		"body": [
+			"\\$${1:db}->setDebug(true);",
+			"$0"
+		]
+	}
+}
